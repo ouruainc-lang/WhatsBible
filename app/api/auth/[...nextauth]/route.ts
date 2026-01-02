@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
             from: process.env.EMAIL_FROM,
             sendVerificationRequest: async ({ identifier, url, provider }) => {
                 // In dev mode or if host is example.com, just log it.
-                if (process.env.NODE_ENV === 'development' || provider.server.host === 'smtp.example.com') {
+                if (process.env.NODE_ENV === 'development' || (provider.server as any).host === 'smtp.example.com') {
                     console.log("----------------------------------------------");
                     console.log(`✨ Magic Link for ${identifier}: ${url}`);
                     console.log("----------------------------------------------");
