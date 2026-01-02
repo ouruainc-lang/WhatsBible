@@ -1,0 +1,41 @@
+# Database (Supabase)
+# FIX for P1001: connection timeout/unreachable (IPv6 issue).
+# We separate DATABASE_URL (App - Pooler) and DIRECT_URL (Migrations).
+
+# 1. DATABASE_URL: Use Port 6543 (Supabase Pooler).
+# Try this first. It solves the IPv6 issue on Vercel.
+# Note: Password encoded '%40'
+DATABASE_URL="postgresql://postgres:Lolred%401507361@db.ifsgibnnsnnjypdfodvt.supabase.co:6543/postgres?pgbouncer=true"
+
+# 2. DIRECT_URL: Use Port 5432 (Direct). 
+# Used for migrations. If this fails, use the 6543 URL here too (Mode: Session).
+DIRECT_URL="postgresql://postgres:Lolred%401507361@db.ifsgibnnsnnjypdfodvt.supabase.co:5432/postgres"
+
+# Authentication (NextAuth)
+NEXTAUTH_URL="https://whatsbible.vercel.app" 
+NEXTAUTH_SECRET="Vi17WXA3AkGNba0XxpzoQOV1NqEiWd4DpoCG5lT6Q9M="
+
+# Stripe (Payments)
+STRIPE_SECRET_KEY="sk_test_... (GET FROM USER REQUEST)"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_51Sl38sA8SVoD2AVqZjC71e4npLeUQeVhw2aTcrlXnyVc6eom1tTv7m76GL1Vkni2ak6kIzrQEclwReS6gKpPv9GV004ppwZcuG"
+STRIPE_WEBHOOK_SECRET="" # Add this after successful deploy!
+
+# Custom Price IDs
+STRIPE_PRICE_ID_MONTHLY="price_1Sl3A4A8SVoD2AVqsESgszC5"
+STRIPE_PRICE_ID_YEARLY="price_1Sl3B4A8SVoD2AVq5GgHiiiD"
+
+# WhatsApp (Meta Cloud API)
+WHATSAPP_ACCESS_TOKEN="EAAVbIdvTGXABQRe2ZC0PNKkJdapcEUL8HawZBZCIpOeTXJSSLtQGNdpietUHRYLryKMidLme020RbL2ygOORYS1mW7QTlZAInttdgdIttkTq06q4gHftvVZAYZBREmdQ2nFxUdqTOiUkDzQyDsCRSHBT6s19sSaZBQ9iimVNRVB6suguGPRrlFDyOZB3CpqsJJmgFtp7Iakc01Q8wxxZCt3bVAkjQzAAi63EVvEkm7oIkQuX1EPCtGFZCRxIxNyzTxIPN3hGZBW8sBjwMCh6GW6QbbO6gZDZD"
+WHATSAPP_PHONE_NUMBER_ID="929815853552654"
+WHATSAPP_BUSINESS_ACCOUNT_ID="1526120545309280"
+WHATSAPP_VERIFY_TOKEN="e882832a050e847a1b56f73ba48b362f"
+
+# Email (Resend)
+EMAIL_SERVER_HOST="smtp.resend.com"
+EMAIL_SERVER_PORT="465"
+EMAIL_SERVER_USER="resend"
+EMAIL_SERVER_PASSWORD="re_5ASCpPPj_N5htFJ7KQi8XK9NDdAU7jj8R"
+EMAIL_FROM="onboarding@resend.dev"
+
+# Cron Job Security
+CRON_SECRET="QOHmcv+4Z9DeCo1dQD8nxYqV+RIfEd8HrcchqW3iVQU="
