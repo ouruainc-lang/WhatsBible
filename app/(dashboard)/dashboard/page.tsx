@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { UserSettingsForm } from "@/components/UserSettingsForm";
+import { SubscriptionButton } from "@/components/SubscriptionButton";
 import { BookOpen, CreditCard } from "lucide-react";
 
 export default async function Dashboard() {
@@ -55,8 +56,8 @@ export default async function Dashboard() {
                             <div>
                                 <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-1">Current Status</p>
                                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${user.subscriptionStatus === 'active'
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-gray-100 text-gray-700'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-gray-100 text-gray-700'
                                     }`}>
                                     <span className="capitalize mr-2">{user.subscriptionStatus}</span>
                                     {user.subscriptionStatus === 'active' && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
@@ -67,9 +68,9 @@ export default async function Dashboard() {
                                 <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
                                     <h4 className="font-bold text-amber-900 mb-2">Unlock Full Access</h4>
                                     <p className="text-sm text-amber-800/80 mb-4">Subscribe to start receiving your daily spiritual nourishment.</p>
-                                    <button className="w-full bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-amber-700 transition-colors shadow-sm">
-                                        Subscribe ($4.99/mo)
-                                    </button>
+                                    <SubscriptionButton
+                                        priceId={process.env.STRIPE_PRICE_ID_MONTHLY || ""}
+                                    />
                                 </div>
                             )}
 
