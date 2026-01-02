@@ -20,54 +20,54 @@ export async function POST(req: Request) {
         return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
     }
 
-    const session = event.data.object as Stripe.Checkout.Session;
-
     if (event.type === "checkout.session.completed") {
-        const subscription = await stripe.subscriptions.retrieve(
-            session.subscription as string
-        );
+        const session = event.data.object as Stripe.Checkout.Session;
 
         if (!session?.metadata?.userId) {
             return new NextResponse("User id is required", { status: 400 });
         }
 
-        await prisma.user.update({
-            where: {
-                id: session.metadata.userId,
-            },
-            data: {
-                stripeSubscriptionId: subscription.id,
-                stripeCustomerId: subscription.customer as string,
-                // subscriptionStatus: "active", // Logic depends on payment_status?
-                // Actually better to rely on `customer.subscription.created` or `updated`
-                // But checkout.session.completed is good for initial link.
-                // We will wait for `invoice.payment_succeeded` or `customer.subscription.updated` for status.
-                // But for immediate feedback, we can set it.
-                subscriptionStatus: "active",
-            },
-        });
+        // If it's a subscription mode checkout
+        if (session.mode === "subscription" && session.subscription) {
+            const subscriptionId = session.subscription as string;
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+            await prisma.user.update({
+                where: {
+                    id: session.metadata.userId,
+                },
+                data: {
+                    stripeSubscriptionId: subscription.id,
+                    stripeCustomerId: subscription.customer as string,
+                    subscriptionStatus: "active",
+                },
+            });
+        }
     }
 
     if (event.type === "invoice.payment_succeeded") {
-        const subscription = await stripe.subscriptions.retrieve(
-            session.subscription as string
-        );
+        const invoice = event.data.object as any;
 
-        await prisma.user.update({
-            where: {
-                stripeSubscriptionId: subscription.id,
-            },
-            data: {
-                subscriptionStatus: "active",
-                // trialStartDate: ... if trial
-            },
-        });
+        // Only handle subscription invoices
+        if (invoice.subscription) {
+            const subscriptionId = typeof invoice.subscription === 'string'
+                ? invoice.subscription
+                : invoice.subscription.id;
+
+            await prisma.user.updateMany({
+                where: {
+                    stripeSubscriptionId: subscriptionId,
+                },
+                data: {
+                    subscriptionStatus: "active",
+                },
+            });
+        }
     }
 
     if (event.type === "customer.subscription.updated") {
         const subscription = event.data.object as Stripe.Subscription;
-        // Handle status changes (active, past_due, canceled)
-        await prisma.user.update({
+        await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
             data: { subscriptionStatus: subscription.status }
         })
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
 
     if (event.type === "customer.subscription.deleted") {
         const subscription = event.data.object as Stripe.Subscription;
-        await prisma.user.update({
+        await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
             data: { subscriptionStatus: "canceled" }
         })
