@@ -1,61 +1,44 @@
-const GRAPH_API_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-const BUSINESS_ACCOUNT_ID = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+import twilio from 'twilio';
 
-// Helper to send a Raw Text message (Only works if 24h window is open)
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+const client = twilio(accountSid, authToken);
+
+// Send plain text message (Session Message)
+// Twilio treats this as a free-form message.
+// Constraint: 24h window still applies generally.
 export async function sendWhatsAppMessage(to: string, body: string) {
-    // Ensure number has no '+' and no spaces, assuming simple cleanup for now
-    const cleanNumber = to.replace(/\D/g, '');
-
-    const response = await fetch(`https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${GRAPH_API_TOKEN}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: cleanNumber,
-            type: 'text',
-            text: { preview_url: false, body: body }
-        })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-        console.error('Meta API Error (Text):', data);
-        throw new Error(data.error?.message || 'Failed to send WhatsApp message');
+    if (!accountSid || !authToken || !fromNumber) {
+        throw new Error("Missing Twilio credentials");
     }
-    return data;
+
+    // Twilio expects "whatsapp:+1234567890"
+    // Ensure 'to' has + but no spaces/dashes, then prepend whatsapp:
+    // If input is "+12345", format to "whatsapp:+12345"
+    const cleanNumber = to.replace(/[^\d+]/g, '');
+    const recipient = `whatsapp:${cleanNumber}`;
+    const sender = `whatsapp:${fromNumber}`;
+
+    try {
+        const message = await client.messages.create({
+            body: body,
+            from: sender,
+            to: recipient
+        });
+        console.log(`[TWILIO] Message sent: ${message.sid}`);
+        return message;
+    } catch (error: any) {
+        console.error('[TWILIO] Error sending message:', error);
+        throw new Error(error.message || 'Twilio Send Failed');
+    }
 }
 
-// Helper to send a Template message (Required for Cron/Initiating convo)
-export async function sendWhatsAppTemplate(to: string, templateName: string, languageCode: string = "en_US", components: any[] = []) {
-    const cleanNumber = to.replace(/\D/g, '');
-
-    const response = await fetch(`https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${GRAPH_API_TOKEN}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: cleanNumber,
-            type: 'template',
-            template: {
-                name: templateName,
-                language: { code: languageCode },
-                components: components
-            }
-        })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-        console.error('Meta API Error (Template):', data);
-        throw new Error(data.error?.message || 'Failed to send WhatsApp template');
-    }
-    return data;
+// Send Template Message
+// Twilio API for templates is essentially the same messages.create call
+// BUT the 'body' must MATCH the approved template text exactly, OR use contentSid (New API).
+// For simplicity, if using the "text match" method:
+export async function sendWhatsAppTemplate(to: string, templateBody: string) {
+    return sendWhatsAppMessage(to, templateBody);
 }

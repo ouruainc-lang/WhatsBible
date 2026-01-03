@@ -64,42 +64,19 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
 
 ---
 
-## Phase 5: Messaging (Meta Cloud API)
+## Phase 5: Messaging (Twilio WhatsApp)
 
-1.  Log in to [Meta for Developers](https://developers.facebook.com/).
-2.  **Create App**:
-    *   Click "My Apps" -> "Create App".
-    *   Select **Business** type.
-    *   Details: Name "WhatsBible", Email, Business Account.
-3.  **Add Product**:
-    *   Scroll to "WhatsApp" and click **Set up**.
-4.  **Get Credentials (Test)**:
-    *   Go to **WhatsApp** -> **API Setup**.
-    *   Copy **Temporary Access Token** (Good for 24h).
-    *   *For Production*: You need to create a "System User" in Business Manager to get a Permanent Token.
-    *   Copy **Phone Number ID**.
-    *   Copy **WhatsApp Business Account ID**.
-5.  **Test Number**:
-    *   Meta gives you a free "Test Number".
-    *   **CRITICAL**: You must add your own phone number to the "Recipient Phone Numbers" list on this page and verify it via OTP code. You can only send messages to verified numbers until you go Live.
-6.  **Direct Text (Test Phase Override)**:
-    *   If you skip templates for testing, you are using **Direct Messages**.
-    *   **CRITICAL**: Meta blocks business-initiated direct messages unless the user has messaged the bot in the last 24 hours.
-    *   **Action**: Before testing Cron/delivery, send a "Hello" message from your phone to the Test Number.
-
-7.  **Create Template** (Required for Production):
-    *   Go to "WhatsApp Manager" -> "Account Tools" -> "Message Templates".
-    *   Create a template named `daily_message`.
-    *   Category: **Marketing**.
-    *   Language: **English (US)**.
-    *   **Header**: Select **Text**. Enter: `Daily Grace`.
-    *   Body: `Here is your Daily Grace:`
-        `{{1}}`
-        `Blessings, WhatsBible Team`
-        *(Note: Meta requires variables to be 'sandwiched' by text. You cannot start or end with a variable).*
-    *   **Sample Content**: You MUST click "Add Sample" for the `{{1}}` variable.
-    *   Paste this: `John 3:16 - For God so loved the world...`
-    *   Submit (Auto-approval is usually instant).
+1.  Log in to [Twilio Console](https://console.twilio.com/).
+2.  **Get Credentials**:
+    *   Copy **Account SID**.
+    *   Copy **Auth Token**.
+3.  **Setup Sandbox (Test)**:
+    *   Go to Messaging -> Try it out -> Send a WhatsApp message.
+    *   Activate your sandbox number.
+    *   **CRITICAL**: You must send the "join code" (e.g., `join something-word`) from your phone to the Sandbox Number. This authorizes the bot to message you (24h window).
+4.  **Production (Optional)**:
+    *   Once your business profile is approved, you can use a distinct Sender ID.
+    *   For testing/MVP, the Sandbox is sufficient.
 
 ---
 
@@ -120,10 +97,9 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
     | `STRIPE_SECRET_KEY` | Stripe Secret Key (Phase 4) |
     | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Publishable Key (Phase 4) |
     | `STRIPE_WEBHOOK_SECRET` | *Leave empty for now, see Phase 7* |
-    | `WHATSAPP_ACCESS_TOKEN` | Meta Cloud API Permanent Access Token (Phase 5) |
-    | `WHATSAPP_PHONE_NUMBER_ID` | Meta Cloud API Phone Number ID (Phase 5) |
-    | `WHATSAPP_BUSINESS_ACCOUNT_ID` | Meta Cloud API Business Account ID (Phase 5) |
-    | `WHATSAPP_VERIFY_TOKEN` | A random string for webhook verification (Phase 5) |
+    | `TWILIO_ACCOUNT_SID` | Twilio Console (Phase 5) |
+    | `TWILIO_AUTH_TOKEN` | Twilio Console (Phase 5) |
+    | `TWILIO_PHONE_NUMBER` | Sandbox Number (e.g. `+14155238886`) |
     | `EMAIL_SERVER_HOST` | `smtp.resend.com` |
     | `EMAIL_SERVER_PORT` | `465` |
     | `EMAIL_SERVER_USER` | `resend` |
@@ -159,13 +135,9 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
     *   Add `STRIPE_WEBHOOK_SECRET` with this value.
     *   Redeploy for it to take effect.
 
-3.  **Twilio Webhook**:
-    * ### Meta WhatsApp (Cloud API)
-1. Go to [developers.facebook.com](https://developers.facebook.com/) -> My Apps -> Select App -> WhatsApp -> Configuration.
-2. **Callback URL**: `https://your-project.vercel.app/api/whatsapp/webhook`
-3. **Verify Token**: `my-random-verify-token` (Match this with `WHATSAPP_VERIFY_TOKEN` in env).
-4. Click **Verify and Save**.
-5. Click **Manage** (Webhooks fields) -> Subscribe to `messages`.
+3.  **Twilio Webhook (Optional)**:
+    *   For incoming messages (like "STOP"), you can set the webhook in Twilio Console -> Messaging -> Senders -> WhatsApp Settings to:
+    *   `https://your-project.vercel.app/api/whatsapp/webhook`
 
 4.  **Cron Job**:
     *   Go to Vercel Dashboard -> Project -> **Cron Jobs**.
