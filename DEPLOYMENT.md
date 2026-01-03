@@ -149,8 +149,11 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 2.  **Stripe Webhook**:
     *   Go back to [Stripe Webhooks](https://dashboard.stripe.com/webhooks).
     *   Add Endpoint: `https://whatsbible.vercel.app/api/stripe/webhook`
-    *   Select events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.updated`.
-    *   Select events: `checkout.session.completed`, `invoice.payment.succeeded`, `customer.subscription.updated`.
+    *   Select events: 
+        *   `checkout.session.completed`
+        *   `invoice.payment_succeeded`
+        *   `customer.subscription.updated`
+        *   `customer.subscription.deleted` (CRITICAL for cancellations)
     *   **Copy Signing Secret** (`whsec_...`).
     *   Go to Vercel -> Settings -> Environment Variables.
     *   Add `STRIPE_WEBHOOK_SECRET` with this value.
