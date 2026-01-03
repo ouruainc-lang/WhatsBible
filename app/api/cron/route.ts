@@ -139,22 +139,21 @@ export async function GET(req: Request) {
                 // For simplicity MVP: Use one template "daily_grace" with {{1}} as the entire body content.
                 // Note: Templates have char limits (header 60, body 1024). Long readings might be truncated.
 
-                // TEMPORARY OVERRIDE: User requested to test without Templates (due to review delay).
-                // WARNING: This ONLY works if the user has messaged the bot in the last 24 hours.
-                await sendWhatsAppMessage(user.phoneNumber, body);
+                // Twilio Content Template Logic
+                // We use a generic template "daily_grace" with one variable {{1}} for the body.
+                // This allows us to send dynamic long content (up to limits) while being compliant.
 
-                /* 
-                // Template Logic (Restore this once approved)
-                const templateBodyParam = body; 
-                await sendWhatsAppTemplate(user.phoneNumber, "daily_message", "en_US", [
-                    {
-                        type: "body",
-                        parameters: [
-                            { type: "text", text: templateBodyParam }
-                        ]
-                    }
-                ]);
-                */
+                const contentSid = process.env.TWILIO_CONTENT_SID; // New Env Var
+
+                if (contentSid) {
+                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
+                        "1": body
+                    });
+                } else {
+                    // Fallback to direct message (Only works in 24h window or Sandbox)
+                    console.log("[CRON] No Content SID, using direct message fallback.");
+                    await sendWhatsAppMessage(user.phoneNumber, body);
+                }
 
                 // Log
                 await prisma.verseLog.create({

@@ -35,10 +35,28 @@ export async function sendWhatsAppMessage(to: string, body: string) {
     }
 }
 
-// Send Template Message
-// Twilio API for templates is essentially the same messages.create call
-// BUT the 'body' must MATCH the approved template text exactly, OR use contentSid (New API).
-// For simplicity, if using the "text match" method:
-export async function sendWhatsAppTemplate(to: string, templateBody: string) {
-    return sendWhatsAppMessage(to, templateBody);
+// Send Template Message via Twilio Content API
+// Requires a Template created in Twilio Console (Messaging -> Content Template Builder)
+export async function sendWhatsAppTemplate(to: string, contentSid: string, variables: Record<string, string>) {
+    if (!accountSid || !authToken || !fromNumber) {
+        throw new Error("Missing Twilio credentials");
+    }
+
+    const cleanNumber = to.replace(/[^\d+]/g, '');
+    const recipient = `whatsapp:${cleanNumber}`;
+    const sender = `whatsapp:${fromNumber}`;
+
+    try {
+        const message = await client.messages.create({
+            from: sender,
+            to: recipient,
+            contentSid: contentSid,
+            contentVariables: JSON.stringify(variables)
+        });
+        console.log(`[TWILIO] Template sent: ${message.sid}`);
+        return message;
+    } catch (error: any) {
+        console.error('[TWILIO] Error sending template:', error);
+        throw new Error(error.message || 'Twilio Template Failed');
+    }
 }

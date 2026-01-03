@@ -78,6 +78,24 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
     *   Once your business profile is approved, you can use a distinct Sender ID.
     *   For testing/MVP, the Sandbox is sufficient.
 
+## Phase 5.5: Creating Twilio Content Template (Required for Cron)
+
+To send daily messages without the user messaging you first (24h window), you MUST use a Template.
+
+1.  Go to **Twilio Console** -> **Messaging** -> **Content Template Builder**.
+2.  **Create New Template**:
+    *   Name: `daily_grace`
+    *   Select **WhatsApp**.
+    *   Content Type: **Text**.
+    *   Body: `Here is your Daily Grace:`
+        `{{1}}`
+        `Blessings, WhatsBible Team`
+3.  **Save & Submit**:
+    *   It typically gets approved instantly (for test/production).
+4.  **Copy Content SID**:
+    *   It looks like `HXxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
+    *   **Add this to Vercel Environment Variables** as `TWILIO_CONTENT_SID`.
+
 ---
 
 ## Phase 6: Vercel Deployment
@@ -100,6 +118,7 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
     | `TWILIO_ACCOUNT_SID` | Twilio Console (Phase 5) |
     | `TWILIO_AUTH_TOKEN` | Twilio Console (Phase 5) |
     | `TWILIO_PHONE_NUMBER` | Sandbox Number (e.g. `+14155238886`) |
+    | `TWILIO_CONTENT_SID` | Content Template Builder (Phase 5.5) |
     | `EMAIL_SERVER_HOST` | `smtp.resend.com` |
     | `EMAIL_SERVER_PORT` | `465` |
     | `EMAIL_SERVER_USER` | `resend` |
