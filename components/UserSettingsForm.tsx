@@ -70,11 +70,40 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     >
-                        <option value="UTC">UTC</option>
-                        <option value="America/New_York">Eastern Time (US)</option>
-                        <option value="America/Los_Angeles">Pacific Time (US)</option>
-                        <option value="Europe/London">London (UK)</option>
-                        {/* Add more as needed */}
+                        <option value="UTC">UTC (Universal Time)</option>
+
+                        <optgroup label="Popular">
+                            <option value="Asia/Singapore">Singapore / Malaysia (GMT+8)</option>
+                            <option value="America/New_York">Eastern Time - US & Canada (GMT-5)</option>
+                            <option value="America/Los_Angeles">Pacific Time - US & Canada (GMT-8)</option>
+                            <option value="Europe/London">London (GMT+0)</option>
+                        </optgroup>
+
+                        <optgroup label="All Timezones">
+                            <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
+                            <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
+                            <option value="America/Anchorage">(GMT-09:00) Alaska</option>
+                            <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
+                            <option value="America/Denver">(GMT-07:00) Mountain Time (US & Canada)</option>
+                            <option value="America/Chicago">(GMT-06:00) Central Time (US & Canada)</option>
+                            <option value="America/New_York">(GMT-05:00) Eastern Time (US & Canada)</option>
+                            <option value="America/Halifax">(GMT-04:00) Atlantic Time (Canada)</option>
+                            <option value="America/Sao_Paulo">(GMT-03:00) Brasilia</option>
+                            <option value="Atlantic/Azores">(GMT-01:00) Azores</option>
+                            <option value="Europe/London">(GMT+00:00) London, Dublin, Lisbon</option>
+                            <option value="Europe/Paris">(GMT+01:00) Paris, Berlin, Rome, Madrid</option>
+                            <option value="Europe/Istanbul">(GMT+03:00) Istanbul, Moscow</option>
+                            <option value="Asia/Dubai">(GMT+04:00) Dubai, Abu Dhabi</option>
+                            <option value="Asia/Karachi">(GMT+05:00) Islamabad, Karachi</option>
+                            <option value="Asia/Kolkata">(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+                            <option value="Asia/Dhaka">(GMT+06:00) Dhaka, Astana</option>
+                            <option value="Asia/Bangkok">(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
+                            <option value="Asia/Singapore">(GMT+08:00) Kuala Lumpur, Singapore</option>
+                            <option value="Asia/Hong_Kong">(GMT+08:00) Hong Kong, Beijing</option>
+                            <option value="Asia/Tokyo">(GMT+09:00) Osaka, Sapporo, Tokyo</option>
+                            <option value="Australia/Sydney">(GMT+10:00) Canberra, Melbourne, Sydney</option>
+                            <option value="Pacific/Auckland">(GMT+12:00) Auckland, Wellington</option>
+                        </optgroup>
                     </select>
                 </div>
 
