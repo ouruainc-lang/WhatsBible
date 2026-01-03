@@ -70,9 +70,11 @@ export default async function Dashboard() {
                                 )}
                             </div>
 
-                            {user.subscriptionStatus === 'inactive' && (
+                            {(user.subscriptionStatus === 'inactive' || user.subscriptionStatus === 'canceled') && (
                                 <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                                    <h4 className="font-bold text-amber-900 mb-2">Unlock Full Access</h4>
+                                    <h4 className="font-bold text-amber-900 mb-2">
+                                        {user.subscriptionStatus === 'canceled' ? 'Re-subscribe' : 'Unlock Full Access'}
+                                    </h4>
                                     <p className="text-sm text-amber-800/80 mb-4">Subscribe to start receiving your daily spiritual nourishment.</p>
                                     <SubscriptionButton
                                         priceId={process.env.STRIPE_PRICE_ID_MONTHLY || ""}

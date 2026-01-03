@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(req: Request) {
@@ -16,9 +17,12 @@ export async function POST(req: Request) {
         const { priceId, isTrial } = body;
         // isTrial depends on logic - maybe force trial if not subscribed before?
 
-        const checkoutSession = await stripe.checkout.sessions.create({
-            customer_email: user.email,
-            // mode: 'subscription', // inferred from price
+        // Fetch user from DB to get stripeCustomerId
+        const dbUser = await prisma.user.findUnique({
+            where: { id: user.id }
+        });
+
+        let checkoutOptions: any = {
             mode: 'subscription',
             line_items: [
                 {
@@ -27,14 +31,22 @@ export async function POST(req: Request) {
                 },
             ],
             metadata: {
-                userId: user.id as string, // Ensure ID is present
+                userId: user.id as string,
             },
             subscription_data: {
                 trial_period_days: isTrial ? 7 : undefined,
             },
             success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
             cancel_url: `${process.env.NEXTAUTH_URL}/dashboard?canceled=true`,
-        });
+        };
+
+        if (dbUser?.stripeCustomerId) {
+            checkoutOptions.customer = dbUser.stripeCustomerId;
+        } else {
+            checkoutOptions.customer_email = user.email;
+        }
+
+        const checkoutSession = await stripe.checkout.sessions.create(checkoutOptions);
 
         return NextResponse.json({ url: checkoutSession.url });
     } catch (error: any) {
