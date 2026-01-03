@@ -128,7 +128,7 @@ export async function GET(req: Request) {
                         const MAX_MAIN_CONTENT = 1400;
 
                         if (mainContent.length > MAX_MAIN_CONTENT) {
-                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "...\n\n";
+                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "...\n\n_(Message truncated due to WhatsApp text limits)_\n\n";
                         }
 
                         body = mainContent + link;
