@@ -108,20 +108,29 @@ export async function GET(req: Request) {
                         // Gospel: [Ref]
                         // [Gospel Text]
 
-                        body = `📅 *${s.title}*\n\n` +
+                        const link = `Read full: https://bible.usccb.org/bible/readings/${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '')}.cfm`;
+
+                        // Construct body WITHOUT link first
+                        let mainContent = `📅 *${s.title}*\n\n` +
                             `📖 *Reading 1*: ${s.reading1.reference}\n` +
                             `_${s.reading1.text}_\n\n` +
                             `🎵 *Psalm*: ${s.psalm.reference}\n` +
                             `_${s.psalm.text}_\n\n` +
                             `✨ *Gospel*: ${s.gospel.reference}\n` +
-                            `_${s.gospel.text}_\n\n` +
-                            `Read full: https://bible.usccb.org/bible/readings/${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '')}.cfm`;
+                            `_${s.gospel.text}_\n\n`;
 
-                        // Truncate if too long (Twilio limit ~1600 characters)
-                        // We use 1550 to leave room for the footer/signature.
-                        if (body.length > 1550) {
-                            body = body.substring(0, 1550) + "... (truncated)";
+                        // Twilio Limit: 1600. 
+                        // Template text: ~60 chars.
+                        // Link: ~80 chars.
+                        // Safety Buffer: 50 chars.
+                        // Max Main Content = 1600 - 60 - 80 - 50 = ~1410.
+                        const MAX_MAIN_CONTENT = 1400;
+
+                        if (mainContent.length > MAX_MAIN_CONTENT) {
+                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "... (truncated)\n\n";
                         }
+
+                        body = mainContent + link;
                     } else {
                         // Fallback
                         const content = readingOfDay;
