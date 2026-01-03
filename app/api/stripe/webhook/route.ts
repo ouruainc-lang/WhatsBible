@@ -69,7 +69,10 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
-            data: { subscriptionStatus: subscription.status }
+            data: {
+                subscriptionStatus: subscription.status,
+                stripeCancelAtPeriodEnd: subscription.cancel_at_period_end
+            }
         })
     }
 

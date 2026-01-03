@@ -63,6 +63,11 @@ export default async function Dashboard() {
                                     <span className="capitalize mr-2">{user.subscriptionStatus}</span>
                                     {user.subscriptionStatus === 'active' && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
                                 </div>
+                                {user.stripeCancelAtPeriodEnd && (
+                                    <p className="text-xs text-amber-600 mt-2 font-medium">
+                                        Access ends at billing cycle.
+                                    </p>
+                                )}
                             </div>
 
                             {user.subscriptionStatus === 'inactive' && (

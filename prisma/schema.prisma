@@ -23,6 +23,7 @@ model User {
   subscriptionStatus String @default("inactive") // inactive, active, trial, past_due
   stripeCustomerId String? @unique
   stripeSubscriptionId String? @unique
+  stripeCancelAtPeriodEnd Boolean @default(false)
   trialStartDate   DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
