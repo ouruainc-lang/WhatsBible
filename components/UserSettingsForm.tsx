@@ -109,27 +109,14 @@ export function UserSettingsForm({ user }: { user: User }) {
 
                 <div>
                     <label className={labelClasses}>Delivery Time (Local)</label>
-                    <select
+                    <input
+                        type="time"
                         name="deliveryTime"
-                        value={formData.deliveryTime.split(':')[0] + ":00"} // Force :00
+                        value={formData.deliveryTime}
                         onChange={handleChange}
                         className={inputClasses}
-                    >
-                        {Array.from({ length: 24 }).map((_, i) => {
-                            const hourKey = i.toString().padStart(2, '0');
-                            const timeVal = `${hourKey}:00`;
-                            // Format for display (e.g., 1:00 PM)
-                            const date = new Date();
-                            date.setHours(i, 0, 0, 0);
-                            const label = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                            return (
-                                <option key={timeVal} value={timeVal}>
-                                    {label}
-                                </option>
-                            );
-                        })}
-                    </select>
-                    <p className="text-xs text-gray-400 mt-1.5 selection:bg-none">Messages are sent at the top of the hour.</p>
+                    />
+                    <p className="text-xs text-gray-400 mt-1.5 ml-1">Messages are checked every minute.</p>
                 </div>
             </div>
 
