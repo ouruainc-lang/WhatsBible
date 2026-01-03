@@ -69,6 +69,8 @@ export async function POST(req: Request) {
 
     if (event.type === "customer.subscription.updated") {
         const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[STRIPE WEBHOOK] Subscription Updated: ${subscription.id} | Status: ${subscription.status} | CancelAtPeriodEnd: ${subscription.cancel_at_period_end}`);
+
         await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
             data: {
