@@ -121,12 +121,13 @@ export async function GET(req: Request) {
                 // For simplicity MVP: Use one template "daily_grace" with {{1}} as the entire body content.
                 // Note: Templates have char limits (header 60, body 1024). Long readings might be truncated.
 
-                // DECISION for DEPLOYMENT GUIDE:
-                // User MUST create a template named `daily_message` with ONE parameter {{1}} in the body.
+                // TEMPORARY OVERRIDE: User requested to test without Templates (due to review delay).
+                // WARNING: This ONLY works if the user has messaged the bot in the last 24 hours.
+                await sendWhatsAppMessage(user.phoneNumber, body);
 
-                // Construct the payload for the template parameter
-                const templateBodyParam = body; // This is the full text we constructed above.
-
+                /* 
+                // Template Logic (Restore this once approved)
+                const templateBodyParam = body; 
                 await sendWhatsAppTemplate(user.phoneNumber, "daily_message", "en_US", [
                     {
                         type: "body",
@@ -135,6 +136,7 @@ export async function GET(req: Request) {
                         ]
                     }
                 ]);
+                */
 
                 // Log
                 await prisma.verseLog.create({
