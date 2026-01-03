@@ -110,14 +110,16 @@ export async function GET(req: Request) {
 
                         body = `📅 *${s.title}*\n\n` +
                             `📖 *Reading 1*: ${s.reading1.reference}\n` +
+                            `_${s.reading1.text}_\n\n` +
                             `🎵 *Psalm*: ${s.psalm.reference}\n` +
-                            `✨ *Gospel*: ${s.gospel.reference}\n\n` +
-                            `*Gospel*: _${s.gospel.text}_\n\n` +
+                            `_${s.psalm.text}_\n\n` +
+                            `✨ *Gospel*: ${s.gospel.reference}\n` +
+                            `_${s.gospel.text}_\n\n` +
                             `Read full: https://bible.usccb.org/bible/readings/${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '')}.cfm`;
 
-                        // Truncate if too long (simple check)
-                        if (body.length > 1550) {
-                            body = body.substring(0, 1550) + "...";
+                        // Truncate if too long (Meta limit ~4096)
+                        if (body.length > 4000) {
+                            body = body.substring(0, 4000) + "... (truncated)";
                         }
                     } else {
                         // Fallback
