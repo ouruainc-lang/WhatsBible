@@ -5,10 +5,13 @@ import { getVerseForToday } from '@/lib/verses';
 
 export async function GET(req: Request) {
     // Vercel Cron verification
+    // Support both Header (Vercel Cron) and Query Param (Manual Test)
+    const { searchParams } = new URL(req.url);
+    const secret = searchParams.get('secret');
     const authHeader = req.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        // In production uncomment this. For dev/demo we might skip or use header.
-        // return new NextResponse('Unauthorized', { status: 401 });
+
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && secret !== process.env.CRON_SECRET) {
+        return new NextResponse('Unauthorized', { status: 401 });
     }
 
     // 1. Get current hour (UTC) or check user's timezone logic.
@@ -72,7 +75,8 @@ export async function GET(req: Request) {
         console.log(`[CRON] Checking User ${user.id} (${user.email}). User Delivery: ${user.deliveryTime}, Calculated Local: ${userTime}, Timezone: ${user.timezone}`);
 
         // Check for force override
-        const { searchParams } = new URL(req.url);
+        // Check for force override
+        // const { searchParams } = new URL(req.url); // Already parsed at top
         const force = searchParams.get('force');
 
         // STRICT Equality Check (unless forced)
