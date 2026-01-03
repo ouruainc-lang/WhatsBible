@@ -55,17 +55,25 @@ export async function GET(req: Request) {
         }
     });
 
+    console.log(`[CRON] Started. System Time (UTC): ${now.toISOString()}`);
+    console.log(`[CRON] Found ${users.length} active/trial users.`);
+
     let sentCount = 0;
 
     for (const user of users) {
-        if (!user.phoneNumber) continue;
+        if (!user.phoneNumber) {
+            console.log(`[CRON] User ${user.id} skipped (No Phone)`);
+            continue;
+        }
 
         // Check time
         // We need to convert current UTC to user timezone.
         const userTime = new Date().toLocaleTimeString('en-US', { timeZone: user.timezone, hour12: false, hour: '2-digit', minute: '2-digit' });
-        // userTime is "08:00"
+        console.log(`[CRON] Checking User ${user.id} (${user.email}). User Delivery: ${user.deliveryTime}, Calculated Local: ${userTime}, Timezone: ${user.timezone}`);
 
+        // STRICT Equality Check
         if (userTime === user.deliveryTime) {
+            console.log(`[CRON] MATCH! Sending to ${user.id} (${user.phoneNumber})...`);
             // Check if already sent today? `VerseLog`.
             // Simple prevention: `VerseLog` with `createdAt` > today start.
 
