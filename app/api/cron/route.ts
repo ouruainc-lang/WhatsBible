@@ -71,9 +71,13 @@ export async function GET(req: Request) {
         const userTime = new Date().toLocaleTimeString('en-US', { timeZone: user.timezone, hour12: false, hour: '2-digit', minute: '2-digit' });
         console.log(`[CRON] Checking User ${user.id} (${user.email}). User Delivery: ${user.deliveryTime}, Calculated Local: ${userTime}, Timezone: ${user.timezone}`);
 
-        // STRICT Equality Check
-        if (userTime === user.deliveryTime) {
-            console.log(`[CRON] MATCH! Sending to ${user.id} (${user.phoneNumber})...`);
+        // Check for force override
+        const { searchParams } = new URL(req.url);
+        const force = searchParams.get('force');
+
+        // STRICT Equality Check (unless forced)
+        if (force === 'true' || userTime === user.deliveryTime) {
+            console.log(`[CRON] MATCH (or FORCED)! Sending to ${user.id} (${user.phoneNumber})...`);
             // Check if already sent today? `VerseLog`.
             // Simple prevention: `VerseLog` with `createdAt` > today start.
 
