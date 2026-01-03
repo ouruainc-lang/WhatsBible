@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { UserSettingsForm } from "@/components/UserSettingsForm";
 import { SubscriptionButton } from "@/components/SubscriptionButton";
+import { ManageSubscriptionButton } from "@/components/ManageSubscriptionButton";
 import { BookOpen, CreditCard } from "lucide-react";
 
 export default async function Dashboard() {
@@ -76,9 +77,7 @@ export default async function Dashboard() {
 
                             {user.subscriptionStatus === 'active' && (
                                 <div className="text-center pt-4">
-                                    <button className="text-red-500 text-xs hover:text-red-600 font-medium hover:underline">
-                                        Cancel Subscription
-                                    </button>
+                                    <ManageSubscriptionButton />
                                 </div>
                             )}
                         </div>
