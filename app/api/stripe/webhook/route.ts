@@ -68,8 +68,11 @@ export async function POST(req: Request) {
     }
 
     if (event.type === "customer.subscription.updated") {
-        const subscription = event.data.object as Stripe.Subscription;
-        console.log(`[STRIPE WEBHOOK] Subscription Updated: ${subscription.id} | Status: ${subscription.status} | CancelAtPeriodEnd: ${subscription.cancel_at_period_end}`);
+        const session = event.data.object as Stripe.Subscription;
+        // Fetch fresh data to ensure we have the absolute latest state (avoids race conditions)
+        const subscription = await stripe.subscriptions.retrieve(session.id);
+
+        console.log(`[STRIPE WEBHOOK] Fresh Subscription Fetch: ${subscription.id} | Status: ${subscription.status} | CancelAtPeriodEnd: ${subscription.cancel_at_period_end}`);
 
         await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
