@@ -117,9 +117,10 @@ export async function GET(req: Request) {
                             `_${s.gospel.text}_\n\n` +
                             `Read full: https://bible.usccb.org/bible/readings/${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '')}.cfm`;
 
-                        // Truncate if too long (Meta limit ~4096)
-                        if (body.length > 4000) {
-                            body = body.substring(0, 4000) + "... (truncated)";
+                        // Truncate if too long (Twilio limit ~1600 characters)
+                        // We use 1550 to leave room for the footer/signature.
+                        if (body.length > 1550) {
+                            body = body.substring(0, 1550) + "... (truncated)";
                         }
                     } else {
                         // Fallback
