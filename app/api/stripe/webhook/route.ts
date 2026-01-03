@@ -74,13 +74,14 @@ export async function POST(req: Request) {
 
         console.log(`[STRIPE WEBHOOK] Fresh Subscription Fetch: ${subscription.id} | Status: ${subscription.status} | CancelAtPeriodEnd: ${subscription.cancel_at_period_end}`);
 
-        await prisma.user.updateMany({
+        const result = await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
             data: {
                 subscriptionStatus: subscription.status,
                 stripeCancelAtPeriodEnd: subscription.cancel_at_period_end
             }
-        })
+        });
+        console.log(`[STRIPE WEBHOOK] DB Update Result: ${result.count} records updated for ID ${subscription.id}`);
     }
 
     if (event.type === "customer.subscription.deleted") {
