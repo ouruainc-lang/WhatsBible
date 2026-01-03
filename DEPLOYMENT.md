@@ -82,7 +82,12 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
 5.  **Test Number**:
     *   Meta gives you a free "Test Number".
     *   **CRITICAL**: You must add your own phone number to the "Recipient Phone Numbers" list on this page and verify it via OTP code. You can only send messages to verified numbers until you go Live.
-6.  **Create Template** (Required for Cron):
+6.  **Direct Text (Test Phase Override)**:
+    *   If you skip templates for testing, you are using **Direct Messages**.
+    *   **CRITICAL**: Meta blocks business-initiated direct messages unless the user has messaged the bot in the last 24 hours.
+    *   **Action**: Before testing Cron/delivery, send a "Hello" message from your phone to the Test Number.
+
+7.  **Create Template** (Required for Production):
     *   Go to "WhatsApp Manager" -> "Account Tools" -> "Message Templates".
     *   Create a template named `daily_message`.
     *   Category: **Marketing**.
@@ -108,7 +113,8 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
 
     | Key | Value Source |
     | :--- | :--- |
-    | `DATABASE_URL` | Supabase Connection String (Phase 2) |
+    | `DATABASE_URL` | Supabase Pooler (Port 6543) + `?pgbouncer=true&connection_limit=1` |
+    | `DIRECT_URL` | Supabase Direct (Port 5432) |
     | `NEXTAUTH_URL` | `https://your-project-name.vercel.app` (The deployment URL) |
     | `NEXTAUTH_SECRET` | Generate random: `openssl rand -base64 32` |
     | `STRIPE_SECRET_KEY` | Stripe Secret Key (Phase 4) |
@@ -136,7 +142,8 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 1.  **Database Migration**:
     *   Vercel might fail initially if tables don't exist.
     *   Go to Vercel Project -> Settings -> General -> **Build & Development Settings**.
-    *   Change **Build Command** to: `npx prisma migrate deploy && next build`
+    *   Change **Build Command** to: `npx prisma db push && next build`
+    *   *(Note: We use `db push` instead of `migrate deploy` to avoid SQLite/Postgres protocol mismatch).*
     *   Redeploy if needed.
 
 2.  **Stripe Webhook**:
@@ -169,7 +176,9 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 2.  **Test Update**: Save your phone number in Settings.
 3.  **Test Cron**:
     *   Manually invoke the cron job via Vercel Dashboard or curl:
-    *   `curl "https://whatsbible.vercel.app/api/cron?secret=MySecureCronSecret123"`
-    *   Check Vercel text logs to see if it "Sent message to..."
+    *   **Standard**: `curl "https://whatsbible.vercel.app/api/cron?secret=[YOUR_CRON_SECRET]"`
+    *   **Force Manual Trigger** (Bypass Time Check):
+        *   Visit: `https://whatsbible.vercel.app/api/cron?force=true`
+        *   This sends messages to ALL active users immediately, regardless of their scheduled time.
 
 **🚀 You are Live!**
