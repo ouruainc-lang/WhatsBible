@@ -20,6 +20,8 @@ export async function POST(req: Request) {
         return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
     }
 
+    console.log(`[STRIPE WEBHOOK] Received event: ${event.type}`);
+
     if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
@@ -80,7 +82,10 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         await prisma.user.updateMany({
             where: { stripeSubscriptionId: subscription.id },
-            data: { subscriptionStatus: "canceled" }
+            data: {
+                subscriptionStatus: "canceled",
+                stripeCancelAtPeriodEnd: false
+            }
         })
     }
 
