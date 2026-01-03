@@ -123,9 +123,11 @@ export async function GET(req: Request) {
                         // Twilio Limit: 1600. 
                         // Template text: ~60 chars.
                         // Link: ~80 chars.
-                        // Safety Buffer: 50 chars.
-                        // Max Main Content = 1600 - 60 - 80 - 50 = ~1410.
-                        const MAX_MAIN_CONTENT = 1400;
+                        // Disclaimer: ~50 chars.
+                        // Safety Buffer: ~100 chars.
+                        // Max Main Content = 1600 - 60 - 80 - 50 - 100 = ~1310.
+                        // Let's go with 1000 to be extremely safe.
+                        const MAX_MAIN_CONTENT = 1000;
 
                         if (mainContent.length > MAX_MAIN_CONTENT) {
                             mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "...\n\n_(Message truncated due to WhatsApp text limits)_\n\n";
