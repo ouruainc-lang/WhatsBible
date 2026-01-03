@@ -108,7 +108,8 @@ export async function GET(req: Request) {
                         // Gospel: [Ref]
                         // [Gospel Text]
 
-                        const link = `Read full: https://bible.usccb.org/bible/readings/${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '')}.cfm`;
+                        const dateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                        const link = `Read the full readings: ${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
 
                         // Construct body WITHOUT link first
                         let mainContent = `📅 *${s.title}*\n\n` +
@@ -127,7 +128,7 @@ export async function GET(req: Request) {
                         const MAX_MAIN_CONTENT = 1400;
 
                         if (mainContent.length > MAX_MAIN_CONTENT) {
-                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "... (truncated)\n\n";
+                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "...\n\n";
                         }
 
                         body = mainContent + link;
