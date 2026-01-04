@@ -44,7 +44,11 @@ export async function generateReflection(readings: DailyReading): Promise<string
         🙏 *Prayer*
         (A very short 1-sentence prayer)
 
+        (A very short 1-sentence prayer)
+
         (Do not include the full text of readings, just the summary/reflection).
+        
+        CRITICAL: Keep the total response length UNDER 1000 characters to fit in WhatsApp limits.
         `;
 
         const result = await model.generateContent(prompt);

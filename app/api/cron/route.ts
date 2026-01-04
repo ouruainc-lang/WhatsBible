@@ -169,8 +169,19 @@ export async function GET(req: Request) {
                             };
 
                             const generated = await generateReflection(readingsForAi);
+
+                            // Safety Truncation for WhatsApp (1600 limit)
+                            // Reserve ~200 chars for link and potential overhead
+                            const MAX_AI_CHARS = 1300;
+                            let finalContent = generated;
+
+                            if (finalContent.length > MAX_AI_CHARS) {
+                                console.warn(`[CRON] AI content too long (${finalContent.length}), truncating...`);
+                                finalContent = finalContent.substring(0, MAX_AI_CHARS) + "... (truncated)";
+                            }
+
                             const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                            const contentWithLink = generated + "\n\n" + link;
+                            const contentWithLink = finalContent + "\n\n" + link;
 
                             dailyReflection = await prisma.dailyReflection.create({
                                 data: {
