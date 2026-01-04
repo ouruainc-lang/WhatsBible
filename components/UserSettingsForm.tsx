@@ -209,11 +209,14 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     >
-                        <option value="VER">Daily Verse</option>
-                        <option value="VER">Daily Verse</option>
                         <option value="RDG">Daily Readings (Full)</option>
                         <option value="REF">Summary & Reflection (AI)</option>
                     </select>
+                    {formData.contentPreference === 'RDG' && (
+                        <p className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                            Note: Full readings may be truncated due to WhatsApp limits. A link to the full text will be included.
+                        </p>
+                    )}
                 </div>
             </div>
 
