@@ -84,7 +84,7 @@ To send daily messages without the user messaging you first (24h window), you MU
 
 1.  Go to **Twilio Console** -> **Messaging** -> **Content Template Builder**.
 2.  **Create New Template**:
-    *   Name: `daily_grace`
+    *   Name: `daily_gracev2`
     *   Select **WhatsApp**.
     *   Content Type: **Text**.
     *   Body: `Here is your Daily Grace:`
