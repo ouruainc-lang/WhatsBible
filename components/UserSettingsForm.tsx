@@ -234,7 +234,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                                     placeholder="123456"
                                     value={code}
                                     onChange={(e) => setCode(e.target.value)}
-                                    className={inputClasses + " text-center tracking-widest font-mono"}
+                                    className={inputClasses + " text-center tracking-widest font-mono min-w-[140px]"}
                                     maxLength={6}
                                 />
                                 <button
