@@ -156,47 +156,6 @@ export function UserSettingsForm({ user }: { user: User }) {
         }
     };
 
-    const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
-        setLoading(true);
-        try {
-            const priceId = plan === 'MONTHLY'
-                ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || "price_1Sl3A4A8SVoD2AVqsESgszC5"
-                : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || "price_1Sl3B4A8SVoD2AVq5GgHiiiD";
-
-            const response = await fetch('/api/stripe/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    priceId,
-                    isTrial: true // Always request trial logic
-                }),
-            });
-
-            if (!response.ok) throw new Error("Failed to start subscription");
-            const { url } = await response.json();
-            window.location.href = url;
-        } catch (error) {
-            console.error(error);
-            toast.error("Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handlePortal = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('/api/stripe/portal', { method: 'POST' });
-            const { url } = await response.json();
-            window.location.href = url;
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to load portal");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const inputClasses = "w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm outline-none";
     const labelClasses = "block text-sm font-semibold text-gray-700 mb-1.5";
 
@@ -377,65 +336,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                         </div>
                     )}
                 </div>
-            </div>
-
-            <div id="subscription-section" className="pt-8 border-t border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription</h3>
-
-                {['active', 'trial'].includes(user.subscriptionStatus) ? (
-                    <div className="bg-green-50 border border-green-100 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Check className="w-5 h-5 text-green-600" />
-                            <h4 className="font-medium text-green-900">Active Subscription</h4>
-                        </div>
-                        <p className="text-sm text-green-700 mb-4">
-                            You are subscribed to the {user.subscriptionPlan || "Monthly"} plan.
-                            {user.subscriptionStatus === 'trial' ? " (Free Trial)" : ""}
-                        </p>
-                        <button
-                            type="button"
-                            onClick={handlePortal}
-                            className="px-4 py-2 bg-white border border-green-200 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 transition-colors shadow-sm"
-                        >
-                            Manage Subscription
-                        </button>
-                    </div>
-                ) : (
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-
-                        <div className="relative z-10">
-                            <h4 className="text-xl font-serif font-bold mb-2">Start your 7-Day Free Trial</h4>
-                            <p className="text-gray-300 text-sm mb-6 max-w-md">
-                                Experience daily grace delivered directly to your phone. Cancel anytime.
-                            </p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                                <button
-                                    type="button"
-                                    onClick={() => handleSubscription('MONTHLY')}
-                                    className="flex flex-col items-start p-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl transition-all text-left group"
-                                >
-                                    <span className="text-xs font-medium text-amber-400 mb-1">Monthly</span>
-                                    <span className="text-lg font-bold">$4.99<span className="text-xs font-normal text-gray-400">/mo</span></span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleSubscription('YEARLY')}
-                                    className="flex flex-col items-start p-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl transition-all text-left relative overflow-hidden group"
-                                >
-                                    <div className="absolute top-2 right-2 bg-green-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">SAVE 20%</div>
-                                    <span className="text-xs font-medium text-amber-400 mb-1">Yearly</span>
-                                    <span className="text-lg font-bold">$49.99<span className="text-xs font-normal text-gray-400">/yr</span></span>
-                                </button>
-                            </div>
-
-                            <p className="text-[10px] text-gray-400/70 mb-0 border-t border-white/10 pt-4 leading-relaxed">
-                                * Why we charge: Your subscription supports the server recurring costs, WhatsApp business messaging fees (Meta charges per conversation), and the AI technology used to generate personalized reflections every morning.
-                            </p>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div className="pt-4">

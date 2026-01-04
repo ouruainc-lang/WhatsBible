@@ -1,0 +1,153 @@
+"use client";
+
+import { useState } from "react";
+import { Check, Loader2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+
+interface User {
+    subscriptionStatus: string;
+    subscriptionPlan?: string | null;
+    stripeCustomerId?: string | null;
+}
+
+export function SubscriptionCard({ user }: { user: User }) {
+    const [loading, setLoading] = useState(false);
+
+    const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
+        setLoading(true);
+        try {
+            const priceId = plan === 'MONTHLY'
+                ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || "price_1Sl3A4A8SVoD2AVqsESgszC5"
+                : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || "price_1Sl3B4A8SVoD2AVq5GgHiiiD";
+
+            const response = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    priceId,
+                    isTrial: true // Always request trial logic
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to start subscription");
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePortal = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('/api/stripe/portal', { method: 'POST' });
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to load portal");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const isActive = ['active', 'trial'].includes(user.subscriptionStatus);
+
+    return (
+        <div id="subscription-section" className="glass-card p-6 rounded-2xl h-full border-t-4 border-t-primary flex flex-col">
+            <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+                <div className="bg-amber-50 p-2 rounded-lg text-amber-600">
+                    <Sparkles className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold font-serif">Subscription</h2>
+            </div>
+
+            <div className="space-y-6 flex-1">
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Current Status</p>
+                    </div>
+
+                    <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium ${isActive
+                        ? 'bg-green-50 text-green-700 border border-green-100'
+                        : 'bg-gray-50 text-gray-600 border border-gray-100'
+                        }`}>
+                        <span className="capitalize mr-2">{user.subscriptionStatus === 'trial' ? 'Free Trial' : user.subscriptionStatus}</span>
+                        {isActive && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
+                    </div>
+                </div>
+
+                {isActive ? (
+                    <div className="bg-green-50/50 border border-green-100 rounded-xl p-6 mt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Check className="w-5 h-5 text-green-600" />
+                            <h4 className="font-medium text-green-900">Active Plan</h4>
+                        </div>
+                        <p className="text-sm text-green-700/80 mb-6">
+                            You are subscribed to the {user.subscriptionPlan || "Monthly"} plan.
+                        </p>
+                        <button
+                            onClick={handlePortal}
+                            disabled={loading}
+                            className="w-full py-2.5 bg-white border border-green-200 text-green-700 text-sm font-medium rounded-xl hover:bg-green-50 transition-colors shadow-sm flex items-center justify-center gap-2"
+                        >
+                            {loading && <Loader2 className="w-3 h-3 animate-spin" />}
+                            Manage Subscription
+                        </button>
+                    </div>
+                ) : (
+                    <div className="mt-4 space-y-4">
+                        <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-100/50">
+                            <h4 className="font-serif font-bold text-amber-900 mb-2 text-lg">
+                                Start 7-Day Free Trial
+                            </h4>
+                            <p className="text-sm text-amber-800/70 mb-0">
+                                Experience daily grace delivered directly to your phone. Cancel anytime.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                            <button
+                                onClick={() => handleSubscription('MONTHLY')}
+                                disabled={loading}
+                                className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-gray-200 hover:border-primary/30 rounded-xl transition-all group text-left shadow-sm hover:shadow-md"
+                            >
+                                <div>
+                                    <span className="block text-xs font-semibold text-gray-500 mb-0.5">Monthly</span>
+                                    <span className="block text-lg font-bold text-gray-900">$4.99<span className="text-sm font-normal text-gray-400">/mo</span></span>
+                                </div>
+                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-2 h-2 rounded-full bg-gray-400 group-hover:bg-primary" />}
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => handleSubscription('YEARLY')}
+                                disabled={loading}
+                                className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-amber-200 hover:border-amber-400 rounded-xl transition-all group text-left shadow-md hover:shadow-lg ring-1 ring-amber-100"
+                            >
+                                <div className="absolute -top-2.5 right-4 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                    SAVE 20%
+                                </div>
+                                <div>
+                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">Yearly (Best Value)</span>
+                                    <span className="block text-lg font-bold text-gray-900">$49.99<span className="text-sm font-normal text-gray-400">/yr</span></span>
+                                </div>
+                                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 text-amber-600 transition-colors">
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                </div>
+                            </button>
+                        </div>
+
+                        <p className="text-[10px] text-gray-400 text-center px-4 leading-relaxed">
+                            Subscription covers server costs, WhatsApp fees, and AI features.
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
