@@ -166,11 +166,27 @@ export function UserSettingsForm({ user }: { user: User }) {
                         className={inputClasses}
                     >
                         <option value="UTC">UTC (Universal Time)</option>
-                        {Intl.supportedValuesOf('timeZone').map((tz) => (
-                            <option key={tz} value={tz}>
-                                {tz.replace(/_/g, ' ')}
-                            </option>
-                        ))}
+                        {Intl.supportedValuesOf('timeZone').map((tz) => {
+                            try {
+                                const offset = new Intl.DateTimeFormat('en-US', {
+                                    timeZone: tz,
+                                    timeZoneName: 'shortOffset'
+                                }).formatToParts(new Date())
+                                    .find(part => part.type === 'timeZoneName')?.value;
+
+                                return (
+                                    <option key={tz} value={tz}>
+                                        {tz.replace(/_/g, ' ')} ({offset || 'GMT'})
+                                    </option>
+                                );
+                            } catch (e) {
+                                return (
+                                    <option key={tz} value={tz}>
+                                        {tz.replace(/_/g, ' ')}
+                                    </option>
+                                );
+                            }
+                        })}
                     </select>
                 </div>
 
