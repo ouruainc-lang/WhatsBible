@@ -11,6 +11,7 @@ interface User {
     contentPreference: string;
     whatsappOptIn: boolean;
     phoneNumber?: string | null;
+    subscriptionStatus: string;
 }
 
 export function UserSettingsForm({ user }: { user: User }) {
