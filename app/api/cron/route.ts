@@ -112,8 +112,8 @@ export async function GET(req: Request) {
                         const link = `Read the full readings: ${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
 
                         // Construct body WITHOUT link first
-                        let mainContent = `📅 *${s.title}*\n\n` +
-                            `📖 *Reading 1*: ${s.reading1.reference}\n` +
+                        // Header is now in template, so we remove the title line
+                        let mainContent = `📖 *Reading 1*: ${s.reading1.reference}\n` +
                             `_${s.reading1.text}_\n\n` +
                             `🎵 *Psalm*: ${s.psalm.reference}\n` +
                             `_${s.psalm.text}_\n\n`;
@@ -127,12 +127,6 @@ export async function GET(req: Request) {
                             `_${s.gospel.text}_\n\n`;
 
                         // Twilio Limit: 1600. 
-                        // Template text: ~60 chars.
-                        // Link: ~80 chars.
-                        // Disclaimer: ~50 chars.
-                        // Safety Buffer: ~100 chars.
-                        // Max Main Content = 1600 - 60 - 80 - 50 - 100 = ~1310.
-                        // Let's go with 1000 to be extremely safe.
                         const MAX_MAIN_CONTENT = 1000;
 
                         if (mainContent.length > MAX_MAIN_CONTENT) {
@@ -206,24 +200,24 @@ export async function GET(req: Request) {
                     logRef = content.reference;
                 }
 
-                // Requirement: Meta Cloud API requires TEMPLATES for business-initiated messages (like this cron).
-                // We assume the user has created a template named "daily_verse" with 1 parameter {{1}} being the full text.
-                // Or "daily_reading" with {{1}} title, {{2}} body.
-                // For simplicity MVP: Use one template "daily_grace" with {{1}} as the entire body content.
-                // Note: Templates have char limits (header 60, body 1024). Long readings might be truncated.
-
                 // Twilio Content Template Logic
-                // We use a generic template "daily_grace" with one variable {{1}} for the body.
-                // This allows us to send dynamic long content (up to limits) while being compliant.
+                // Select template based on content type
+                // RDG (Full Reading) -> daily_gracev1 (HXdad1fd6bc3c7a3f61ddeebd5503f78ef)
+                // REF (AI Summary) -> daily_summary (HXc0a9637c3026696156c1409ee41f86a7)
 
-                const contentSid = process.env.TWILIO_CONTENT_SID; // New Env Var
+                let contentSid = "";
+                if (user.contentPreference === 'REF') {
+                    contentSid = "HXc0a9637c3026696156c1409ee41f86a7";
+                } else {
+                    contentSid = "HXdad1fd6bc3c7a3f61ddeebd5503f78ef";
+                }
 
                 if (contentSid) {
                     await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
                         "1": body
                     });
                 } else {
-                    // Fallback to direct message (Only works in 24h window or Sandbox)
+                    // Fallback should not happen if hardcoded above, but good for safety
                     console.log("[CRON] No Content SID, using direct message fallback.");
                     await sendWhatsAppMessage(user.phoneNumber, body);
                 }

@@ -33,9 +33,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
         Format the output for a WhatsApp message (plain text, use emojis, *bold* for emphasis).
         Structure:
         
-        📅 *Daily Summary & Reflection*
-        
-        📖 *The Word*
+         *The Word*
         (1-2 sentence summary of the key theme of the readings)
 
         🕊️ *Reflection*
