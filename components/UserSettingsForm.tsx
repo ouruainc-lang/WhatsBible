@@ -14,8 +14,8 @@ interface User {
     whatsappOptIn: boolean;
     phoneNumber?: string | null;
     subscriptionStatus: string;
-    subscriptionPlan?: string;
-    stripeCustomerId?: string;
+    subscriptionPlan?: string | null;
+    stripeCustomerId?: string | null;
 }
 
 export function UserSettingsForm({ user }: { user: User }) {
