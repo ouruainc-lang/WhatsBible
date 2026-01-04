@@ -116,8 +116,14 @@ export async function GET(req: Request) {
                             `📖 *Reading 1*: ${s.reading1.reference}\n` +
                             `_${s.reading1.text}_\n\n` +
                             `🎵 *Psalm*: ${s.psalm.reference}\n` +
-                            `_${s.psalm.text}_\n\n` +
-                            `✨ *Gospel*: ${s.gospel.reference}\n` +
+                            `_${s.psalm.text}_\n\n`;
+
+                        if (s.reading2) {
+                            mainContent += `📜 *Reading 2*: ${s.reading2.reference}\n` +
+                                `_${s.reading2.text}_\n\n`;
+                        }
+
+                        mainContent += `✨ *Gospel*: ${s.gospel.reference}\n` +
                             `_${s.gospel.text}_\n\n`;
 
                         // Twilio Limit: 1600. 
