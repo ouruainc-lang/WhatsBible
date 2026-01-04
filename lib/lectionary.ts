@@ -33,43 +33,67 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
 
         // Helper to find content block
         // USCCB structure varies but typically blocks are separated relative to headers.
-        // We look for "Reading 1", "Gospel", "Responsorial Psalm"
+        // We look for "Reading 1" (Weekday) or "Reading I" (Sunday).
 
-        // This selector strategy is an approximation based on common USCCB structure.
-        // They often use specific classes or just grouping divs.
-        // Based on analysis, headers are often h3 or h4 within a content area.
+        const sections = [
+            { key: 'Reading 1', regex: /Reading (1|I)(?![0-9I])/i }, // Match 1 or I, but not 11 or II
+            { key: 'Responsorial Psalm', regex: /Responsorial Psalm/i },
+            { key: 'Gospel', regex: /Gospel/i },
+            { key: 'Reading 2', regex: /Reading (2|II)(?![0-9I])/i }
+        ];
 
-        const sections = ['Reading 1', 'Responsorial Psalm', 'Gospel', 'Reading 2'];
+        // Find all headers first
+        const allHeaders = $('.content-header h3.name, .content-header h2, h3, h2, h4').toArray();
 
-        sections.forEach(sectionName => {
-            // Find the element containing the section name
-            // Often <h3 class="name">Reading 1</h3>
-            const header = $(`h3:contains("${sectionName}")`).first();
+        sections.forEach(section => {
+            // Find the header that matches the regex
+            const headerEl = allHeaders.find(el => section.regex.test($(el).text().trim()));
 
-            if (header.length) {
-                // The reference is usually in the next block or inside the header area
-                // The text follows.
-                // This is tricky without exact DOM inspection, but let's try a generic approach
+            if (headerEl) {
+                const header = $(headerEl);
+                let reference = "Unknown";
+                let text = "";
 
-                // Reference link is often an <a> tag nearby
-                // Text is in <div class="content-body"> or similar
+                // Strategy 1: Look for parent `.innerblock` (Standard USCCB 2024+)
+                // <div class="innerblock"> <div class="content-header">...</div> <div class="content-body">...</div> </div>
+                const innerBlock = header.closest('.innerblock');
+                if (innerBlock.length) {
+                    reference = innerBlock.find('.address a').text().trim() || innerBlock.find('.address').text().trim();
+                    text = innerBlock.find('.content-body').text().trim();
+                }
 
-                // Let's try to grab the "address" (reference) and "content-body" (text)
-                // Note: USCCB HTML structure changes. 
-                // Current observation:
-                // <div class="b-verse"> ... <h3>Reading 1</h3> ... <div class="address"><a href="...">REF</a></div> ... <div class="content-body">TEXT</div> </div>
+                // Strategy 2: Look for next siblings if structure is flat
+                if (!text) {
+                    // Try to find address next to header
+                    // Header parent might be `.content-header`
+                    const contentHeader = header.closest('.content-header');
+                    if (contentHeader.length) {
+                        reference = contentHeader.find('.address').text().trim();
+                    } else {
+                        reference = header.next('.address').text().trim();
+                    }
 
-                const container = header.closest('.b-verse'); // "b-verse" is a common wrapper class on USCCB for readings
+                    // Try to find content body
+                    const contentBody = header.closest('.content-header').next('.content-body');
+                    if (contentBody.length) {
+                        text = contentBody.text().trim();
+                    }
+                }
 
-                if (container.length) {
-                    const reference = container.find('.address a').text().trim() || container.find('.address').text().trim();
-                    const text = container.find('.content-body').text().trim();
-                    readings[sectionName] = { reference, text };
-                } else {
-                    // Fallback: try next siblings if not wrapped nicely
-                    const reference = header.next('.address').text().trim();
-                    const text = header.nextAll('.content-body').first().text().trim();
-                    readings[sectionName] = { reference, text };
+                // Strategy 3: Legacy/Fallback - Header -> Address -> Content Body
+                if (!text) {
+                    const container = header.closest('.b-verse');
+                    if (container.length) {
+                        reference = container.find('.address').text().trim();
+                        text = container.find('.content-body').text().trim();
+                    }
+                }
+
+                // Clean up reference (sometimes has newlines)
+                reference = reference.replace(/\s+/g, ' ').trim();
+
+                if (text) {
+                    readings[section.key] = { reference, text };
                 }
             }
         });
