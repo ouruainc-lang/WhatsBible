@@ -24,6 +24,18 @@ export async function POST(req: Request) {
                 return new NextResponse('Invalid phone format. Must start with +', { status: 400 });
             }
 
+            // Rate Limit Check (60 seconds)
+            const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+
+            if (user?.phoneVerificationSentAt) {
+                const now = new Date();
+                const diff = (now.getTime() - new Date(user.phoneVerificationSentAt).getTime()) / 1000;
+                if (diff < 60) {
+                    const waitTime = Math.ceil(60 - diff);
+                    return new NextResponse(`Please wait ${waitTime}s before resending`, { status: 429 });
+                }
+            }
+
             const otp = generateOTP();
             const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
@@ -33,6 +45,7 @@ export async function POST(req: Request) {
                     phoneNumber: phoneNumber, // Update the number they want to verify
                     phoneVerificationCode: otp,
                     phoneVerificationExpires: expires,
+                    phoneVerificationSentAt: new Date(), // Set cooldown start
                     whatsappOptIn: false // Reset opt-in until verified
                 }
             });

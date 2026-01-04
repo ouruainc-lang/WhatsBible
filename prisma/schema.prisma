@@ -26,6 +26,7 @@ model User {
   stripeCancelAtPeriodEnd Boolean @default(false)
   phoneVerificationCode   String?
   phoneVerificationExpires DateTime?
+  phoneVerificationSentAt DateTime?
   trialStartDate   DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

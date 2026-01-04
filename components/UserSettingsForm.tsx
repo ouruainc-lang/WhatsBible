@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Loader2, CheckCircle, Send, Radio } from "lucide-react";
+import { Save, Loader2, CheckCircle, Send, Radio, RefreshCw } from "lucide-react";
 
 interface User {
     deliveryTime: string;
@@ -19,6 +19,7 @@ export function UserSettingsForm({ user }: { user: User }) {
     const [verifying, setVerifying] = useState(false); // UI state for entering code
     const [code, setCode] = useState("");
     const [isVerified, setIsVerified] = useState(user.whatsappOptIn);
+    const [resendTimer, setResendTimer] = useState(0); // Cooldown in seconds
 
     const [formData, setFormData] = useState({
         deliveryTime: user.deliveryTime || "08:00",
@@ -28,6 +29,16 @@ export function UserSettingsForm({ user }: { user: User }) {
         whatsappOptIn: user.whatsappOptIn,
         phoneNumber: user.phoneNumber || "",
     });
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [resendTimer]);
 
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
@@ -53,9 +64,14 @@ export function UserSettingsForm({ user }: { user: User }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'send', phoneNumber: formData.phoneNumber })
             });
+
             if (res.ok) {
                 setVerifying(true);
+                setResendTimer(60); // Start 60s cooldown
                 alert("Verification code sent to WhatsApp!");
+            } else if (res.status === 429) {
+                const txt = await res.text();
+                alert(txt); // "Please wait Xs..."
             } else {
                 const txt = await res.text();
                 alert("Failed to send code: " + txt);
@@ -84,7 +100,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                 router.refresh(); // Refresh to get server state update
                 alert("Phone Verified Successfully!");
             } else {
-                alert("Invalid code");
+                alert("Invalid code or expired");
             }
         } catch (e) {
             console.error(e);
@@ -155,7 +171,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                             <option value="America/New_York">New York (GMT-5)</option>
                             <option value="Europe/London">London (GMT+0)</option>
                         </optgroup>
-                        {/* Add more timezones as needed */}
                     </select>
                 </div>
 
@@ -219,32 +234,44 @@ export function UserSettingsForm({ user }: { user: User }) {
                             <button
                                 type="button"
                                 onClick={handleSendCode}
-                                disabled={loading || !formData.phoneNumber}
-                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                                disabled={loading || !formData.phoneNumber || resendTimer > 0}
+                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap"
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                Verify
+                                {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
                             </button>
                         )}
 
                         {verifying && (
-                            <div className="flex gap-2 flex-1">
-                                <input
-                                    type="text"
-                                    placeholder="123456"
-                                    value={code}
-                                    onChange={(e) => setCode(e.target.value)}
-                                    className={inputClasses + " text-center tracking-widest font-mono min-w-[140px]"}
-                                    maxLength={6}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleConfirmCode}
-                                    disabled={loading}
-                                    className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
-                                >
-                                    Confirm
-                                </button>
+                            <div className="flex flex-col gap-2 flex-1">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="123456"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        className={inputClasses + " text-center tracking-widest font-mono min-w-[140px]"}
+                                        maxLength={6}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleConfirmCode}
+                                        disabled={loading}
+                                        className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                                <div className="text-right">
+                                    <button
+                                        type="button"
+                                        onClick={handleSendCode}
+                                        disabled={resendTimer > 0 || loading}
+                                        className="text-xs text-gray-500 hover:text-gray-900 underline disabled:no-underline disabled:text-gray-300 transition-colors"
+                                    >
+                                        {resendTimer > 0 ? `Resend Code in ${resendTimer}s` : "Resend Code"}
+                                    </button>
+                                </div>
                             </div>
                         )}
 
