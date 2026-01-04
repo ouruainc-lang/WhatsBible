@@ -166,11 +166,11 @@ export function UserSettingsForm({ user }: { user: User }) {
                         className={inputClasses}
                     >
                         <option value="UTC">UTC (Universal Time)</option>
-                        <optgroup label="Popular">
-                            <option value="Asia/Singapore">Singapore (GMT+8)</option>
-                            <option value="America/New_York">New York (GMT-5)</option>
-                            <option value="Europe/London">London (GMT+0)</option>
-                        </optgroup>
+                        {Intl.supportedValuesOf('timeZone').map((tz) => (
+                            <option key={tz} value={tz}>
+                                {tz.replace(/_/g, ' ')}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
