@@ -19,7 +19,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
         const prompt = `
         You are a Catholic spiritual guide. Based on today's Mass readings, provide a concise summary and a short, uplifting spiritual reflection.
