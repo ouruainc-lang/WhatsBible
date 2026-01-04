@@ -89,7 +89,9 @@ export async function POST(req: Request) {
             // Template ID: HXd4da879edf15ed22f6b8ca62e26d9ffd
             const { sendWhatsAppTemplate } = await import('@/lib/whatsapp');
             try {
-                await sendWhatsAppTemplate(user.phoneNumber, "HXd4da879edf15ed22f6b8ca62e26d9ffd", {});
+                if (user.phoneNumber) {
+                    await sendWhatsAppTemplate(user.phoneNumber, "HXd4da879edf15ed22f6b8ca62e26d9ffd", {});
+                }
             } catch (error) {
                 console.error("Failed to send welcome message", error);
                 // Do not fail the verification just because welcome message failed
