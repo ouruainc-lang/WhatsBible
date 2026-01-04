@@ -211,9 +211,8 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     >
-                        <option value="KJV">King James Version (KJV)</option>
-                        <option value="ASV">American Standard Version (ASV)</option>
-                        <option value="WEB">World English Bible (WEB)</option>
+                        <option value="NABRE">NABRE (USCCB) - Standard</option>
+                        <option value="COMING_SOON" disabled>More versions coming soon...</option>
                     </select>
                 </div>
 
