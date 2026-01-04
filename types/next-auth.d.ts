@@ -6,6 +6,9 @@ declare module "next-auth" {
             id: string
             stripeCustomerId?: string | null
             stripeSubscriptionId?: string | null
+            subscriptionStatus: string // inactive, active, trial, past_due
+            whatsappOptIn: boolean
+            phoneNumber?: string | null
         } & DefaultSession["user"]
     }
 }

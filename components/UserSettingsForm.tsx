@@ -246,20 +246,26 @@ export function UserSettingsForm({ user }: { user: User }) {
                             placeholder="+1234567890"
                             value={formData.phoneNumber || ''}
                             onChange={handleChange}
-                            className={inputClasses}
-                            disabled={verifying}
+                            className={`${inputClasses} ${!['active', 'trial'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+                            disabled={verifying || !['active', 'trial'].includes(user.subscriptionStatus)}
                         />
 
                         {!isVerified && !verifying && (
                             <button
                                 type="button"
                                 onClick={handleSendCode}
-                                disabled={loading || !formData.phoneNumber || resendTimer > 0}
+                                disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial'].includes(user.subscriptionStatus)}
                                 className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap"
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                 {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
                             </button>
+                        )}
+
+                        {!['active', 'trial'].includes(user.subscriptionStatus) && (
+                            <p className="absolute -bottom-6 left-0 text-xs text-amber-600 font-medium flex items-center gap-1">
+                                🔒 Subscribe to enable WhatsApp delivery.
+                            </p>
                         )}
 
                         {verifying && (
