@@ -46,7 +46,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
 
         (Do not include the full text of readings, just the summary/reflection).
         
-        CRITICAL: Keep the total response length UNDER 1000 characters to fit in WhatsApp limits.
+        CRITICAL: Keep the total response length UNDER 1300 characters to fit in WhatsApp limits.
         `;
 
         const result = await model.generateContent(prompt);

@@ -166,7 +166,7 @@ export async function GET(req: Request) {
 
                             // Safety Truncation for WhatsApp (1600 limit)
                             // Reserve ~200 chars for link and potential overhead
-                            const MAX_AI_CHARS = 1300;
+                            const MAX_AI_CHARS = 1400;
                             let finalContent = generated;
 
                             if (finalContent.length > MAX_AI_CHARS) {
