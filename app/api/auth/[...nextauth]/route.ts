@@ -32,8 +32,17 @@ export const authOptions: NextAuthOptions = {
                     to: identifier,
                     from: provider.from,
                     subject: "Sign in to DailyWord",
-                    text: `Sign in here: ${url}`,
-                    html: `<a href="${url}">Sign in here</a>`
+                    text: `Sign in to DailyWord: ${url}`,
+                    html: `
+<body style="background: #f9fafb; padding: 40px 0; font-family: sans-serif;">
+  <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e5e7eb;">
+    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fbbf24, #f97316); border-radius: 12px; line-height: 48px; color: white; font-weight: bold; font-size: 24px; font-family: serif; margin: 0 auto 20px auto;">D</div>
+    <h1 style="color: #1f2937; font-family: serif; font-size: 28px; margin: 0 0 10px 0; tracking: -0.02em;">DailyWord</h1>
+    <p style="color: #6b7280; font-size: 16px; margin: 0 0 30px 0;">Click the button below to sign in to your account.</p>
+    <a href="${url}" style="background-color: #111827; color: white; padding: 12px 32px; border-radius: 9999px; text-decoration: none; font-weight: 500; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Sign In</a>
+    <p style="color: #9ca3af; font-size: 12px; margin-top: 40px;">If you didn't request this email, you can safely ignore it.</p>
+  </div>
+</body>`
                 });
             },
         }),

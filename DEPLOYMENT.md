@@ -19,7 +19,7 @@ Before we deploy, ensure you have accounts with these services:
 ## Phase 2: Database Setup (Supabase)
 
 1.  Log in to [Supabase](https://supabase.com/).
-2.  **Create Project**: Name it "whatsbible-prod".
+2.  **Create Project**: Name it "dailyword-prod" (or similar).
 3.  **Get Connection String**:
     *   Go to `Settings` (cog icon) → `Database`.
     *   Under "Connection String", select `Node.js`.
@@ -33,7 +33,7 @@ Before we deploy, ensure you have accounts with these services:
 NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) is the easiest free option (100 emails/day).
 
 1.  Log in to [Resend](https://resend.com).
-2.  **Add Domain**: If you have a custom domain (e.g., `whatsbible.com`), add it. If not, you can test with your personal email, but for production, you need a domain.
+2.  **Add Domain**: Use your custom domain: `dailyword.space`.
 3.  **Create API Key**:
     *   Go to `API Keys` → `Create API Key`.
     *   Name it "production".
@@ -43,7 +43,7 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
     *   Port: `465` (Secure)
     *   User: `resend`
     *   Password: `[YOUR_API_KEY]`
-    *   From: `onboarding@resend.dev` (or your verified domain like `grace@whatsbible.com`).
+    *   From: `hello@dailyword.space` (or `login@dailyword.space`).
 
 ---
 
@@ -52,7 +52,7 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
 1.  Log in to [Stripe Dashboard](https://dashboard.stripe.com/).
 2.  **Create Product**:
     *   Go to `Products` → `Add Product`.
-    *   Name: "WhatsBible Monthly" / "WhatsBible Yearly".
+    *   Name: "DailyWord Monthly" / "DailyWord Yearly".
     *   Set Pricing (e.g., $4.99 Recurring Monthly).
     *   **Copy the Price ID** (starts with `price_...`). You need this for the code (or update the code to fetch dynamically).
 3.  **Get API Keys**:
@@ -89,7 +89,7 @@ To send daily messages without the user messaging you first (24h window), you MU
     *   Content Type: **Text**.
     *   Body: `Here is your Daily Grace:`
         `{{1}}`
-        `Blessings, WhatsBible Team`
+        `Blessings, DailyWord Team`
 3.  **Save & Submit**:
     *   It typically gets approved instantly (for test/production).
 4.  **Copy Content SID**:
@@ -110,7 +110,7 @@ To send daily messages without the user messaging you first (24h window), you MU
     | :--- | :--- |
     | `DATABASE_URL` | Supabase Pooler (Port 6543) + `?pgbouncer=true&connection_limit=1` |
     | `DIRECT_URL` | Supabase Direct (Port 5432) |
-    | `NEXTAUTH_URL` | `https://your-project-name.vercel.app` (The deployment URL) |
+    | `NEXTAUTH_URL` | `https://dailyword.space` (Your Custom Domain) |
     | `NEXTAUTH_SECRET` | Generate random: `openssl rand -base64 32` |
     | `STRIPE_SECRET_KEY` | Stripe Secret Key (Phase 4) |
     | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Publishable Key (Phase 4) |
@@ -143,7 +143,7 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 
 2.  **Stripe Webhook**:
     *   Go back to [Stripe Webhooks](https://dashboard.stripe.com/webhooks).
-    *   Add Endpoint: `https://whatsbible.vercel.app/api/stripe/webhook`
+    *   Add Endpoint: `https://dailyword.space/api/stripe/webhook`
     *   Select events: 
         *   `checkout.session.completed`
         *   `invoice.payment_succeeded`
@@ -156,7 +156,7 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 
 3.  **Twilio Webhook (Optional)**:
     *   For incoming messages (like "STOP"), you can set the webhook in Twilio Console -> Messaging -> Senders -> WhatsApp Settings to:
-    *   `https://your-project.vercel.app/api/whatsapp/webhook`
+    *   `https://dailyword.space/api/whatsapp/webhook`
 
 4.  **Cron Job**:
     *   Go to Vercel Dashboard -> Project -> **Cron Jobs**.
@@ -170,9 +170,9 @@ Once Vercel finishes deploying and gives you a URL (e.g., `https://whatsbible.ve
 2.  **Test Update**: Save your phone number in Settings.
 3.  **Test Cron**:
     *   Manually invoke the cron job via Vercel Dashboard or curl:
-    *   **Standard**: `curl "https://whatsbible.vercel.app/api/cron?secret=[YOUR_CRON_SECRET]"`
+    *   **Standard**: `curl "https://dailyword.space/api/cron?secret=[YOUR_CRON_SECRET]"`
     *   **Force Manual Trigger** (Bypass Time Check):
-        *   Visit: `https://whatsbible.vercel.app/api/cron?force=true`
+        *   Visit: `https://dailyword.space/api/cron?force=true`
         *   This sends messages to ALL active users immediately, regardless of their scheduled time.
 
 **🚀 You are Live!**
