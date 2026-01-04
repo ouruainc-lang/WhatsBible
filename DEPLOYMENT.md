@@ -45,7 +45,30 @@ NextAuth needs an SMTP server to send magic links. [Resend](https://resend.com) 
     *   Password: `[YOUR_API_KEY]`
     *   From: `hello@dailyword.space` (or `login@dailyword.space`).
 
+    *   From: `hello@dailyword.space` (or `login@dailyword.space`).
+
 ---
+
+## Phase 3.5: Google OAuth Setup (For One-Click Login)
+
+1.  Go to [Google Cloud Console](https://console.cloud.google.com/).
+2.  **Create Project**: Name it "DailyWord Auth".
+3.  **OAuth Consent Screen**:
+    *   User Type: **External**.
+    *   App Name: "DailyWord".
+    *   Support Email: `support@dailyword.space` (or your email).
+    *   Developer Email: Your email.
+    *   Save & Continue.
+4.  **Credentials**:
+    *   Go to Credentials -> Create Credentials -> **OAuth Client ID**.
+    *   Application Type: **Web application**.
+    *   Name: "DailyWord Prod".
+    *   **Authorized JavaScript Origins**: `https://dailyword.space`
+    *   **Authorized Redirect URIs**: `https://dailyword.space/api/auth/callback/google`
+    *   *(For local dev, add `http://localhost:3000` and `http://localhost:3000/api/auth/callback/google`)*.
+5.  **Copy Credentials**:
+    *   Copy **Client ID**.
+    *   Copy **Client Secret**. (Save these for Vercel).
 
 ## Phase 4: Payments (Stripe)
 
@@ -112,6 +135,8 @@ To send daily messages without the user messaging you first (24h window), you MU
     | `DIRECT_URL` | Supabase Direct (Port 5432) |
     | `NEXTAUTH_URL` | `https://dailyword.space` (Your Custom Domain) |
     | `NEXTAUTH_SECRET` | Generate random: `openssl rand -base64 32` |
+    | `GOOGLE_CLIENT_ID` | Google Cloud Console (Phase 3.5) |
+    | `GOOGLE_CLIENT_SECRET` | Google Cloud Console (Phase 3.5) |
     | `STRIPE_SECRET_KEY` | Stripe Secret Key (Phase 4) |
     | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Publishable Key (Phase 4) |
     | `STRIPE_WEBHOOK_SECRET` | *Leave empty for now, see Phase 7* |
