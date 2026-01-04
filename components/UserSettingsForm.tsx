@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, CheckCircle, Send, Radio } from "lucide-react";
 
 interface User {
     deliveryTime: string;
@@ -16,21 +16,100 @@ interface User {
 export function UserSettingsForm({ user }: { user: User }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false); // UI state for entering code
+    const [code, setCode] = useState("");
+    const [isVerified, setIsVerified] = useState(user.whatsappOptIn);
+
     const [formData, setFormData] = useState({
         deliveryTime: user.deliveryTime || "08:00",
         timezone: user.timezone || "UTC",
         bibleVersion: user.bibleVersion || "KJV",
         contentPreference: user.contentPreference || "VER",
         whatsappOptIn: user.whatsappOptIn,
-        phoneNumber: user.phoneNumber,
+        phoneNumber: user.phoneNumber || "",
     });
 
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
+
+        // If changing phone number, reset verification
+        if (name === 'phoneNumber' && value !== user.phoneNumber) {
+            setIsVerified(false);
+            setFormData(prev => ({ ...prev, whatsappOptIn: false }));
+        }
+
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleSendCode = async () => {
+        if (!formData.phoneNumber) return alert("Please enter a phone number");
+        setLoading(true);
+        try {
+            const res = await fetch('/api/user/verify-phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'send', phoneNumber: formData.phoneNumber })
+            });
+            if (res.ok) {
+                setVerifying(true);
+                alert("Verification code sent to WhatsApp!");
+            } else {
+                const txt = await res.text();
+                alert("Failed to send code: " + txt);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error sending code");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleConfirmCode = async () => {
+        if (!code) return alert("Enter code");
+        setLoading(true);
+        try {
+            const res = await fetch('/api/user/verify-phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'confirm', code })
+            });
+            if (res.ok) {
+                setIsVerified(true);
+                setVerifying(false);
+                setFormData(prev => ({ ...prev, whatsappOptIn: true }));
+                router.refresh(); // Refresh to get server state update
+                alert("Phone Verified Successfully!");
+            } else {
+                alert("Invalid code");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error confirming code");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTestMessage = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/user/test-message', { method: 'POST' });
+            if (res.ok) {
+                alert("Test message sent! Check WhatsApp.");
+            } else {
+                const txt = await res.text();
+                alert("Failed to send test: " + txt);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error sending test message");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSubmit = async (e: any) => {
@@ -71,39 +150,12 @@ export function UserSettingsForm({ user }: { user: User }) {
                         className={inputClasses}
                     >
                         <option value="UTC">UTC (Universal Time)</option>
-
                         <optgroup label="Popular">
-                            <option value="Asia/Singapore">Singapore / Malaysia (GMT+8)</option>
-                            <option value="America/New_York">Eastern Time - US & Canada (GMT-5)</option>
-                            <option value="America/Los_Angeles">Pacific Time - US & Canada (GMT-8)</option>
+                            <option value="Asia/Singapore">Singapore (GMT+8)</option>
+                            <option value="America/New_York">New York (GMT-5)</option>
                             <option value="Europe/London">London (GMT+0)</option>
                         </optgroup>
-
-                        <optgroup label="All Timezones">
-                            <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
-                            <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
-                            <option value="America/Anchorage">(GMT-09:00) Alaska</option>
-                            <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
-                            <option value="America/Denver">(GMT-07:00) Mountain Time (US & Canada)</option>
-                            <option value="America/Chicago">(GMT-06:00) Central Time (US & Canada)</option>
-                            <option value="America/New_York">(GMT-05:00) Eastern Time (US & Canada)</option>
-                            <option value="America/Halifax">(GMT-04:00) Atlantic Time (Canada)</option>
-                            <option value="America/Sao_Paulo">(GMT-03:00) Brasilia</option>
-                            <option value="Atlantic/Azores">(GMT-01:00) Azores</option>
-                            <option value="Europe/London">(GMT+00:00) London, Dublin, Lisbon</option>
-                            <option value="Europe/Paris">(GMT+01:00) Paris, Berlin, Rome, Madrid</option>
-                            <option value="Europe/Istanbul">(GMT+03:00) Istanbul, Moscow</option>
-                            <option value="Asia/Dubai">(GMT+04:00) Dubai, Abu Dhabi</option>
-                            <option value="Asia/Karachi">(GMT+05:00) Islamabad, Karachi</option>
-                            <option value="Asia/Kolkata">(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
-                            <option value="Asia/Dhaka">(GMT+06:00) Dhaka, Astana</option>
-                            <option value="Asia/Bangkok">(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
-                            <option value="Asia/Singapore">(GMT+08:00) Kuala Lumpur, Singapore</option>
-                            <option value="Asia/Hong_Kong">(GMT+08:00) Hong Kong, Beijing</option>
-                            <option value="Asia/Tokyo">(GMT+09:00) Osaka, Sapporo, Tokyo</option>
-                            <option value="Australia/Sydney">(GMT+10:00) Canberra, Melbourne, Sydney</option>
-                            <option value="Pacific/Auckland">(GMT+12:00) Auckland, Wellington</option>
-                        </optgroup>
+                        {/* Add more timezones as needed */}
                     </select>
                 </div>
 
@@ -116,7 +168,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     />
-                    <p className="text-xs text-gray-400 mt-1.5 ml-1">Messages are checked every minute.</p>
                 </div>
             </div>
 
@@ -143,16 +194,17 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     >
-                        <option value="VER">Daily Verse (One Verse)</option>
-                        <option value="RDG">Daily Reading (Passage)</option>
+                        <option value="VER">Daily Verse</option>
+                        <option value="RDG">Daily Readings</option>
                     </select>
                 </div>
             </div>
 
-            <div className="pt-2 border-t border-gray-100 mt-4">
+            <div className="pt-4 border-t border-gray-100">
                 <label className={labelClasses}>WhatsApp Connection</label>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1">
+
+                <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-3">
                         <input
                             type="tel"
                             name="phoneNumber"
@@ -160,20 +212,69 @@ export function UserSettingsForm({ user }: { user: User }) {
                             value={formData.phoneNumber || ''}
                             onChange={handleChange}
                             className={inputClasses}
+                            disabled={verifying}
                         />
-                        <p className="text-xs text-gray-400 mt-1.5 ml-1">Must include country code (e.g. +1 for US)</p>
+
+                        {!isVerified && !verifying && (
+                            <button
+                                type="button"
+                                onClick={handleSendCode}
+                                disabled={loading || !formData.phoneNumber}
+                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                            >
+                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                Verify
+                            </button>
+                        )}
+
+                        {verifying && (
+                            <div className="flex gap-2 flex-1">
+                                <input
+                                    type="text"
+                                    placeholder="123456"
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    className={inputClasses + " text-center tracking-widest font-mono"}
+                                    maxLength={6}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleConfirmCode}
+                                    disabled={loading}
+                                    className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        )}
+
+                        {isVerified && (
+                            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl border border-green-100 font-medium whitespace-nowrap">
+                                <CheckCircle className="w-5 h-5" />
+                                Verified
+                            </div>
+                        )}
                     </div>
-                    <div className="flex items-center gap-3 bg-gray-50 px-4 rounded-xl border border-gray-100">
-                        <input
-                            type="checkbox"
-                            name="whatsappOptIn"
-                            checked={formData.whatsappOptIn}
-                            onChange={handleChange}
-                            id="whatsappOptIn"
-                            className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
-                        />
-                        <label htmlFor="whatsappOptIn" className="text-sm font-medium text-gray-700 cursor-pointer select-none">Enable Messages</label>
-                    </div>
+
+                    {isVerified && (
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-3 h-3 rounded-full ${formData.whatsappOptIn ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                <span className="text-sm text-gray-700">
+                                    {formData.whatsappOptIn ? 'Daily Messages Active' : 'Messages Paused'}
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleTestMessage}
+                                disabled={loading}
+                                className="text-sm text-gray-600 hover:text-gray-900 font-medium underline inline-flex items-center gap-1"
+                            >
+                                <Radio className="w-3 h-3" />
+                                Send Test
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -184,7 +285,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                     className="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 disabled:opacity-50 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    {loading ? 'Saving Changes...' : 'Save Settings'}
+                    {loading ? 'Saving...' : 'Save Settings'}
                 </button>
             </div>
         </form>

@@ -24,6 +24,8 @@ model User {
   stripeCustomerId String? @unique
   stripeSubscriptionId String? @unique
   stripeCancelAtPeriodEnd Boolean @default(false)
+  phoneVerificationCode   String?
+  phoneVerificationExpires DateTime?
   trialStartDate   DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
