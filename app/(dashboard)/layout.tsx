@@ -20,7 +20,7 @@ export default async function DashboardLayout({
             <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
                 <div className="container mx-auto px-6 h-16 flex items-center justify-between">
                     <Link className="text-xl font-serif font-bold text-gray-900 tracking-tight" href="/">
-                        WhatsBible
+                        DailyWord
                     </Link>
                     <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-500 hidden sm:inline-block">Logged in as {session.user?.email}</span>

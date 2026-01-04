@@ -8,7 +8,7 @@ export default function Home() {
       <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-white/20">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link className="text-2xl font-serif font-bold text-gray-900 tracking-tight" href="#">
-            WhatsBible
+            DailyWord
           </Link>
           <nav className="hidden md:flex gap-8">
             <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#features">
@@ -79,9 +79,9 @@ export default function Home() {
                     {/* WhatsApp Header */}
                     <div className="h-20 bg-[#008069] flex items-end pb-3 px-4 text-white shadow-sm">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs">WB</div>
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs">DW</div>
                         <div>
-                          <div className="font-medium text-sm">WhatsBible</div>
+                          <div className="font-medium text-sm">DailyWord</div>
                           <div className="text-[10px] opacity-80">tap for info</div>
                         </div>
                       </div>

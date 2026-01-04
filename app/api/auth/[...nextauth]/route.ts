@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
                 await transport.sendMail({
                     to: identifier,
                     from: provider.from,
-                    subject: "Sign in to WhatsBible",
+                    subject: "Sign in to DailyWord",
                     text: `Sign in here: ${url}`,
                     html: `<a href="${url}">Sign in here</a>`
                 });

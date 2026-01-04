@@ -51,7 +51,7 @@ export async function POST(req: Request) {
             });
 
             // Send via WhatsApp
-            await sendWhatsAppMessage(phoneNumber, `Your WhatsBible verification code is: *${otp}*\n\nThis code expires in 10 minutes.`);
+            await sendWhatsAppMessage(phoneNumber, `Your DailyWord verification code is: *${otp}*\n\nThis code expires in 10 minutes.`);
 
             return NextResponse.json({ success: true, message: 'Code sent' });
         }

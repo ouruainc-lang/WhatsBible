@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "WhatsBible | Daily Grace, Delivered",
+  title: "DailyWord | Daily Grace, Delivered",
   description: "Receive a hand-picked daily Bible verse directly to your WhatsApp. Start your day with inspiration.",
 };
 

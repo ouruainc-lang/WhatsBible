@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         }
 
         // Send a sample message
-        const body = `👋 This is a TEST message from WhatsBible!\n\nYour specific daily delivery is scheduled for ${user.deliveryTime} (User Time).\n\nBlessings!`;
+        const body = `👋 This is a TEST message from DailyWord!\n\nYour specific daily delivery is scheduled for ${user.deliveryTime} (User Time).\n\nBlessings!`;
 
         await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
             "1": body

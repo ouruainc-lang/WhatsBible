@@ -43,12 +43,12 @@ export async function POST(req: Request) {
                     create: {
                         phoneNumber: from,
                         whatsappOptIn: true,
-                        email: `user_${from}@temp.whatsbible.com` // Placeholder email if they start via WA
+                        email: `user_${from}@temp.dailyword.space` // Placeholder email if they start via WA
                     }
                 });
 
                 // Reply with text (Works because it's a user-initiated 24h window)
-                await sendWhatsAppMessage(from, "Welcome to WhatsBible! You are subscribed. Reply STOP to cancel.");
+                await sendWhatsAppMessage(from, "Welcome to DailyWord! You are subscribed. Reply STOP to cancel.");
 
             } else if (text === 'STOP') {
                 await prisma.user.updateMany({

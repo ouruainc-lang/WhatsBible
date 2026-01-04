@@ -37,7 +37,7 @@ export default function SignIn() {
             <div className="w-full max-w-md relative z-10">
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-block">
-                        <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">WhatsBible</h1>
+                        <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">DailyWord</h1>
                     </Link>
                 </div>
 
