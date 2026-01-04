@@ -34,7 +34,7 @@ export async function POST(req: Request) {
                 userId: user.id as string,
             },
             subscription_data: {
-                trial_period_days: isTrial ? 7 : undefined,
+                trial_period_days: 7,
             },
             success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
             cancel_url: `${process.env.NEXTAUTH_URL}/dashboard?canceled=true`,

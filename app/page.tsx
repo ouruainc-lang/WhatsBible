@@ -64,7 +64,7 @@ export default function Home() {
                   </Link>
                 </div>
                 <div className="pt-4 flex items-center justify-center lg:justify-start gap-2 text-sm text-gray-500">
-                  <Check className="w-4 h-4 text-green-500" /> No credit card required for trial
+                  {/* <Check className="w-4 h-4 text-green-500" /> No credit card required for trial */}
                 </div>
               </div>
 
