@@ -142,9 +142,46 @@ export async function GET(req: Request) {
                         body = mainContent + link;
                     } else {
                         // Fallback
-                        const content = readingOfDay;
+                        const content = readingOfDay as any;
                         body = `Daily Reading:\n${content.text}\n- ${content.reference}`;
                         logRef = content.reference;
+                    }
+                } else if (user.contentPreference === 'REF') {
+                    // AI Summary & Reflection
+                    const dateKey = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+                    // Check Cache
+                    let dailyReflection = await prisma.dailyReflection.findUnique({
+                        where: { date: dateKey }
+                    });
+
+                    if (!dailyReflection) {
+                        console.log(`[CRON] Generating new AI Reflection for ${dateKey}...`);
+                        // We need the readings to generate reflection
+                        const { generateReflection } = await import('@/lib/gemini');
+                        const r = readingOfDay as any;
+
+                        if (r && r.structure) {
+                            const generated = await generateReflection(readingOfDay as any);
+                            const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
+                            const contentWithLink = generated + "\n\n" + link;
+
+                            dailyReflection = await prisma.dailyReflection.create({
+                                data: {
+                                    date: dateKey,
+                                    content: contentWithLink
+                                }
+                            });
+                        } else {
+                            // Fallback if no readings available to summarize
+                            body = "Daily Readings unavailable for summary today.";
+                            console.warn("[CRON] No readings available for AI summary.");
+                        }
+                    }
+
+                    if (dailyReflection) {
+                        body = dailyReflection.content;
+                        logRef = "AI Reflection";
                     }
                 } else {
                     const content = verseOfDay;

@@ -5,7 +5,7 @@
 # 1. DATABASE_URL: Use Port 6543 (Supabase Pooler).
 # Try this first. It solves the IPv6 issue on Vercel.
 # Note: Password encoded '%40'
-DATABASE_URL="postgresql://postgres:Lolred%401507361@db.ifsgibnnsnnjypdfodvt.supabase.co:6543/postgres?pgbouncer=true"
+DATABASE_URL="postgresql://postgres:Lolred%401507361@db.ifsgibnnsnnjypdfodvt.supabase.co:6543/postgres?pgbouncer=true&connection_limit=1"
 
 # 2. DIRECT_URL: Use Port 5432 (Direct). 
 # Used for migrations. If this fails, use the 6543 URL here too (Mode: Session).

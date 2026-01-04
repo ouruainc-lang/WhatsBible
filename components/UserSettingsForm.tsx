@@ -210,7 +210,9 @@ export function UserSettingsForm({ user }: { user: User }) {
                         className={inputClasses}
                     >
                         <option value="VER">Daily Verse</option>
-                        <option value="RDG">Daily Readings</option>
+                        <option value="VER">Daily Verse</option>
+                        <option value="RDG">Daily Readings (Full)</option>
+                        <option value="REF">Summary & Reflection (AI)</option>
                     </select>
                 </div>
             </div>

@@ -18,7 +18,7 @@ model User {
   timezone         String   @default("UTC")
   deliveryTime     String   @default("08:00") // 24h format
   bibleVersion     String   @default("KJV")
-  contentPreference String  @default("VER") // VER (Verse) or RDG (Reading)
+  contentPreference String  @default("VER") // VER (Verse), RDG (Reading), REF (Reflection)
   whatsappOptIn    Boolean  @default(false)
   subscriptionStatus String @default("inactive") // inactive, active, trial, past_due
   stripeCustomerId String? @unique
@@ -78,4 +78,11 @@ model VerseLog {
   verseRef  String
   sentAt    DateTime @default(now())
   status    String   // success, failed
+}
+
+model DailyReflection {
+  id        String   @id @default(cuid())
+  date      String   @unique // YYYY-MM-DD
+  content   String   // The generated AI content
+  createdAt DateTime @default(now())
 }
