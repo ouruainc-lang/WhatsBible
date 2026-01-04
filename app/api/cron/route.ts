@@ -162,7 +162,13 @@ export async function GET(req: Request) {
                         const r = readingOfDay as any;
 
                         if (r && r.structure) {
-                            const generated = await generateReflection(readingOfDay as any);
+                            // Inject the date into the structure to match DailyReading interface
+                            const readingsForAi = {
+                                ...r.structure,
+                                date: dateKey
+                            };
+
+                            const generated = await generateReflection(readingsForAi);
                             const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
                             const contentWithLink = generated + "\n\n" + link;
 
