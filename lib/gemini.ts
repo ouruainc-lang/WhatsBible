@@ -39,7 +39,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
         (1-2 sentence summary of the key theme of the readings)
 
         🕊️ *Reflection*
-        (2 short paragraphs of spiritual application for daily life. Be encouraging and insightful.)
+        (2 short paragraphs of spiritual application. **IMPORTANT: You MUST include 1-2 direct quotes (short phrases) from the readings to support your points.** Use "quotation marks" for these.)
 
         🙏 *Prayer*
         (A very short 1-sentence prayer)
