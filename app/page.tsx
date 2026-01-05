@@ -106,11 +106,34 @@ export default function Home() {
                       </div>
 
                       {/* Message Bubble */}
-                      <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[90%] text-sm text-gray-800 relative animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <p className="mb-2 italic">"For I know the plans I have for you," declares the LORD, "plans to prosper you and not to harm you, plans to give you hope and a future."</p>
-                        <p className="font-semibold text-xs text-gray-500">- Jeremiah 29:11</p>
-                        <div className="text-[10px] text-gray-400 text-right mt-1 flex justify-end gap-1 items-center">
-                          08:00 AM <Check className="w-3 h-3 text-blue-500" />
+                      <div className="bg-white p-3.5 rounded-lg rounded-tl-none shadow-sm max-w-[90%] text-sm text-gray-800 relative animate-in fade-in slide-in-from-bottom-4 duration-700 leading-relaxed font-sans">
+                        <p className="font-bold mb-3 text-gray-900">📅 Daily Bible Summary</p>
+
+                        <p className="font-semibold text-[#d97706] mb-1 text-xs">✨ The Word</p>
+                        <p className="mb-3 text-xs leading-relaxed text-gray-700">
+                          Today's readings call us to live in love, believing in Jesus and discerning truth by the Spirit. Jesus' ministry begins in darkness, bringing light and hope, as the Kingdom of Heaven is at hand.
+                        </p>
+
+                        <p className="font-semibold text-blue-600 mb-1 text-xs">🕊️ Reflection</p>
+                        <p className="mb-3 text-xs leading-relaxed text-gray-700">
+                          We are called to live out our faith by believing in the name of His Son, Jesus Christ, and loving one another (1 John 3:23). This love, empowered by the Holy Spirit, is our surest guide.
+                          <br /><br />
+                          Just as Jesus brought light to those "who sit in darkness" (Matthew 4:16), we too are called to be bearers of His light. Let us trust in the Spirit He has given us and live lives that reflect His love and truth.
+                        </p>
+
+                        <p className="font-semibold text-purple-600 mb-1 text-xs">🙏 Prayer</p>
+                        <p className="mb-3 text-xs leading-relaxed text-gray-700">
+                          Lord, help us to live in Your love and be Your light in the world.
+                          <br />
+                          Amen.
+                        </p>
+
+                        <p className="text-xs text-blue-500 mb-2 truncate">
+                          Read full: <span className="underline">dailyword.space/readings/2026-01-05</span>
+                        </p>
+
+                        <div className="text-[10px] text-gray-400 text-right mt-1 flex justify-end gap-1 items-center border-t border-gray-100 pt-2">
+                          DailyWord • 08:00 AM <Check className="w-3 h-3 text-[#008069]" />
                         </div>
                       </div>
                     </div>
