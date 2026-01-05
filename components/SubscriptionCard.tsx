@@ -126,11 +126,11 @@ export function SubscriptionCard({ user }: { user: User }) {
                                 className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-amber-200 hover:border-amber-400 rounded-xl transition-all group text-left shadow-md hover:shadow-lg ring-1 ring-amber-100"
                             >
                                 <div className="absolute -top-2.5 right-4 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                    SAVE 20%
+                                    SAVE 50%
                                 </div>
                                 <div>
                                     <span className="block text-xs font-semibold text-amber-600 mb-0.5">Yearly (Best Value)</span>
-                                    <span className="block text-lg font-bold text-gray-900">$49.99<span className="text-sm font-normal text-gray-400">/yr</span></span>
+                                    <span className="block text-lg font-bold text-gray-900">$29.99<span className="text-sm font-normal text-gray-400">/yr</span></span>
                                 </div>
                                 <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 text-amber-600 transition-colors">
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
