@@ -21,11 +21,15 @@ export async function PATCH(req: Request) {
     };
 
     // Only update phone number if it's explicitly provided and different
+    // STRICT MODE: Phone number can ONLY be updated via verify-phone verification process.
+    // We ignore any phoneNumber updates sent to this generic settings endpoint.
+    /* 
     if (phoneNumber !== undefined && phoneNumber !== currentUser?.phoneNumber) {
         updateData.phoneNumber = phoneNumber;
         updateData.whatsappOptIn = false; // Force disable if number changes
         updateData.phoneVerificationCode = null; // Invalidate 'VERIFIED' status
     }
+    */
 
     const updatedUser = await prisma.user.update({
         where: { id: session.user.id },
