@@ -38,7 +38,7 @@ export function Footer() {
                         <ul className="space-y-3 text-sm text-gray-600">
                             <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
                             <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                            <li><a href="mailto:support@dailyword.space" className="hover:text-primary transition-colors">Contact: support@dailyword.space</a></li>
                         </ul>
                     </div>
                 </div>
