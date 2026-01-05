@@ -16,16 +16,12 @@ export function SubscriptionCard({ user }: { user: User }) {
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
         setLoading(true);
         try {
-            const priceId = plan === 'MONTHLY'
-                ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || "price_1Sl3A4A8SVoD2AVqsESgszC5"
-                : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || "price_1Sl3B4A8SVoD2AVq5GgHiiiD";
-
             const response = await fetch('/api/stripe/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    priceId,
-                    isTrial: true // Always request trial logic
+                    plan, // Send plan type ('MONTHLY' | 'YEARLY') to server
+                    isTrial: true
                 }),
             });
 

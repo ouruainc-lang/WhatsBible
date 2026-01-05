@@ -14,8 +14,16 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { priceId, isTrial } = body;
-        // isTrial depends on logic - maybe force trial if not subscribed before?
+        const { plan, isTrial } = body;
+
+        // Resolve Price ID Server-Side
+        let priceId = "";
+        if (plan === 'YEARLY') {
+            priceId = process.env.STRIPE_PRICE_ID_YEARLY || "price_1Sm2meATeOcXXq6dvYfXwXqf";
+        } else {
+            // Default to MONTHLY
+            priceId = process.env.STRIPE_PRICE_ID_MONTHLY || "price_1Sm2miATeOcXXq6d2rlX3aFM";
+        }
 
         // Fetch user from DB to get stripeCustomerId
         const dbUser = await prisma.user.findUnique({
