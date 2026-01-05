@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Check, Smartphone, BookOpen, Clock, Heart } from "lucide-react";
 
 export default function Home() {
@@ -7,8 +8,15 @@ export default function Home() {
       {/* Navigation */}
       <header className="fixed top-0 w-full z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-white/20">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link className="text-2xl font-serif font-bold text-gray-900 tracking-tight" href="#">
-            DailyWord
+          <Link className="flex items-center" href="#">
+            <Image
+              src="/dailywordlogo.png"
+              alt="DailyWord"
+              width={140}
+              height={40}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </Link>
           <nav className="hidden md:flex gap-8">
             <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#features">
