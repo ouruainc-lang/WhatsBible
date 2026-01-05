@@ -79,7 +79,7 @@ export async function POST(req: Request) {
             await prisma.user.update({
                 where: { id: session.user.id },
                 data: {
-                    phoneVerificationCode: null,
+                    phoneVerificationCode: "VERIFIED", // Sentinel value for persisted verification
                     phoneVerificationExpires: null,
                     whatsappOptIn: true // Enable messages!
                 }

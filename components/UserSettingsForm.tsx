@@ -27,18 +27,12 @@ export function UserSettingsForm({ user }: { user: User }) {
     const [loading, setLoading] = useState(false);
     const [verifying, setVerifying] = useState(false); // UI state for entering code
     const [code, setCode] = useState("");
-    // User is verified if they have a phone number saved
-    // Note: We used to check `!user.phoneVerificationCode` but if they pause, code is null.
-    // If they have a phone number in DB, it implies they verified it at some point (since we verify before saving)
-    // However, we want to distinguish "Verified" from "Unverified".
-    // Let's assume !!user.phoneNumber is enough because we only save phoneNumber after OTP confirmation or if it was already valid.
+    // User is verified if their verification code is the sentinel "VERIFIED"
+    const [isVerified, setIsVerified] = useState(user.phoneVerificationCode === "VERIFIED"); // Sentinel value check
     /*
-      Wait, Step 2458: We update `phoneNumber` in DB during "send" action (line 45).
-      So `phoneNumber` exists even if unverified.
-      AND `phoneVerificationCode` is set.
-      So `!!user.phoneNumber && !user.phoneVerificationCode` is the correct logic for "Verified".
+      Migration Note: Legacy verified users (null code) will need to re-verify. 
+      This is acceptable to ensure security and fix the bypass bug.
     */
-    const [isVerified, setIsVerified] = useState(!!user.phoneNumber && !user.phoneVerificationCode);
     const [resendTimer, setResendTimer] = useState(0); // Cooldown in seconds
 
     const [formData, setFormData] = useState({

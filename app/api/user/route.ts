@@ -10,16 +10,26 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { deliveryTime, timezone, bibleVersion, whatsappOptIn, contentPreference, phoneNumber } = body;
 
+    const currentUser = await prisma.user.findUnique({ where: { id: session.user.id } });
+
+    const updateData: any = {
+        deliveryTime,
+        timezone,
+        bibleVersion,
+        contentPreference,
+        whatsappOptIn,
+    };
+
+    // Only update phone number if it's explicitly provided and different
+    if (phoneNumber !== undefined && phoneNumber !== currentUser?.phoneNumber) {
+        updateData.phoneNumber = phoneNumber;
+        updateData.whatsappOptIn = false; // Force disable if number changes
+        updateData.phoneVerificationCode = null; // Invalidate 'VERIFIED' status
+    }
+
     const updatedUser = await prisma.user.update({
         where: { id: session.user.id },
-        data: {
-            deliveryTime,
-            timezone,
-            bibleVersion,
-            contentPreference,
-            whatsappOptIn,
-            phoneNumber
-        }
+        data: updateData
     });
 
     return NextResponse.json(updatedUser);
