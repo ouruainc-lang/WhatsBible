@@ -202,14 +202,14 @@ export async function GET(req: Request) {
 
                 // Twilio Content Template Logic
                 // Select template based on content type
-                // RDG (Full Reading) -> daily_gracev2 (HX3685afb8a1ad28c3a93292b08a77f37d)
-                // REF (AI Summary) -> daily_summaryv2 (HXcdbd77b8ba4a9da647a2330ebf219768)
+                // RDG (Full Reading) -> daily_gracev3
+                // REF (AI Summary) -> daily_summaryv3
 
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
-                    contentSid = "HXcdbd77b8ba4a9da647a2330ebf219768";
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
                 } else {
-                    contentSid = "HX3685afb8a1ad28c3a93292b08a77f37d";
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
                 }
 
                 if (contentSid) {

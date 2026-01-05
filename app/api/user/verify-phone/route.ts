@@ -86,11 +86,12 @@ export async function POST(req: Request) {
             });
 
             // Send Welcome Template
-            // Template ID: HXfbda59df029442ee135f2bcc8915bacf (welcome_messagev2)
+            // Template ID: welcome_messagev3
             const { sendWhatsAppTemplate } = await import('@/lib/whatsapp');
             try {
                 if (user.phoneNumber) {
-                    await sendWhatsAppTemplate(user.phoneNumber, "HXfbda59df029442ee135f2bcc8915bacf", {});
+                    const welcomeTemplate = process.env.WHATSAPP_TEMPLATE_WELCOME || "HXa22877988d6033668434c1fc651ed58d";
+                    await sendWhatsAppTemplate(user.phoneNumber, welcomeTemplate, {});
                 }
             } catch (error) {
                 console.error("Failed to send welcome message", error);
