@@ -19,6 +19,7 @@ interface User {
     subscriptionPlan?: string | null;
     stripeCustomerId?: string | null;
     lastTestMessageSentAt?: Date | string | null;
+    phoneVerificationCode?: string | null;
 }
 
 export function UserSettingsForm({ user }: { user: User }) {
