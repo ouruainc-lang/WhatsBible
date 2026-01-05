@@ -23,6 +23,10 @@ export function FAQ() {
         {
             question: "Do you support other timezones?",
             answer: "Yes! You can set your preferred delivery time in your local timezone, and our system ensures you receive your reading exactly when you want it."
+        },
+        {
+            question: "Why is there a cost?",
+            answer: "The subscription covers the necessary costs to keep DailyWord running reliably. This includes WhatsApp messaging fees, server costs for on-time delivery, and support for our team to continue improving the service."
         }
     ];
 
