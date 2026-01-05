@@ -14,6 +14,7 @@ model User {
   emailVerified    DateTime?
   image            String?
   phoneNumber      String?  @unique
+  pendingPhoneNumber String? // Temporary storage for verification to allow reclaiming numbers
   name             String?
   timezone         String   @default("UTC")
   deliveryTime     String   @default("08:00") // 24h format

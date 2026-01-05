@@ -36,34 +36,19 @@ export async function POST(req: Request) {
                 }
             }
 
-            // Check if number is taken by another user
-            const existingUser = await prisma.user.findUnique({
-                where: { phoneNumber: phoneNumber }
-            });
-
-            if (existingUser && existingUser.id !== session.user.id) {
-                if (existingUser.phoneVerificationCode === "VERIFIED") {
-                    return new NextResponse('Phone number is already registered to another verified account.', { status: 400 });
-                } else {
-                    // Release the number from the abandoned account
-                    await prisma.user.update({
-                        where: { id: existingUser.id },
-                        data: { phoneNumber: null, phoneVerificationCode: null, whatsappOptIn: false }
-                    });
-                }
-            }
-
             const otp = generateOTP();
             const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
+            // Store in pendingPhoneNumber to allow OTP sending even if number is taken (Recycled Number Flow)
             await prisma.user.update({
                 where: { id: session.user.id },
                 data: {
-                    phoneNumber: phoneNumber, // Update the number they want to verify
+                    // @ts-ignore
+                    pendingPhoneNumber: phoneNumber,
                     phoneVerificationCode: otp,
                     phoneVerificationExpires: expires,
-                    phoneVerificationSentAt: new Date(), // Set cooldown start
-                    whatsappOptIn: false // Reset opt-in until verified
+                    phoneVerificationSentAt: new Date(),
+                    whatsappOptIn: false
                 }
             });
 
@@ -92,27 +77,57 @@ export async function POST(req: Request) {
                 return new NextResponse('Invalid code', { status: 400 });
             }
 
-            // Success
-            await prisma.user.update({
-                where: { id: session.user.id },
-                data: {
-                    phoneVerificationCode: "VERIFIED", // Sentinel value for persisted verification
-                    phoneVerificationExpires: null,
-                    whatsappOptIn: true // Enable messages!
+            // @ts-ignore
+            const pendingPhone = user.pendingPhoneNumber;
+
+            if (!pendingPhone) {
+                return new NextResponse('No pending phone number found', { status: 400 });
+            }
+
+            // SUCCESS FLOW: Handle Recycled Numbers (Takeover)
+            // 1. Find if anyone else owns this number
+            const existingOwner = await prisma.user.findFirst({
+                where: {
+                    phoneNumber: pendingPhone,
+                    id: { not: user.id }
                 }
             });
 
+            // 2. Transaction to release old owner and assign to new
+            await prisma.$transaction(async (tx) => {
+                if (existingOwner) {
+                    // Release from old owner
+                    await tx.user.update({
+                        where: { id: existingOwner.id },
+                        data: {
+                            phoneNumber: null,
+                            phoneVerificationCode: null,
+                            whatsappOptIn: false
+                        }
+                    });
+                }
+
+                // Verify and Assign to current user
+                await tx.user.update({
+                    where: { id: user.id },
+                    data: {
+                        phoneNumber: pendingPhone,
+                        // @ts-ignore
+                        pendingPhoneNumber: null,
+                        phoneVerificationCode: "VERIFIED",
+                        phoneVerificationExpires: null,
+                        whatsappOptIn: true
+                    }
+                });
+            });
+
             // Send Welcome Template
-            // Template ID: welcome_messagev3
             const { sendWhatsAppTemplate } = await import('@/lib/whatsapp');
             try {
-                if (user.phoneNumber) {
-                    const welcomeTemplate = process.env.WHATSAPP_TEMPLATE_WELCOME || "HXa22877988d6033668434c1fc651ed58d";
-                    await sendWhatsAppTemplate(user.phoneNumber, welcomeTemplate, {});
-                }
+                const welcomeTemplate = process.env.WHATSAPP_TEMPLATE_WELCOME || "HXa22877988d6033668434c1fc651ed58d";
+                await sendWhatsAppTemplate(pendingPhone, welcomeTemplate, {});
             } catch (error) {
                 console.error("Failed to send welcome message", error);
-                // Do not fail the verification just because welcome message failed
             }
 
             return NextResponse.json({ success: true, message: 'Phone verified. Welcome message sent!' });
