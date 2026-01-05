@@ -219,11 +219,7 @@ export default function Home() {
 
       </main>
 
-      <footer className="bg-white border-t border-gray-100 py-12">
-        <div className="container px-6 mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-sm text-gray-500">© 2026 WhatsBible. All rights reserved.</p>
-          <nav className="flex gap-6">
-            <Footer />
-        </div>
-        );
+      <Footer />
+    </div>
+  );
 }
