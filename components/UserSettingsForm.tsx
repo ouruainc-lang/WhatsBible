@@ -27,7 +27,18 @@ export function UserSettingsForm({ user }: { user: User }) {
     const [loading, setLoading] = useState(false);
     const [verifying, setVerifying] = useState(false); // UI state for entering code
     const [code, setCode] = useState("");
-    const [isVerified, setIsVerified] = useState(user.whatsappOptIn);
+    // User is verified if they have a phone number saved
+    // Note: We used to check `!user.phoneVerificationCode` but if they pause, code is null.
+    // If they have a phone number in DB, it implies they verified it at some point (since we verify before saving)
+    // However, we want to distinguish "Verified" from "Unverified".
+    // Let's assume !!user.phoneNumber is enough because we only save phoneNumber after OTP confirmation or if it was already valid.
+    /*
+      Wait, Step 2458: We update `phoneNumber` in DB during "send" action (line 45).
+      So `phoneNumber` exists even if unverified.
+      AND `phoneVerificationCode` is set.
+      So `!!user.phoneNumber && !user.phoneVerificationCode` is the correct logic for "Verified".
+    */
+    const [isVerified, setIsVerified] = useState(!!user.phoneNumber && !user.phoneVerificationCode);
     const [resendTimer, setResendTimer] = useState(0); // Cooldown in seconds
 
     const [formData, setFormData] = useState({
@@ -196,6 +207,14 @@ export function UserSettingsForm({ user }: { user: User }) {
 
     const inputClasses = "w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm outline-none";
     const labelClasses = "block text-sm font-semibold text-gray-700 mb-1.5";
+
+    const isDirty =
+        formData.deliveryTime !== (user.deliveryTime || "08:00") ||
+        formData.timezone !== (user.timezone || "UTC") ||
+        formData.bibleVersion !== (user.bibleVersion || "KJV") ||
+        formData.contentPreference !== (user.contentPreference || "VER") ||
+        formData.whatsappOptIn !== user.whatsappOptIn ||
+        (formData.phoneNumber || "") !== (user.phoneNumber || "");
 
     return (
         <form onSubmit={handleSave} className="space-y-6">
@@ -413,7 +432,7 @@ export function UserSettingsForm({ user }: { user: User }) {
             <div className="pt-4">
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || !isDirty}
                     className="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 disabled:opacity-50 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
