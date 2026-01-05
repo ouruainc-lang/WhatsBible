@@ -1,11 +1,6 @@
 "use strict";
 import React from 'react';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
+
 
 export function FAQ() {
     const faqs = [
