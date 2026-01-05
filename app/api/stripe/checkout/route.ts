@@ -32,6 +32,7 @@ export async function POST(req: Request) {
 
         let checkoutOptions: any = {
             mode: 'subscription',
+            allow_promotion_codes: true,
             line_items: [
                 {
                     price: priceId,
