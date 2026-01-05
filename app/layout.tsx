@@ -7,8 +7,13 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "DailyWord | Daily Grace, Delivered",
-  description: "Receive a hand-picked daily Bible verse directly to your WhatsApp. Start your day with inspiration.",
+  title: "DailyWord | Catholic Daily Readings on WhatsApp",
+  description: "Get the daily Catholic Mass readings, reflections, and prayers delivered directly to your WhatsApp every morning. Start your day with grace.",
+  icons: {
+    icon: "/dailywordlogo.png",
+    shortcut: "/dailywordlogo.png",
+    apple: "/dailywordlogo.png",
+  },
 };
 
 export default function RootLayout({
