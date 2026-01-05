@@ -104,9 +104,18 @@ export function UserSettingsForm({ user }: { user: User }) {
             if (res.ok) {
                 setIsVerified(true);
                 setVerifying(false);
-                setFormData(prev => ({ ...prev, whatsappOptIn: true }));
-                router.refresh(); // Refresh to get server state update
-                toast.success("Phone Verified Successfully!");
+                const updatedFormData = { ...formData, whatsappOptIn: true };
+                setFormData(updatedFormData);
+
+                // Auto-save: Persist verification immediately
+                await fetch('/api/user', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedFormData)
+                }).catch(err => console.error("Auto-save failed", err));
+
+                router.refresh();
+                toast.success("Phone Verified & Saved! ✅");
             } else {
                 toast.error("Invalid code or expired");
             }
