@@ -278,12 +278,16 @@ export function UserSettingsForm({ user }: { user: User }) {
                                 placeholder="Enter phone number"
                                 value={formData.phoneNumber || ''}
                                 onChange={(value?: any) => {
-                                    // Handle phone change
-                                    if (value && value !== user.phoneNumber) {
+                                    const newValue = value || "";
+
+                                    // If number changed from saved verified number, reset verification
+                                    if (newValue !== (user.phoneNumber || "")) {
                                         setIsVerified(false);
-                                        setFormData(prev => ({ ...prev, phoneNumber: value || "", whatsappOptIn: false }));
-                                    } else if (!value) {
-                                        setFormData(prev => ({ ...prev, phoneNumber: "", whatsappOptIn: false }));
+                                        setFormData(prev => ({ ...prev, phoneNumber: newValue, whatsappOptIn: false }));
+                                    } else {
+                                        // If matches saved number, restore saved state
+                                        setIsVerified(user.whatsappOptIn);
+                                        setFormData(prev => ({ ...prev, phoneNumber: newValue, whatsappOptIn: user.whatsappOptIn }));
                                     }
                                 }}
                                 defaultCountry="US"
