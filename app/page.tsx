@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Check, Smartphone, BookOpen, Clock, Heart } from "lucide-react";
+import { FAQ } from "@/components/landing/FAQ";
+import { Footer } from "@/components/landing/Footer";
 
 export default function Home() {
   return (
@@ -221,12 +223,7 @@ export default function Home() {
         <div className="container px-6 mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-sm text-gray-500">© 2026 WhatsBible. All rights reserved.</p>
           <nav className="flex gap-6">
-            <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">Terms</Link>
-            <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">Privacy</Link>
-            <Link href="mailto:support@whatsbible.com" className="text-sm text-gray-500 hover:text-gray-900">Contact</Link>
-          </nav>
+            <Footer />
         </div>
-      </footer>
-    </div>
-  );
+        );
 }
