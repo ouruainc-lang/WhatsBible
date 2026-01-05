@@ -60,3 +60,41 @@ export async function sendWhatsAppTemplate(to: string, contentSid: string, varia
         throw new Error(error.message || 'Twilio Template Failed');
     }
 }
+
+// Verify API: Send Code
+export async function sendVerificationCode(to: string) {
+    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    if (!serviceSid) throw new Error("Missing TWILIO_VERIFY_SERVICE_SID");
+
+    // For Verify API, 'to' should be E.164 (e.g. +1234...) NO 'whatsapp:' prefix
+    const cleanNumber = to.replace(/[^\d+]/g, '');
+
+    try {
+        const verification = await client.verify.v2.services(serviceSid)
+            .verifications.create({ to: cleanNumber, channel: 'whatsapp' });
+        console.log(`[TWILIO] Verification sent: ${verification.sid}`);
+        return verification;
+    } catch (error: any) {
+        console.error('[TWILIO] Error sending verification:', error);
+        throw new Error(error.message || 'Twilio Verification Send Failed');
+    }
+}
+
+// Verify API: Check Code
+export async function checkVerificationCode(to: string, code: string) {
+    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    if (!serviceSid) throw new Error("Missing TWILIO_VERIFY_SERVICE_SID");
+
+    const cleanNumber = to.replace(/[^\d+]/g, '');
+
+    try {
+        const verificationCheck = await client.verify.v2.services(serviceSid)
+            .verificationChecks.create({ to: cleanNumber, code: code });
+
+        console.log(`[TWILIO] Verification status: ${verificationCheck.status}`);
+        return verificationCheck.status === 'approved';
+    } catch (error: any) {
+        console.error('[TWILIO] Error checking verification:', error);
+        throw new Error(error.message || 'Twilio Verification Check Failed');
+    }
+}
