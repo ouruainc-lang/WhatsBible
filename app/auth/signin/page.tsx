@@ -37,15 +37,16 @@ export default function SignIn() {
 
             <div className="w-full max-w-md relative z-10">
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-block">
+                    <Link href="/" className="inline-flex items-center gap-3 justify-center">
                         <Image
                             src="/dailywordlogo.png"
-                            alt="DailyWord"
-                            width={180}
-                            height={50}
-                            className="h-10 w-auto object-contain mx-auto"
+                            alt="DailyWord Logo"
+                            width={60}
+                            height={60}
+                            className="h-12 w-auto object-contain"
                             priority
                         />
+                        <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">DailyWord</h1>
                     </Link>
                 </div>
 
