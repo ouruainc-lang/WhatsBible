@@ -217,6 +217,7 @@ export default function Home() {
           </div>
         </section>
 
+        <FAQ />
       </main>
 
       <Footer />
