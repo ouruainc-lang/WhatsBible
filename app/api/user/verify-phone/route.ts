@@ -36,6 +36,23 @@ export async function POST(req: Request) {
                 }
             }
 
+            // Check if number is taken by another user
+            const existingUser = await prisma.user.findUnique({
+                where: { phoneNumber: phoneNumber }
+            });
+
+            if (existingUser && existingUser.id !== session.user.id) {
+                if (existingUser.phoneVerificationCode === "VERIFIED") {
+                    return new NextResponse('Phone number is already registered to another verified account.', { status: 400 });
+                } else {
+                    // Release the number from the abandoned account
+                    await prisma.user.update({
+                        where: { id: existingUser.id },
+                        data: { phoneNumber: null, phoneVerificationCode: null, whatsappOptIn: false }
+                    });
+                }
+            }
+
             const otp = generateOTP();
             const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
