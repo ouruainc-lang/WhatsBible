@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Save, Loader2, CheckCircle, Send, Radio, Link as LinkIcon, Check } from "lucide-react";
 import { toast } from 'sonner';
 import Link from 'next/link';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 interface User {
     deliveryTime: string;
@@ -16,6 +18,7 @@ interface User {
     subscriptionStatus: string;
     subscriptionPlan?: string | null;
     stripeCustomerId?: string | null;
+    lastTestMessageSentAt?: Date | string | null;
 }
 
 export function UserSettingsForm({ user }: { user: User }) {
@@ -133,6 +136,31 @@ export function UserSettingsForm({ user }: { user: User }) {
         }
     };
 
+    const handleTogglePause = async () => {
+        // Optimistic toggle
+        const newState = !formData.whatsappOptIn;
+        setFormData(prev => ({ ...prev, whatsappOptIn: newState }));
+
+        try {
+            // We save the full form with the new toggle state
+            const res = await fetch('/api/user', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...formData, whatsappOptIn: newState })
+            });
+            if (res.ok) {
+                toast.success(newState ? "Messages Resumed! 🎉" : "Messages Paused ⏸️");
+                router.refresh();
+            } else {
+                throw new Error("Failed");
+            }
+        } catch (e) {
+            toast.error("Failed to update status");
+            // Revert
+            setFormData(prev => ({ ...prev, whatsappOptIn: !newState }));
+        }
+    };
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -245,32 +273,43 @@ export function UserSettingsForm({ user }: { user: User }) {
 
                 <div className="space-y-4">
                     <div className="flex flex-col md:flex-row gap-3 relative">
-                        <input
-                            type="tel"
-                            name="phoneNumber"
-                            placeholder="+1234567890"
-                            value={formData.phoneNumber || ''}
-                            onChange={handleChange}
-                            className={`${inputClasses} ${!['active', 'trial'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
-                            disabled={verifying || !['active', 'trial'].includes(user.subscriptionStatus)}
-                        />
+                        <div className="flex-1">
+                            <PhoneInput
+                                placeholder="Enter phone number"
+                                value={formData.phoneNumber || ''}
+                                onChange={(value?: any) => {
+                                    // Handle phone change
+                                    if (value && value !== user.phoneNumber) {
+                                        setIsVerified(false);
+                                        setFormData(prev => ({ ...prev, phoneNumber: value || "", whatsappOptIn: false }));
+                                    } else if (!value) {
+                                        setFormData(prev => ({ ...prev, phoneNumber: "", whatsappOptIn: false }));
+                                    }
+                                }}
+                                defaultCountry="US"
+                                numberInputProps={{
+                                    className: "bg-transparent border-none outline-none w-full ml-2 text-sm text-gray-900 placeholder:text-gray-400"
+                                }}
+                                className={`flex items-center w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all ${!['active', 'trial'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                                    }`}
+                                disabled={verifying || !['active', 'trial'].includes(user.subscriptionStatus)}
+                            />
+                        </div>
 
                         {!isVerified && !verifying && (
                             <button
                                 type="button"
                                 onClick={handleSendCode}
                                 disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial'].includes(user.subscriptionStatus)}
-                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap"
+                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                                 {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
                             </button>
                         )}
 
-
-
                         {verifying && (
-                            <div className="flex flex-col gap-2 flex-1">
+                            <div className="flex flex-col gap-2 flex-1 md:flex-none">
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
@@ -303,7 +342,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                         )}
 
                         {isVerified && (
-                            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl border border-green-100 font-medium whitespace-nowrap">
+                            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl border border-green-100 font-medium whitespace-nowrap">
                                 <CheckCircle className="w-5 h-5" />
                                 Verified
                             </div>
@@ -319,22 +358,39 @@ export function UserSettingsForm({ user }: { user: User }) {
                     )}
 
                     {isVerified && (
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <div className={`w-3 h-3 rounded-full ${formData.whatsappOptIn ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                                <span className="text-sm text-gray-700">
+                                <span className="text-sm text-gray-700 font-medium">
                                     {formData.whatsappOptIn ? 'Daily Messages Active' : 'Messages Paused'}
                                 </span>
                             </div>
-                            <button
-                                type="button"
-                                onClick={handleTestMessage}
-                                disabled={loading}
-                                className="text-sm text-gray-600 hover:text-gray-900 font-medium underline inline-flex items-center gap-1"
-                            >
-                                <Radio className="w-3 h-3" />
-                                Send Test
-                            </button>
+
+                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <button
+                                    type="button"
+                                    onClick={handleTogglePause}
+                                    disabled={loading}
+                                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${formData.whatsappOptIn
+                                        ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
+                                        : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                                        }`}
+                                >
+                                    {formData.whatsappOptIn ? 'Pause Messages' : 'Resume Messages'}
+                                </button>
+
+                                <div className="h-4 w-px bg-gray-300 mx-1"></div>
+
+                                <button
+                                    type="button"
+                                    onClick={handleTestMessage}
+                                    disabled={loading}
+                                    className="text-sm text-gray-600 hover:text-gray-900 font-medium underline inline-flex items-center gap-1"
+                                >
+                                    <Radio className="w-3 h-3" />
+                                    Send Test
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

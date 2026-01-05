@@ -27,6 +27,7 @@ model User {
   phoneVerificationCode   String?
   phoneVerificationExpires DateTime?
   phoneVerificationSentAt DateTime?
+  lastTestMessageSentAt DateTime?
   trialStartDate   DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
