@@ -32,16 +32,11 @@ export async function generateReflection(readings: DailyReading): Promise<string
         ${readings.reading2 ? `3. Second Reading (${readings.reading2.reference}): ${readings.reading2.text.substring(0, 500)}...` : ''}
         4. Gospel (${readings.gospel.reference}): ${readings.gospel.text.substring(0, 800)}...
 
-        Format the output EXACTLY like this (ensure you use line breaks between sections):
+        Format the output as a SINGLE LINE with no line breaks, using '|' as a separator.
+        Example:
+        📖 *Word:* (Summary of the readings) | 🕊️ *Reflection:* (Spiritual application) | 🙏 *Prayer:* (Short prayer)
 
-        📖The Word
-        (A 2-3 sentence summary of the readings' key message)
-
-        🕊️ Reflection
-        (A short spiritual reflection connecting to daily life)
-
-        🙏 Prayer
-        (A short 1-sentence prayer)
+        CRITICAL: Keep the total length under 1000 characters.
         `;
 
         const result = await model.generateContent(prompt);

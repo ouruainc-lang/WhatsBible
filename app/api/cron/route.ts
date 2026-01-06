@@ -92,7 +92,7 @@ export async function GET(req: Request) {
 
                 // Helper: Allow newlines, but remove excessive tabs/spaces if needed.
                 // Twilio 'Invalid Content' often comes from complex formatting, but basic \n should be fine in many templates.
-                const sanitizeForTwilio = (text: string) => text.trim();
+                const sanitizeForTwilio = (text: string) => text.replace(/\n+/g, ' ').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
 
                 if (isReading) {
                     const r = readingOfDay as any;
