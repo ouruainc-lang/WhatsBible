@@ -103,10 +103,10 @@ export async function GET(req: Request) {
                         const s = r.structure;
                         logRef = s.title;
 
-                        // Construct flattened single string (Readings are better dense)
-                        body = `📖 ${s.reading1.reference} - ${s.reading1.text.substring(0, 200)}...  \n\n` +
-                            `🎵 ${s.psalm.reference} - ${s.psalm.text.substring(0, 100)}...  \n\n` +
-                            `✨ ${s.gospel.reference} - ${s.gospel.text.substring(0, 300)}...  \n\n` +
+                        // Construct flattened single string with separators
+                        body = `📖 *Reading 1:* ${s.reading1.reference} ${s.reading1.text.substring(0, 200)}... | ` +
+                            `🎵 *Psalm:* ${s.psalm.reference} ${s.psalm.text.substring(0, 100)}... | ` +
+                            `✨ *Gospel:* ${s.gospel.reference} ${s.gospel.text.substring(0, 300)}... | ` +
                             link;
                     } else {
                         const content = readingOfDay as any;
