@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Loader2, CheckCircle, Send, Radio, Link as LinkIcon, Check } from "lucide-react";
+import { Save, Loader2, CheckCircle, Send, Link as LinkIcon, Check } from "lucide-react";
 import { toast } from 'sonner';
 import Link from 'next/link';
 import PhoneInput from 'react-phone-number-input';
@@ -140,23 +140,7 @@ export function UserSettingsForm({ user }: { user: User }) {
         }
     };
 
-    const handleTestMessage = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/user/test-message', { method: 'POST' });
-            if (res.ok) {
-                toast.success("Test message sent! Check WhatsApp.");
-            } else {
-                const txt = await res.text();
-                toast.error("Failed to send test: " + txt);
-            }
-        } catch (e) {
-            console.error(e);
-            toast.error("Error sending test message");
-        } finally {
-            setLoading(false);
-        }
-    };
+
 
     const handleTogglePause = async () => {
         // Optimistic toggle
@@ -397,30 +381,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                                 </span>
                             </div>
 
-                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                                <button
-                                    type="button"
-                                    onClick={handleTogglePause}
-                                    disabled={loading}
-                                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${formData.whatsappOptIn
-                                        ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
-                                        : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
-                                        }`}
-                                >
-                                    {formData.whatsappOptIn ? 'Pause Messages' : 'Resume Messages'}
-                                </button>
-
-                                <div className="h-4 w-px bg-gray-300 mx-1"></div>
-
-                                <button
-                                    type="button"
-                                    onClick={handleTestMessage}
-                                    disabled={loading}
-                                    className="text-sm text-gray-600 hover:text-gray-900 font-medium underline inline-flex items-center gap-1"
-                                >
-                                    <Radio className="w-3 h-3" />
-                                    Send Test
-                                </button>
                             </div>
                         </div>
                     )}
@@ -438,6 +398,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                     {loading ? 'Saving...' : 'Save Settings'}
                 </button>
             </div>
-        </form>
+        </form >
     );
 }
