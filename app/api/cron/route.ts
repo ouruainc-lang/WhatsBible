@@ -207,9 +207,11 @@ export async function GET(req: Request) {
 
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
+                    // daily_summaryv2
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXcdbd77b8ba4a9da647a2330ebf219768";
                 } else {
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
+                    // daily_gracev2
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HX3685afb8a1ad28c3a93292b08a77f37d";
                 }
 
                 if (contentSid) {
