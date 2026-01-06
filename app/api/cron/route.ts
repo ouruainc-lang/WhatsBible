@@ -90,8 +90,9 @@ export async function GET(req: Request) {
                 let body = "";
                 let logRef = "";
 
-                // Helper to flatten text for single variable usage
-                const cleanText = (text: string) => text.replace(/\n+/g, ' ').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
+                // Helper: Allow newlines, but remove excessive tabs/spaces if needed.
+                // Twilio 'Invalid Content' often comes from complex formatting, but basic \n should be fine in many templates.
+                const sanitizeForTwilio = (text: string) => text.trim();
 
                 if (isReading) {
                     const r = readingOfDay as any;
@@ -102,14 +103,14 @@ export async function GET(req: Request) {
                         const s = r.structure;
                         logRef = s.title;
 
-                        // Construct flattened single string
-                        body = `📖 ${s.reading1.reference} - ${s.reading1.text.substring(0, 200)}...  ` +
-                            `🎵 ${s.psalm.reference} - ${s.psalm.text.substring(0, 100)}...  ` +
-                            `✨ ${s.gospel.reference} - ${s.gospel.text.substring(0, 300)}...  ` +
+                        // Construct flattened single string (Readings are better dense)
+                        body = `📖 ${s.reading1.reference} - ${s.reading1.text.substring(0, 200)}...  \n\n` +
+                            `🎵 ${s.psalm.reference} - ${s.psalm.text.substring(0, 100)}...  \n\n` +
+                            `✨ ${s.gospel.reference} - ${s.gospel.text.substring(0, 300)}...  \n\n` +
                             link;
                     } else {
                         const content = readingOfDay as any;
-                        body = `Daily Readings: ${content.text.substring(0, 500)}... - ${link}`;
+                        body = `Daily Readings:\n${content.text.substring(0, 500)}...\n\n${link}`;
                         logRef = "Legacy Reading";
                     }
                 } else if (user.contentPreference === 'REF') {
@@ -122,20 +123,10 @@ export async function GET(req: Request) {
                         where: { date: dateKey }
                     });
 
-                    // Handle String or JSON content in DB
+                    // Force String
                     let stringContent = "";
                     if (dailyReflection) {
-                        try {
-                            const parsed = JSON.parse(dailyReflection.content);
-                            // If it's our recent JSON format, convert back to string
-                            const theWord = parsed.the_word || parsed.theme || "Daily Word";
-                            const refBody = parsed.reflection || parsed.summary || "";
-                            const prayer = parsed.prayer || "";
-                            stringContent = `🕊️ ${theWord}  ${refBody}  🙏 ${prayer}`;
-                        } catch (e) {
-                            // Already a string
-                            stringContent = dailyReflection.content;
-                        }
+                        stringContent = dailyReflection.content;
                     }
 
                     if (!stringContent) {
@@ -145,7 +136,7 @@ export async function GET(req: Request) {
 
                         if (r && r.structure) {
                             const readingsForAi = { ...r.structure, date: dateKey };
-                            const generated = await generateReflection(readingsForAi); // Now returns string
+                            const generated = await generateReflection(readingsForAi);
 
                             if (generated) {
                                 stringContent = generated;
@@ -159,20 +150,20 @@ export async function GET(req: Request) {
                     }
 
                     if (stringContent) {
-                        body = stringContent + "  " + link;
+                        body = stringContent + "\n\n" + link;
                         logRef = "AI Reflection";
                     } else {
-                        body = "Daily Word unavailable today.  " + link;
+                        body = "Daily Word unavailable today.\n\n" + link;
                         logRef = "AI Error";
                     }
                 } else {
                     // Verse (VER)
                     const content = verseOfDay as any;
-                    body = `Daily Verse: ${content.text} - ${content.reference}`;
+                    body = `Daily Verse:\n${content.text}\n- ${content.reference}`;
                     logRef = content.reference;
                 }
 
-                // Send Template with Single Variable
+                // Send 
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
                     contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
@@ -181,8 +172,8 @@ export async function GET(req: Request) {
                 }
 
                 if (contentSid) {
-                    // STRICT SANITIZATION IS REQUIRED for single-variable templates to avoid 21656
-                    const safeBody = cleanText(body).substring(0, 1000); // safety cap
+                    // Allow newlines now
+                    const safeBody = sanitizeForTwilio(body);
                     console.log(`[CRON] Sending Single-Var Template ${contentSid} (len: ${safeBody.length})`);
 
                     await sendWhatsAppTemplate(user.phoneNumber, contentSid, {

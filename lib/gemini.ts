@@ -24,7 +24,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
         });
 
         const prompt = `
-        You are a Catholic spiritual guide. Based on today's Mass readings, provide a short summary/reflection and a very short prayer.
+        You are a Catholic spiritual guide. Based on today's Mass readings, provide a structured reflection.
         
         Readings:
         1. ${readings.reading1.reference}: ${readings.reading1.text.substring(0, 500)}...
@@ -32,10 +32,16 @@ export async function generateReflection(readings: DailyReading): Promise<string
         ${readings.reading2 ? `3. Second Reading (${readings.reading2.reference}): ${readings.reading2.text.substring(0, 500)}...` : ''}
         4. Gospel (${readings.gospel.reference}): ${readings.gospel.text.substring(0, 800)}...
 
-        Format the output clearly for a WhatsApp message.
-        Start with a title "🕊️ Daily Word".
-        Then the summary/reflection (approx 150 words).
-        End with a short prayer "🙏 Prayer: ...".
+        Format the output EXACTLY like this (ensure you use line breaks between sections):
+
+        📖The Word
+        (A 2-3 sentence summary of the readings' key message)
+
+        🕊️ Reflection
+        (A short spiritual reflection connecting to daily life)
+
+        🙏 Prayer
+        (A short 1-sentence prayer)
         `;
 
         const result = await model.generateContent(prompt);
