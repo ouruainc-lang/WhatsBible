@@ -86,107 +86,50 @@ export async function GET(req: Request) {
             // Simple prevention: `VerseLog` with `createdAt` > today start.
 
             try {
-                const isReading = user.contentPreference === 'RDG';
-                let body = "";
-                let logRef = "";
+                // 1. Ensure AI content is pre-warmed (Cached)
+                // We check this for every user to ensure availability, but effectively it runs once per day.
+                const dateKey = new Date().toLocaleDateString('en-CA');
+                const existingReflection = await prisma.dailyReflection.findUnique({
+                    where: { date: dateKey }
+                });
 
-                // Helper: Allow newlines, but remove excessive tabs/spaces if needed.
-                // Twilio 'Invalid Content' often comes from complex formatting, but basic \n should be fine in many templates.
-                const sanitizeForTwilio = (text: string) => text.replace(/\n+/g, ' ').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
-
-                if (isReading) {
+                if (!existingReflection) {
+                    console.log(`[CRON] Pre-warming AI Reflection for ${dateKey}...`);
+                    const { generateReflection } = await import('@/lib/gemini');
                     const r = readingOfDay as any;
-                    const dateStr = new Date().toLocaleDateString('en-CA');
-                    const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
 
-                    if (r.structure) {
-                        const s = r.structure;
-                        logRef = s.title;
-
-                        // Construct flattened single string with separators
-                        body = `📖 *Reading 1:* ${s.reading1.reference} ${s.reading1.text.substring(0, 200)}... | ` +
-                            `🎵 *Psalm:* ${s.psalm.reference} ${s.psalm.text.substring(0, 100)}... | ` +
-                            `✨ *Gospel:* ${s.gospel.reference} ${s.gospel.text.substring(0, 300)}... | ` +
-                            link;
-                    } else {
-                        const content = readingOfDay as any;
-                        body = `Daily Readings:\n${content.text.substring(0, 500)}...\n\n${link}`;
-                        logRef = "Legacy Reading";
-                    }
-                } else if (user.contentPreference === 'REF') {
-                    // AI Summary & Reflection
-                    const dateKey = new Date().toLocaleDateString('en-CA');
-                    const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-
-                    // Check Cache
-                    let dailyReflection = await prisma.dailyReflection.findUnique({
-                        where: { date: dateKey }
-                    });
-
-                    // Force String
-                    let stringContent = "";
-                    if (dailyReflection) {
-                        stringContent = dailyReflection.content;
-                    }
-
-                    if (!stringContent) {
-                        console.log(`[CRON] Generating new AI Reflection for ${dateKey}...`);
-                        const { generateReflection } = await import('@/lib/gemini');
-                        const r = readingOfDay as any;
-
-                        if (r && r.structure) {
-                            const readingsForAi = { ...r.structure, date: dateKey };
+                    if (r && r.structure) {
+                        const readingsForAi = { ...r.structure, date: dateKey };
+                        try {
                             const generated = await generateReflection(readingsForAi);
-
                             if (generated) {
-                                stringContent = generated;
-                                await prisma.dailyReflection.upsert({
-                                    where: { date: dateKey },
-                                    update: { content: generated },
-                                    create: { date: dateKey, content: generated }
+                                await prisma.dailyReflection.create({
+                                    data: { date: dateKey, content: generated }
                                 });
+                                console.log("[CRON] AI Reflection generated and cached.");
                             }
+                        } catch (err) {
+                            console.error("Failed to generate AI reflection", err);
                         }
                     }
-
-                    if (stringContent) {
-                        body = stringContent + "\n\n" + link;
-                        logRef = "AI Reflection";
-                    } else {
-                        body = "Daily Word unavailable today.\n\n" + link;
-                        logRef = "AI Error";
-                    }
-                } else {
-                    // Verse (VER)
-                    const content = verseOfDay as any;
-                    body = `Daily Verse:\n${content.text}\n- ${content.reference}`;
-                    logRef = content.reference;
                 }
 
-                // Send 
-                let contentSid = "";
-                if (user.contentPreference === 'REF') {
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
-                } else {
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
-                }
+                // 2. Send the "Content Ready" Utility Template
+                // This template has buttons: "📖 Full Reading" and "✍️ Summary & Reflection"
+                const contentSid = process.env.WHATSAPP_TEMPLATE_CONTENT_READY;
 
                 if (contentSid) {
-                    // Allow newlines now
-                    const safeBody = sanitizeForTwilio(body);
-                    console.log(`[CRON] Sending Single-Var Template ${contentSid} (len: ${safeBody.length})`);
+                    console.log(`[CRON] Sending Notification Template ${contentSid} to ${user.phoneNumber}`);
+                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {});
 
-                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
-                        "1": safeBody
+                    // Log
+                    await prisma.verseLog.create({
+                        data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
                     });
+                    sentCount++;
                 } else {
-                    await sendWhatsAppMessage(user.phoneNumber, body);
+                    console.error("MISSING ENV: WHATSAPP_TEMPLATE_CONTENT_READY");
                 }
-
-                await prisma.verseLog.create({
-                    data: { userId: user.id, verseRef: logRef, status: 'success' }
-                });
-                sentCount++;
             } catch (e) {
                 console.error(`Failed to send to ${user.id}`, e);
             }
