@@ -71,6 +71,13 @@ export function UserSettingsForm({ user }: { user: User }) {
 
     const handleSendCode = async () => {
         if (!formData.phoneNumber) return toast.error("Please enter a phone number");
+
+        // Block US numbers
+        if (formData.phoneNumber.startsWith('+1')) {
+            toast.error("US Numbers (+1) are not supported due to Meta policies.");
+            return;
+        }
+
         setLoading(true);
         try {
             const res = await fetch('/api/user/verify-phone', {
@@ -329,6 +336,17 @@ export function UserSettingsForm({ user }: { user: User }) {
                                 disabled={verifying || !['active', 'trial'].includes(user.subscriptionStatus)}
                             />
                         </div>
+
+                        {/* US Number Warning */}
+                        {(formData.phoneNumber || "").startsWith("+1") && (
+                            <div className="md:col-span-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-100 flex items-start gap-2">
+                                <span className="font-bold">⚠️ Notice:</span>
+                                <span>
+                                    US numbers (+1) are currently supported. Meta has restricted marketing templates in the USA.
+                                    Please use a non-US WhatsApp number.
+                                </span>
+                            </div>
+                        )}
 
                         {!isVerified && !verifying && (
                             <button

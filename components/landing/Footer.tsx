@@ -17,10 +17,15 @@ export function Footer() {
                             />
                             <span className="text-xl font-serif font-bold text-gray-900 tracking-tight">DailyWord</span>
                         </Link>
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
-                            Bringing the Word of God to your daily life through technology.
-                            Simple, beautiful, and consistent spiritual nourishment delivered to the app you use most.
-                        </p>
+                        <div className="text-gray-500 text-sm leading-relaxed max-w-sm space-y-4">
+                            <p>
+                                Bringing the Word of God to your daily life through technology.
+                                Simple, beautiful, and consistent spiritual nourishment delivered to the app you use most.
+                            </p>
+                            <p className="text-xs text-red-500 bg-red-50 p-2 rounded border border-red-100">
+                                ⚠️ Service not available for US (+1) numbers due to Meta restrictions.
+                            </p>
+                        </div>
                     </div>
 
                     <div>
