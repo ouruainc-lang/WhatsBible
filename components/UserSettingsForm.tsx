@@ -281,28 +281,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                     </select>
                 </div>
 
-                <div>
-                    <label className={labelClasses}>Content Type</label>
-                    <select
-                        name="contentPreference"
-                        value={formData.contentPreference}
-                        onChange={handleChange}
-                        className={inputClasses}
-                    >
-                        <option value="REF">Summary & Reflection (AI)</option>
-                        <option value="RDG">Daily Readings (Full)</option>
-                    </select>
-                    {formData.contentPreference === 'RDG' && (
-                        <p className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100">
-                            Note: Full readings may be truncated due to WhatsApp limits. A link to the full text will be included.
-                        </p>
-                    )}
-                    {formData.contentPreference === 'REF' && (
-                        <p className="mt-2 text-xs text-blue-600 bg-blue-50 p-2 rounded-lg border border-blue-100">
-                            Note: Summaries are AI-generated and may contain errors. A link to the full reading will always be provided.
-                        </p>
-                    )}
-                </div>
+
             </div>
 
             <div className="pt-4 border-t border-gray-100">
