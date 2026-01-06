@@ -18,46 +18,110 @@ export async function GET(req: Request) {
     return new NextResponse('Forbidden', { status: 403 });
 }
 
+// ... (imports)
+import { getUSCCBReadings } from '@/lib/lectionary';
+
+// ... (GET handler unchanged)
+
+// Clean text helper
+const cleanText = (text: string) => text.trim();
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-
-        // Check if this is a WhatsApp status update or message
         const entry = body.entry?.[0];
         const changes = entry?.changes?.[0];
         const value = changes?.value;
 
         if (value?.messages) {
             const message = value.messages[0];
-            const from = message.from; // e.g., "15551234567"
-            const text = message.text?.body?.toUpperCase().trim();
+            const from = message.from;
 
-            if (text === 'START') {
-                // Format phone number: Meta sends without '+', but we might store with '+' or not.
-                // let's stick to storing numbers as clean digits or E.164.
-                // Ideally we sanitize `from` to be consistent. 
+            // Determine Input Type (Text vs Interactive)
+            let inputId = "";
+            let inputText = "";
 
+            if (message.type === 'interactive' && message.interactive?.type === 'button_reply') {
+                const btn = message.interactive.button_reply;
+                inputId = btn.id?.toLowerCase() || "";
+                inputText = btn.title?.toLowerCase() || "";
+            } else if (message.type === 'button') {
+                // Legacy Quick Reply
+                inputId = message.button.payload?.toLowerCase() || "";
+                inputText = message.button.text?.toLowerCase() || "";
+            } else if (message.type === 'text') {
+                inputText = message.text?.body?.toLowerCase().trim() || "";
+            }
+
+            // Logic Switch
+            const isReadingReq = inputId.includes('reading') || inputText.includes('full reading') || inputText.includes('reading');
+            const isSummaryReq = inputId.includes('summary') || inputId.includes('reflection') || inputText.includes('summary') || inputText.includes('reflection');
+            const isStart = inputText === 'start';
+            const isStop = inputText === 'stop';
+
+            if (isReadingReq) {
+                // Fetch Readings
+                console.log(`[WEBHOOK] User ${from} requested READING`);
+                try {
+                    const r = await getUSCCBReadings(new Date());
+
+                    // Format Free-Form Message (No Template Constraints!)
+                    let content = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n`;
+                    content += `📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}\n\n`;
+                    content += `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}\n\n`;
+                    content += `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\n`;
+
+                    if (r.reading2) {
+                        content += `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}\n\n`;
+                    }
+
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
+                    content += `Read full: ${link}`;
+
+                    await sendWhatsAppMessage(from, content);
+
+                } catch (e) {
+                    console.error("Reading Fetch Error", e);
+                    await sendWhatsAppMessage(from, "Sorry, I couldn't fetch the readings right now. Please try again later.");
+                }
+
+            } else if (isSummaryReq) {
+                // Fetch Summary
+                console.log(`[WEBHOOK] User ${from} requested SUMMARY`);
+                const dateKey = new Date().toLocaleDateString('en-CA');
+                let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
+
+                // If not cached, we could try generating on-fly, but cron *should* have done it.
+                // We'll rely on cache primarily for speed.
+                if (dailyReflection) {
+                    // The content is likely stored as strict single-line string from cron generation.
+                    // But since this is free-form, we can just send it.
+                    // Or if we want to restore newlines (replace | with \n), we can!
+                    // User's prompt generated `|` separators. Let's make it nice for free-form.
+                    let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
+                    await sendWhatsAppMessage(from, niceBody);
+                } else {
+                    await sendWhatsAppMessage(from, "Today's reflection is not ready yet. Please check back shortly!");
+                }
+
+            } else if (isStart) {
                 await prisma.user.upsert({
                     where: { phoneNumber: from },
                     update: { whatsappOptIn: true },
                     create: {
                         phoneNumber: from,
                         whatsappOptIn: true,
-                        email: `user_${from}@temp.dailyword.space` // Placeholder email if they start via WA
+                        email: `user_${from}@temp.dailyword.space`
                     }
                 });
+                await sendWhatsAppMessage(from, "Welcome to DailyWord! 🕊️\nYou will receive a notification when today's word is ready.\nReply STOP to unsubscribe.");
 
-                // Reply with text (Works because it's a user-initiated 24h window)
-                await sendWhatsAppMessage(from, "Welcome to DailyWord! You are subscribed. Reply STOP to cancel.");
-
-            } else if (text === 'STOP') {
+            } else if (isStop) {
                 await prisma.user.updateMany({
                     where: { phoneNumber: from },
                     data: { whatsappOptIn: false }
                 });
-                await sendWhatsAppMessage(from, "You have been unsubscribed.");
-            } else {
-                // Echo or ignore
+                await sendWhatsAppMessage(from, "You have been unsubscribed. God bless!");
             }
         }
 
