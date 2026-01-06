@@ -87,119 +87,92 @@ export async function GET(req: Request) {
 
             try {
                 const isReading = user.contentPreference === 'RDG';
+                let body = "";
                 let logRef = "";
-                let variables: Record<string, string> = {};
 
-                // Use a helper to strictly remove newlines to satisfy Twilio variable rules
+                // Helper to flatten text for single variable usage
                 const cleanText = (text: string) => text.replace(/\n+/g, ' ').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
 
                 if (isReading) {
                     const r = readingOfDay as any;
                     const dateStr = new Date().toLocaleDateString('en-CA');
-                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
+                    const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
 
                     if (r.structure) {
                         const s = r.structure;
                         logRef = s.title;
 
-                        // RDG Template: 4 variables (Ref + Text combined)
-                        variables = {
-                            "1": `${s.reading1.reference} - ${cleanText(s.reading1.text).substring(0, 400)}...`,
-                            "2": `${s.psalm.reference} - ${cleanText(s.psalm.text).substring(0, 200)}...`,
-                            "3": `${s.gospel.reference} - ${cleanText(s.gospel.text).substring(0, 500)}...`,
-                            "4": link
-                        };
+                        // Construct flattened single string
+                        body = `📖 ${s.reading1.reference} - ${s.reading1.text.substring(0, 200)}...  ` +
+                            `🎵 ${s.psalm.reference} - ${s.psalm.text.substring(0, 100)}...  ` +
+                            `✨ ${s.gospel.reference} - ${s.gospel.text.substring(0, 300)}...  ` +
+                            link;
                     } else {
-                        // Fallback Legacy
                         const content = readingOfDay as any;
-                        variables = {
-                            "1": "Daily Readings",
-                            "2": cleanText(content.text ?? "").substring(0, 500),
-                            "3": "Gospel: See link",
-                            "4": link
-                        };
+                        body = `Daily Readings: ${content.text.substring(0, 500)}... - ${link}`;
                         logRef = "Legacy Reading";
                     }
                 } else if (user.contentPreference === 'REF') {
                     // AI Summary & Reflection
                     const dateKey = new Date().toLocaleDateString('en-CA');
-                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
+                    const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                     // Check Cache
                     let dailyReflection = await prisma.dailyReflection.findUnique({
                         where: { date: dateKey }
                     });
 
-                    // Parse potential JSON content
-                    let reflectionData: any = null;
+                    // Handle String or JSON content in DB
+                    let stringContent = "";
                     if (dailyReflection) {
                         try {
                             const parsed = JSON.parse(dailyReflection.content);
-                            // Validate new structure (must have 'the_word' or 'theme')
-                            if (parsed.the_word || parsed.theme) {
-                                reflectionData = parsed;
-                            } else {
-                                throw new Error("Legacy format");
-                            }
+                            // If it's our recent JSON format, convert back to string
+                            const theWord = parsed.the_word || parsed.theme || "Daily Word";
+                            const refBody = parsed.reflection || parsed.summary || "";
+                            const prayer = parsed.prayer || "";
+                            stringContent = `🕊️ ${theWord}  ${refBody}  🙏 ${prayer}`;
                         } catch (e) {
-                            console.log("[CRON] Legacy/Invalid cache found. Clearing to regenerate.");
-                            reflectionData = null;
+                            // Already a string
+                            stringContent = dailyReflection.content;
                         }
                     }
 
-                    if (!reflectionData) {
+                    if (!stringContent) {
                         console.log(`[CRON] Generating new AI Reflection for ${dateKey}...`);
                         const { generateReflection } = await import('@/lib/gemini');
                         const r = readingOfDay as any;
 
                         if (r && r.structure) {
                             const readingsForAi = { ...r.structure, date: dateKey };
-                            const generated = await generateReflection(readingsForAi);
+                            const generated = await generateReflection(readingsForAi); // Now returns string
 
                             if (generated) {
-                                reflectionData = generated;
+                                stringContent = generated;
                                 await prisma.dailyReflection.upsert({
                                     where: { date: dateKey },
-                                    update: { content: JSON.stringify(generated) },
-                                    create: { date: dateKey, content: JSON.stringify(generated) }
+                                    update: { content: generated },
+                                    create: { date: dateKey, content: generated }
                                 });
                             }
                         }
                     }
 
-                    if (reflectionData) {
-                        // REF Template: 4 Variables
-                        // Use 'the_word' (new) or fallback to 'theme' (prev) or 'summary' (old) logic
-                        const theWord = reflectionData.the_word || reflectionData.theme || "Summary unavailable.";
-                        const refBody = reflectionData.reflection || reflectionData.summary || "Reflection unavailable.";
-
-                        variables = {
-                            "1": cleanText(theWord),
-                            "2": cleanText(refBody),
-                            "3": cleanText(reflectionData.prayer || "Amen."),
-                            "4": link
-                        };
+                    if (stringContent) {
+                        body = stringContent + "  " + link;
                         logRef = "AI Reflection";
                     } else {
-                        variables = {
-                            "1": "Daily Word",
-                            "2": "Reflection unavailable today.",
-                            "3": "Lord, guide us.",
-                            "4": link
-                        };
+                        body = "Daily Word unavailable today.  " + link;
                         logRef = "AI Error";
                     }
                 } else {
                     // Verse (VER)
                     const content = verseOfDay as any;
-                    variables = {
-                        "1": cleanText(content.text),
-                        "2": content.reference
-                    };
+                    body = `Daily Verse: ${content.text} - ${content.reference}`;
                     logRef = content.reference;
                 }
 
-                // Send Template
+                // Send Template with Single Variable
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
                     contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
@@ -207,13 +180,16 @@ export async function GET(req: Request) {
                     contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
                 }
 
-                if (contentSid && Object.keys(variables).length > 0) {
-                    console.log(`[CRON] Sending Template ${contentSid} with ${Object.keys(variables).length} vars`);
-                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, variables);
+                if (contentSid) {
+                    // STRICT SANITIZATION IS REQUIRED for single-variable templates to avoid 21656
+                    const safeBody = cleanText(body).substring(0, 1000); // safety cap
+                    console.log(`[CRON] Sending Single-Var Template ${contentSid} (len: ${safeBody.length})`);
+
+                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
+                        "1": safeBody
+                    });
                 } else {
-                    // Fallback
-                    console.log("[CRON] Fallback to plain text");
-                    await sendWhatsAppMessage(user.phoneNumber, "Daily content: " + logRef);
+                    await sendWhatsAppMessage(user.phoneNumber, body);
                 }
 
                 await prisma.verseLog.create({
