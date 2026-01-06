@@ -64,13 +64,28 @@ export async function POST(req: Request) {
         else if (isSummaryReq) {
             console.log(`[TWILIO] User asked for SUMMARY`);
             const dateKey = new Date().toLocaleDateString('en-CA');
+            const dateStr = new Date().toLocaleDateString();
+            const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
+
             let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
 
             if (dailyReflection) {
-                // Format: Separation with newlines
-                // Data might be: "... | ... | ..."
-                let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
-                await sendWhatsAppMessage(cleanPhone, niceBody);
+                let raw = dailyReflection.content;
+
+                // 1. Convert Pipes to Newlines (Double spacing for sections)
+                let formatted = raw.replace(/ \| /g, "\n\n");
+
+                // 2. Ensure Headers result in a newline after them
+                // Matches "📖 *Word:* Content" -> "📖 *Word:*\nContent"
+                formatted = formatted
+                    .replace(/📖 \*Word:\*/g, "📖 *Word:*\n")
+                    .replace(/🕊️ \*Reflection:\*/g, "🕊️ *Reflection:*\n")
+                    .replace(/🙏 \*Prayer:\*/g, "🙏 *Prayer:*\n");
+
+                // 3. Assemble full message
+                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}`;
+
+                await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
                 await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
             }
