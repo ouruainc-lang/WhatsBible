@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
-import { sendVerificationCode, checkVerificationCode } from '@/lib/whatsapp';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
+
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
@@ -14,38 +18,43 @@ export async function POST(req: Request) {
         if (action === 'send') {
             if (!phoneNumber) return new NextResponse('Phone number required', { status: 400 });
 
-            // Basic format validation
+            // Basic format validation (E.164-ish)
             if (!phoneNumber.startsWith('+') || phoneNumber.length < 8) {
                 return new NextResponse('Invalid phone format. Must start with +', { status: 400 });
             }
 
-            // Rate Limit Check (30 seconds)
+            // Rate Limit Check (60 seconds)
             const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+
             if (user?.phoneVerificationSentAt) {
                 const now = new Date();
                 const diff = (now.getTime() - new Date(user.phoneVerificationSentAt).getTime()) / 1000;
-                if (diff < 30) {
-                    const waitTime = Math.ceil(30 - diff);
+                if (diff < 60) {
+                    const waitTime = Math.ceil(60 - diff);
                     return new NextResponse(`Please wait ${waitTime}s before resending`, { status: 429 });
                 }
             }
 
-            // Send via Twilio Verify API
-            await sendVerificationCode(phoneNumber);
+            const otp = generateOTP();
+            const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-            // Update DB to track pending verification
+            // Store in pendingPhoneNumber to allow OTP sending even if number is taken (Recycled Number Flow)
             await prisma.user.update({
                 where: { id: session.user.id },
                 data: {
                     // @ts-ignore
                     pendingPhoneNumber: phoneNumber,
-                    phoneVerificationCode: "TWILIO_VERIFY", // Sentinel value
+                    phoneVerificationCode: otp,
+                    phoneVerificationExpires: expires,
                     phoneVerificationSentAt: new Date(),
                     whatsappOptIn: false
                 }
             });
 
-            return NextResponse.json({ success: true, message: 'Verification code sent via WhatsApp' });
+            // Send via WhatsApp
+            await sendWhatsAppMessage(phoneNumber, `Your DailyWord verification code is: *${otp}*\n\nThis code expires in 10 minutes.`);
+
+            return NextResponse.json({ success: true, message: 'Code sent' });
         }
 
         else if (action === 'confirm') {
@@ -55,21 +64,27 @@ export async function POST(req: Request) {
                 where: { id: session.user.id }
             });
 
-            // @ts-ignore
-            const pendingPhone = user?.pendingPhoneNumber;
-
-            if (!pendingPhone) {
-                return new NextResponse('No pending phone verification found', { status: 400 });
+            if (!user || !user.phoneVerificationCode || !user.phoneVerificationExpires) {
+                return new NextResponse('No verification pending', { status: 400 });
             }
 
-            // Verify with Twilio
-            const isValid = await checkVerificationCode(pendingPhone, code);
+            if (new Date() > user.phoneVerificationExpires) {
+                return new NextResponse('Code expired', { status: 400 });
+            }
 
-            if (!isValid) {
-                return new NextResponse('Invalid code or expired', { status: 400 });
+            if (user.phoneVerificationCode !== code) {
+                return new NextResponse('Invalid code', { status: 400 });
+            }
+
+            // @ts-ignore
+            const pendingPhone = user.pendingPhoneNumber;
+
+            if (!pendingPhone) {
+                return new NextResponse('No pending phone number found', { status: 400 });
             }
 
             // SUCCESS FLOW: Handle Recycled Numbers (Takeover)
+            // 1. Find if anyone else owns this number
             const existingOwner = await prisma.user.findFirst({
                 where: {
                     phoneNumber: pendingPhone,
@@ -77,9 +92,10 @@ export async function POST(req: Request) {
                 }
             });
 
-            // Transaction to finalize
+            // 2. Transaction to release old owner and assign to new
             await prisma.$transaction(async (tx) => {
                 if (existingOwner) {
+                    // Release from old owner
                     await tx.user.update({
                         where: { id: existingOwner.id },
                         data: {
@@ -90,6 +106,7 @@ export async function POST(req: Request) {
                     });
                 }
 
+                // Verify and Assign to current user
                 await tx.user.update({
                     where: { id: user.id },
                     data: {
