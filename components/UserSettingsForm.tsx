@@ -282,8 +282,8 @@ export function UserSettingsForm({ user }: { user: User }) {
                         onChange={handleChange}
                         className={inputClasses}
                     >
-                        <option value="RDG">Daily Readings (Full)</option>
                         <option value="REF">Summary & Reflection (AI)</option>
+                        <option value="RDG">Daily Readings (Full)</option>
                     </select>
                     {formData.contentPreference === 'RDG' && (
                         <p className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100">
