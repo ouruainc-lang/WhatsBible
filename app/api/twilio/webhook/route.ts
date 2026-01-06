@@ -75,12 +75,12 @@ export async function POST(req: Request) {
                 // 1. Convert Pipes to Newlines (Double spacing for sections)
                 let formatted = raw.replace(/ \| /g, "\n\n");
 
-                // 2. Ensure Headers result in a newline after them
-                // Matches "📖 *Word:* Content" -> "📖 *Word:*\nContent"
+                // 2. Format Headers: Remove Markdown Bold (*), Add Newline
+                // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
                 formatted = formatted
-                    .replace(/📖 \*Word:\*/g, "📖 *Word:*\n")
-                    .replace(/🕊️ \*Reflection:\*/g, "🕊️ *Reflection:*\n")
-                    .replace(/🙏 \*Prayer:\*/g, "🙏 *Prayer:*\n");
+                    .replace(/📖 \*Word:\* ?/g, "📖 Word:\n")
+                    .replace(/🕊️ \*Reflection:\* ?/g, "🕊️ Reflection:\n")
+                    .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
 
                 // 3. Assemble full message
                 const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}`;
