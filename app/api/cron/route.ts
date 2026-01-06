@@ -213,11 +213,9 @@ export async function GET(req: Request) {
                 }
 
                 if (contentSid) {
-                    // Twilio Error 21656: "Variables in body cannot contain newlines..."
-                    // Solution: Use visual separators to mimic paragraphs since we can't use line breaks.
+                    // User requested to restore newlines.
+                    // Keeping basic sanitization for tabs and braces.
                     let safeBody = body
-                        .replace(/\n{2,}/g, "   ➤   ") // Double newlines -> Arrow separator for major breaks
-                        .replace(/\n/g, "   ")        // Single newline -> Wide space
                         .replace(/\t/g, " ")          // Remove tabs
                         .replace(/ {4,}/g, "   ")     // Collapse 4+ spaces
                         .replace(/[{}]/g, "")         // Remove curly braces
