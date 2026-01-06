@@ -14,7 +14,8 @@ interface DailyReading {
 
 // Define interface for structured return
 export interface ReflectionResult {
-    summary: string;
+    theme: string;
+    reflection: string;
     prayer: string;
 }
 
@@ -32,7 +33,7 @@ export async function generateReflection(readings: DailyReading): Promise<Reflec
         });
 
         const prompt = `
-        You are a Catholic spiritual guide. Based on today's Mass readings, provide a summary/reflection and a short prayer.
+        You are a Catholic spiritual guide. Based on today's Mass readings, provide a structured reflection.
         
         Readings:
         1. ${readings.reading1.reference}: ${readings.reading1.text.substring(0, 500)}...
@@ -40,16 +41,18 @@ export async function generateReflection(readings: DailyReading): Promise<Reflec
         ${readings.reading2 ? `3. Second Reading (${readings.reading2.reference}): ${readings.reading2.text.substring(0, 500)}...` : ''}
         4. Gospel (${readings.gospel.reference}): ${readings.gospel.text.substring(0, 800)}...
 
-        Return a JSON object with this schema:
+        Return a JSON object with this EXACT schema:
         {
-            "summary": "The Word: (1 sentence theme). Reflection: (2 short paragraphs using emojis and *bold* for emphasis. Cite quotes like (John 1:1)).",
+            "theme": "A short 1-sentence spiritual theme or title for today.",
+            "reflection": "Two short paragraphs of spiritual reflection using emojis and *bold* for emphasis. Cite quotes like (John 1:1).",
             "prayer": "Lord, ... (1 sentence prayer)"
         }
 
         CRITICAL Rules:
-        1. "summary" MUST be under 900 characters.
-        2. "prayer" MUST be under 200 characters.
-        3. Do NOT use newline characters (\\n) within the JSON strings. Use spaces or visual separators.
+        1. "theme" must be under 100 characters.
+        2. "reflection" MUST be under 800 characters.
+        3. "prayer" MUST be under 200 characters.
+        4. Do NOT use newline characters (\\n) within the JSON strings. Use spaces or visual separators.
         `;
 
         const result = await model.generateContent(prompt);

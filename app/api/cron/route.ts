@@ -102,15 +102,12 @@ export async function GET(req: Request) {
                         const s = r.structure;
                         logRef = s.title;
 
-                        // RDG Template: 7 variables
+                        // RDG Template: 4 variables (Ref + Text combined)
                         variables = {
-                            "1": s.reading1.reference,
-                            "2": cleanText(s.reading1.text).substring(0, 300) + "...",
-                            "3": s.psalm.reference,
-                            "4": cleanText(s.psalm.text).substring(0, 150) + "...",
-                            "5": s.gospel.reference,
-                            "6": cleanText(s.gospel.text).substring(0, 400) + "...",
-                            "7": link
+                            "1": `${s.reading1.reference} - ${cleanText(s.reading1.text).substring(0, 400)}...`,
+                            "2": `${s.psalm.reference} - ${cleanText(s.psalm.text).substring(0, 200)}...`,
+                            "3": `${s.gospel.reference} - ${cleanText(s.gospel.text).substring(0, 500)}...`,
+                            "4": link
                         };
                     } else {
                         // Fallback Legacy
@@ -118,11 +115,8 @@ export async function GET(req: Request) {
                         variables = {
                             "1": "Daily Readings",
                             "2": cleanText(content.text ?? "").substring(0, 500),
-                            "3": "Full Text",
-                            "4": "See link",
-                            "5": "Gospel",
-                            "6": "See link",
-                            "7": link
+                            "3": "Gospel: See link",
+                            "4": link
                         };
                         logRef = "Legacy Reading";
                     }
@@ -143,7 +137,7 @@ export async function GET(req: Request) {
                             reflectionData = JSON.parse(dailyReflection.content);
                         } catch (e) {
                             // Old format string fallback
-                            reflectionData = { summary: dailyReflection.content, prayer: "Lord, hear our prayer." };
+                            reflectionData = { reflection: dailyReflection.content, prayer: "Lord, hear our prayer." };
                         }
                     }
 
@@ -168,18 +162,24 @@ export async function GET(req: Request) {
                     }
 
                     if (reflectionData) {
-                        // REF Template: 3 Variables
+                        // REF Template: 4 Variables
+                        // Check if it's new format with 'theme' or old format with 'summary'
+                        const theme = reflectionData.theme || "Daily Word";
+                        const refBody = reflectionData.reflection || reflectionData.summary || "Reflection unavailable.";
+
                         variables = {
-                            "1": cleanText(reflectionData.summary || "Summary unavailable."),
-                            "2": cleanText(reflectionData.prayer || "Amen."),
-                            "3": link
+                            "1": cleanText(theme),
+                            "2": cleanText(refBody),
+                            "3": cleanText(reflectionData.prayer || "Amen."),
+                            "4": link
                         };
                         logRef = "AI Reflection";
                     } else {
                         variables = {
-                            "1": "Reflection unavailable today.",
-                            "2": "Lord, guide us.",
-                            "3": link
+                            "1": "Daily Word",
+                            "2": "Reflection unavailable today.",
+                            "3": "Lord, guide us.",
+                            "4": link
                         };
                         logRef = "AI Error";
                     }
@@ -211,11 +211,7 @@ export async function GET(req: Request) {
                 }
 
                 await prisma.verseLog.create({
-                    data: {
-                        userId: user.id,
-                        verseRef: logRef,
-                        status: 'success'
-                    }
+                    data: { userId: user.id, verseRef: logRef, status: 'success' }
                 });
                 sentCount++;
             } catch (e) {
