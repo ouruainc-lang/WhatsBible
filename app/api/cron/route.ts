@@ -213,33 +213,42 @@ export async function GET(req: Request) {
                 }
 
                 if (contentSid) {
-                    // DEBUG: Force simple content to test Twilio variable limits
-                    const debugBody = "hello content check";
-                    console.log(`[DEBUG] Sending template with body: "${debugBody}"`);
+                    if (contentSid) {
+                        // Sanitize content to strictly meet Twilio's "No Newlines/Tabs" variable rule
+                        // We replace newlines with a special separator or just spaces to keep it valid.
+                        // Twilio Error 21656: "Variables in body cannot contain newlines, tabs, or more than 4 consecutive spaces"
+                        let safeBody = body
+                            .replace(/\n+/g, "  ") // Replace newlines with double space for separation
+                            .replace(/\t/g, " ")   // Remove tabs
+                            .replace(/ {4,}/g, "   ") // Collapse 4+ spaces to 3 (just to be safe)
+                            .replace(/[{}]/g, "")  // Remove curly braces (prevent template injection)
+                            .trim();
 
-                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
-                        "1": debugBody
-                    });
-                } else {
-                    // Fallback should not happen if hardcoded above, but good for safety
-                    console.log("[CRON] No Content SID, using direct message fallback.");
-                    await sendWhatsAppMessage(user.phoneNumber, body);
-                }
+                        console.log(`[CRON] Sending sanitized template body (len: ${safeBody.length})`);
 
-                // Log
-                await prisma.verseLog.create({
-                    data: {
-                        userId: user.id,
-                        verseRef: logRef,
-                        status: 'success'
+                        await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
+                            "1": safeBody
+                        });
+                    } else {
+                        // Fallback should not happen if hardcoded above, but good for safety
+                        console.log("[CRON] No Content SID, using direct message fallback.");
+                        await sendWhatsAppMessage(user.phoneNumber, body);
                     }
-                });
-                sentCount++;
-            } catch (e) {
-                console.error(`Failed to send to ${user.id}`, e);
+
+                    // Log
+                    await prisma.verseLog.create({
+                        data: {
+                            userId: user.id,
+                            verseRef: logRef,
+                            status: 'success'
+                        }
+                    });
+                    sentCount++;
+                } catch (e) {
+                    console.error(`Failed to send to ${user.id}`, e);
+                }
             }
-        }
     }
 
-    return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
-}
+        return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
+    }
