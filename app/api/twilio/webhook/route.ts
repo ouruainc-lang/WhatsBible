@@ -37,20 +37,25 @@ export async function POST(req: Request) {
             console.log(`[TWILIO] User asked for READING`);
             try {
                 const r = await getUSCCBReadings(new Date());
-
-                let content = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n`;
-                content += `📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}\n\n`;
-                content += `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}\n\n`;
-                content += `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\n`;
-
-                if (r.reading2) {
-                    content += `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}\n\n`;
-                }
-
+                const dateStr = new Date().toLocaleDateString();
                 const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
-                content += `Read full: ${link}`;
 
-                await sendWhatsAppMessage(cleanPhone, content);
+                // 1. Reading 1 (Send first)
+                // Safety truncate to avoid 1600 limit even for single message
+                const msg1 = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`.substring(0, 1550);
+                await sendWhatsAppMessage(cleanPhone, msg1);
+
+                // 2. Psalm & Reading 2
+                let msg2 = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                if (r.reading2) {
+                    msg2 += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                }
+                await sendWhatsAppMessage(cleanPhone, msg2.substring(0, 1550));
+
+                // 3. Gospel & Link
+                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`.substring(0, 1550);
+                await sendWhatsAppMessage(cleanPhone, msg3);
+
             } catch (e) {
                 console.error("Reading Fetch Error", e);
                 await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
