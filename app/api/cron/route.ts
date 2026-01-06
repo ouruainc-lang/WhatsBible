@@ -134,10 +134,16 @@ export async function GET(req: Request) {
                     let reflectionData: any = null;
                     if (dailyReflection) {
                         try {
-                            reflectionData = JSON.parse(dailyReflection.content);
+                            const parsed = JSON.parse(dailyReflection.content);
+                            // Validate new structure (must have 'the_word' or 'theme')
+                            if (parsed.the_word || parsed.theme) {
+                                reflectionData = parsed;
+                            } else {
+                                throw new Error("Legacy format");
+                            }
                         } catch (e) {
-                            // Old format string fallback
-                            reflectionData = { reflection: dailyReflection.content, prayer: "Lord, hear our prayer." };
+                            console.log("[CRON] Legacy/Invalid cache found. Clearing to regenerate.");
+                            reflectionData = null;
                         }
                     }
 
