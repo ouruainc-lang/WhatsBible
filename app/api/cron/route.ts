@@ -213,12 +213,14 @@ export async function GET(req: Request) {
                 }
 
                 if (contentSid) {
-                    // Sanitize content to strictly meet Twilio's "No Newlines/Tabs" variable rule
+                    // Twilio Error 21656: "Variables in body cannot contain newlines..."
+                    // Solution: Use visual separators to mimic paragraphs since we can't use line breaks.
                     let safeBody = body
-                        .replace(/\n+/g, "  ") // Replace newlines with double space
-                        .replace(/\t/g, " ")   // Remove tabs
-                        .replace(/ {4,}/g, "   ") // Collapse 4+ spaces
-                        .replace(/[{}]/g, "")  // Remove curly braces
+                        .replace(/\n{2,}/g, "   ➤   ") // Double newlines -> Arrow separator for major breaks
+                        .replace(/\n/g, "   ")        // Single newline -> Wide space
+                        .replace(/\t/g, " ")          // Remove tabs
+                        .replace(/ {4,}/g, "   ")     // Collapse 4+ spaces
+                        .replace(/[{}]/g, "")         // Remove curly braces
                         .trim();
 
                     console.log(`[CRON] Sending sanitized template body (len: ${safeBody.length})`);
