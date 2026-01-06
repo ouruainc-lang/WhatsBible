@@ -207,16 +207,18 @@ export async function GET(req: Request) {
 
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
-                    // daily_summaryv2
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXcdbd77b8ba4a9da647a2330ebf219768";
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
                 } else {
-                    // daily_gracev2
-                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HX3685afb8a1ad28c3a93292b08a77f37d";
+                    contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
                 }
 
                 if (contentSid) {
+                    // DEBUG: Force simple content to test Twilio variable limits
+                    const debugBody = "hello content check";
+                    console.log(`[DEBUG] Sending template with body: "${debugBody}"`);
+
                     await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
-                        "1": body
+                        "1": debugBody
                     });
                 } else {
                     // Fallback should not happen if hardcoded above, but good for safety
