@@ -39,7 +39,7 @@ export function UserSettingsForm({ user }: { user: User }) {
         deliveryTime: user.deliveryTime || "08:00",
         timezone: user.timezone || "UTC",
         bibleVersion: user.bibleVersion || "KJV",
-        contentPreference: user.contentPreference || "VER",
+        contentPreference: user.contentPreference || "REF",
         whatsappOptIn: user.whatsappOptIn,
         phoneNumber: user.phoneNumber || "",
     });
@@ -288,6 +288,11 @@ export function UserSettingsForm({ user }: { user: User }) {
                     {formData.contentPreference === 'RDG' && (
                         <p className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100">
                             Note: Full readings may be truncated due to WhatsApp limits. A link to the full text will be included.
+                        </p>
+                    )}
+                    {formData.contentPreference === 'REF' && (
+                        <p className="mt-2 text-xs text-blue-600 bg-blue-50 p-2 rounded-lg border border-blue-100">
+                            Note: Summaries are AI-generated and may contain errors. A link to the full reading will always be provided.
                         </p>
                     )}
                 </div>
