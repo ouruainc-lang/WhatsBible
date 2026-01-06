@@ -381,6 +381,18 @@ export function UserSettingsForm({ user }: { user: User }) {
                                 </span>
                             </div>
 
+                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <button
+                                    type="button"
+                                    onClick={handleTogglePause}
+                                    disabled={loading}
+                                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${formData.whatsappOptIn
+                                        ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
+                                        : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                                        }`}
+                                >
+                                    {formData.whatsappOptIn ? 'Pause Messages' : 'Resume Messages'}
+                                </button>
                             </div>
                         </div>
                     )}
