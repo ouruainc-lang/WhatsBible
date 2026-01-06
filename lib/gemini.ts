@@ -14,7 +14,7 @@ interface DailyReading {
 
 // Define interface for structured return
 export interface ReflectionResult {
-    theme: string;
+    the_word: string;
     reflection: string;
     prayer: string;
 }
@@ -43,13 +43,13 @@ export async function generateReflection(readings: DailyReading): Promise<Reflec
 
         Return a JSON object with this EXACT schema:
         {
-            "theme": "A short 1-sentence spiritual theme or title for today.",
-            "reflection": "Two short paragraphs of spiritual reflection using emojis and *bold* for emphasis. Cite quotes like (John 1:1).",
+            "the_word": "A summary of the key message and narrative from today's readings (approx 2-3 sentences).",
+            "reflection": "Two short paragraphs of spiritual reflection connecting the readings to daily life, using emojis and *bold* for emphasis. Cite quotes like (John 1:1).",
             "prayer": "Lord, ... (1 sentence prayer)"
         }
 
         CRITICAL Rules:
-        1. "theme" must be under 100 characters.
+        1. "the_word" must be under 300 characters.
         2. "reflection" MUST be under 800 characters.
         3. "prayer" MUST be under 200 characters.
         4. Do NOT use newline characters (\\n) within the JSON strings. Use spaces or visual separators.

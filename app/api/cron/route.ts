@@ -163,12 +163,12 @@ export async function GET(req: Request) {
 
                     if (reflectionData) {
                         // REF Template: 4 Variables
-                        // Check if it's new format with 'theme' or old format with 'summary'
-                        const theme = reflectionData.theme || "Daily Word";
+                        // Use 'the_word' (new) or fallback to 'theme' (prev) or 'summary' (old) logic
+                        const theWord = reflectionData.the_word || reflectionData.theme || "Summary unavailable.";
                         const refBody = reflectionData.reflection || reflectionData.summary || "Reflection unavailable.";
 
                         variables = {
-                            "1": cleanText(theme),
+                            "1": cleanText(theWord),
                             "2": cleanText(refBody),
                             "3": cleanText(reflectionData.prayer || "Amen."),
                             "4": link
