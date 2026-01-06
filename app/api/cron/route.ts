@@ -87,124 +87,113 @@ export async function GET(req: Request) {
 
             try {
                 const isReading = user.contentPreference === 'RDG';
-                let body = "";
                 let logRef = "";
+                let variables: Record<string, string> = {};
+
+                // Use a helper to strictly remove newlines to satisfy Twilio variable rules
+                const cleanText = (text: string) => text.replace(/\n+/g, ' ').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim();
 
                 if (isReading) {
-                    const r = readingOfDay as any; // Cast to access structure
+                    const r = readingOfDay as any;
+                    const dateStr = new Date().toLocaleDateString('en-CA');
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
+
                     if (r.structure) {
-                        // Construct a message with multiple parts
                         const s = r.structure;
                         logRef = s.title;
 
-                        // Strategy: Send Gospel primarily? Or Listing? 
-                        // Twilio body limit ~1600.
-                        // Let's try to fit references and links or short snippets.
-
-                        // Example: 
-                        // Daily Readings: [Title]
-                        // 1: [Ref]
-                        // Ps: [Ref]
-                        // Gospel: [Ref]
-                        // [Gospel Text]
-
-                        const dateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
-                        const link = `Read the full readings: ${process.env.NEXTAUTH_URL}/readings/${dateStr}`;
-
-                        // Construct body WITHOUT link first
-                        // Header is now in template, so we remove the title line
-                        let mainContent = `📖 *Reading 1*: ${s.reading1.reference}\n` +
-                            `_${s.reading1.text}_\n\n` +
-                            `🎵 *Psalm*: ${s.psalm.reference}\n` +
-                            `_${s.psalm.text}_\n\n`;
-
-                        if (s.reading2) {
-                            mainContent += `📜 *Reading 2*: ${s.reading2.reference}\n` +
-                                `_${s.reading2.text}_\n\n`;
-                        }
-
-                        mainContent += `✨ *Gospel*: ${s.gospel.reference}\n` +
-                            `_${s.gospel.text}_\n\n`;
-
-                        // Twilio Limit: 1600. 
-                        const MAX_MAIN_CONTENT = 1000;
-
-                        if (mainContent.length > MAX_MAIN_CONTENT) {
-                            mainContent = mainContent.substring(0, MAX_MAIN_CONTENT) + "...\n\n_(Message truncated due to WhatsApp text limits)_\n\n";
-                        }
-
-                        body = mainContent + link;
+                        // RDG Template: 7 variables
+                        variables = {
+                            "1": s.reading1.reference,
+                            "2": cleanText(s.reading1.text).substring(0, 300) + "...",
+                            "3": s.psalm.reference,
+                            "4": cleanText(s.psalm.text).substring(0, 150) + "...",
+                            "5": s.gospel.reference,
+                            "6": cleanText(s.gospel.text).substring(0, 400) + "...",
+                            "7": link
+                        };
                     } else {
-                        // Fallback
+                        // Fallback Legacy
                         const content = readingOfDay as any;
-                        body = `Daily Reading:\n${content.text}\n- ${content.reference}`;
-                        logRef = content.reference;
+                        variables = {
+                            "1": "Daily Readings",
+                            "2": cleanText(content.text ?? "").substring(0, 500),
+                            "3": "Full Text",
+                            "4": "See link",
+                            "5": "Gospel",
+                            "6": "See link",
+                            "7": link
+                        };
+                        logRef = "Legacy Reading";
                     }
                 } else if (user.contentPreference === 'REF') {
                     // AI Summary & Reflection
-                    const dateKey = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+                    const dateKey = new Date().toLocaleDateString('en-CA');
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                     // Check Cache
                     let dailyReflection = await prisma.dailyReflection.findUnique({
                         where: { date: dateKey }
                     });
 
-                    if (!dailyReflection) {
+                    // Parse potential JSON content
+                    let reflectionData: any = null;
+                    if (dailyReflection) {
+                        try {
+                            reflectionData = JSON.parse(dailyReflection.content);
+                        } catch (e) {
+                            // Old format string fallback
+                            reflectionData = { summary: dailyReflection.content, prayer: "Lord, hear our prayer." };
+                        }
+                    }
+
+                    if (!reflectionData) {
                         console.log(`[CRON] Generating new AI Reflection for ${dateKey}...`);
-                        // We need the readings to generate reflection
                         const { generateReflection } = await import('@/lib/gemini');
                         const r = readingOfDay as any;
 
                         if (r && r.structure) {
-                            // Inject the date into the structure to match DailyReading interface
-                            const readingsForAi = {
-                                ...r.structure,
-                                date: dateKey
-                            };
-
+                            const readingsForAi = { ...r.structure, date: dateKey };
                             const generated = await generateReflection(readingsForAi);
 
-                            // Safety Truncation for WhatsApp (1600 limit)
-                            // Reserve ~200 chars for link and potential overhead
-                            const MAX_AI_CHARS = 1400;
-                            let finalContent = generated;
-
-                            if (finalContent.length > MAX_AI_CHARS) {
-                                console.warn(`[CRON] AI content too long (${finalContent.length}), truncating...`);
-                                finalContent = finalContent.substring(0, MAX_AI_CHARS) + "... (truncated)";
+                            if (generated) {
+                                reflectionData = generated;
+                                await prisma.dailyReflection.upsert({
+                                    where: { date: dateKey },
+                                    update: { content: JSON.stringify(generated) },
+                                    create: { date: dateKey, content: JSON.stringify(generated) }
+                                });
                             }
-
-                            const link = `Read full: ${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                            const contentWithLink = finalContent + "\n\n" + link;
-
-                            dailyReflection = await prisma.dailyReflection.create({
-                                data: {
-                                    date: dateKey,
-                                    content: contentWithLink
-                                }
-                            });
-                        } else {
-                            // Fallback if no readings available to summarize
-                            body = "Daily Readings unavailable for summary today.";
-                            console.warn("[CRON] No readings available for AI summary.");
                         }
                     }
 
-                    if (dailyReflection) {
-                        body = dailyReflection.content;
+                    if (reflectionData) {
+                        // REF Template: 3 Variables
+                        variables = {
+                            "1": cleanText(reflectionData.summary || "Summary unavailable."),
+                            "2": cleanText(reflectionData.prayer || "Amen."),
+                            "3": link
+                        };
                         logRef = "AI Reflection";
+                    } else {
+                        variables = {
+                            "1": "Reflection unavailable today.",
+                            "2": "Lord, guide us.",
+                            "3": link
+                        };
+                        logRef = "AI Error";
                     }
                 } else {
-                    const content = verseOfDay;
-                    body = `Daily Verse:\n${content.text}\n- ${content.reference}`;
+                    // Verse (VER)
+                    const content = verseOfDay as any;
+                    variables = {
+                        "1": cleanText(content.text),
+                        "2": content.reference
+                    };
                     logRef = content.reference;
                 }
 
-                // Twilio Content Template Logic
-                // Select template based on content type
-                // RDG (Full Reading) -> daily_gracev3
-                // REF (AI Summary) -> daily_summaryv3
-
+                // Send Template
                 let contentSid = "";
                 if (user.contentPreference === 'REF') {
                     contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_SUMMARY || "HXdf5175cdd347ac573a02a4bceb2ee3b6";
@@ -212,27 +201,15 @@ export async function GET(req: Request) {
                     contentSid = process.env.WHATSAPP_TEMPLATE_DAILY_GRACE || "HXf97c82b65e0c331ffa54a7b74432465c";
                 }
 
-                if (contentSid) {
-                    // User requested to restore newlines.
-                    // Keeping basic sanitization for tabs and braces.
-                    let safeBody = body
-                        .replace(/\t/g, " ")          // Remove tabs
-                        .replace(/ {4,}/g, "   ")     // Collapse 4+ spaces
-                        .replace(/[{}]/g, "")         // Remove curly braces
-                        .trim();
-
-                    console.log(`[CRON] Sending sanitized template body (len: ${safeBody.length})`);
-
-                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {
-                        "1": safeBody
-                    });
+                if (contentSid && Object.keys(variables).length > 0) {
+                    console.log(`[CRON] Sending Template ${contentSid} with ${Object.keys(variables).length} vars`);
+                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, variables);
                 } else {
                     // Fallback
-                    console.log("[CRON] No Content SID, using direct message fallback.");
-                    await sendWhatsAppMessage(user.phoneNumber, body);
+                    console.log("[CRON] Fallback to plain text");
+                    await sendWhatsAppMessage(user.phoneNumber, "Daily content: " + logRef);
                 }
 
-                // Log
                 await prisma.verseLog.create({
                     data: {
                         userId: user.id,
