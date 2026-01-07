@@ -364,7 +364,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                         <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <div className="flex items-center gap-3">
                                 <div className={`w-3 h-3 rounded-full ${(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
-                                        user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
+                                    user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
                                     }`}></div>
 
                                 <div className="flex-1">
@@ -376,12 +376,17 @@ export function UserSettingsForm({ user }: { user: User }) {
                                     </span>
                                     {user.deliveryStatus === 'pending_activation' && (
                                         <p className="text-xs text-gray-500 mt-1">
-                                            Please open WhatsApp and send <strong>START</strong> to activate delivery.
+                                            <a href="https://wa.me/15079365510?text=start" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-700 font-semibold underline inline-flex items-center gap-1">
+                                                Click here to Activate (Send START) <LinkIcon className="w-3 h-3" />
+                                            </a>
                                         </p>
                                     )}
                                     {user.deliveryStatus === 'paused_inactive' && (
                                         <p className="text-xs text-gray-500 mt-1">
-                                            No interaction in 24h. Reply to any message or send <strong>START</strong> on WhatsApp to resume.
+                                            No interaction in 24h.
+                                            <a href="https://wa.me/15079365510?text=start" target="_blank" rel="noopener noreferrer" className="ml-1 text-green-600 hover:text-green-700 font-semibold underline inline-flex items-center gap-1">
+                                                Click to Resume (Send START) <LinkIcon className="w-3 h-3" />
+                                            </a>
                                         </p>
                                     )}
                                 </div>
@@ -398,10 +403,15 @@ export function UserSettingsForm({ user }: { user: User }) {
                                         Pause Messages
                                     </button>
                                 ) : (
-                                    <div className="text-xs text-gray-500 flex items-center gap-2">
+                                    <a
+                                        href="https://wa.me/15079365510?text=start"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border bg-green-50 border-green-200 text-green-700 hover:bg-green-100 transition-colors flex items-center gap-2"
+                                    >
                                         <Send className="w-3 h-3" />
-                                        Send "START" on WhatsApp
-                                    </div>
+                                        Activate on WhatsApp
+                                    </a>
                                 )}
                             </div>
                         </div>
