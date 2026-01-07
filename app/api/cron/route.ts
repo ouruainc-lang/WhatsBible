@@ -73,7 +73,8 @@ export async function GET(req: Request) {
         // Compliance Check: Verify 24-Hour Window
         // @ts-ignore - Types might be stale in IDE, but valid in DB
         const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
-        const windowExpiry = new Date(lastMsg.getTime() + (24 * 60 * 60 * 1000));
+        // TEST MODE: 5 Minutes Window (Revert to 24h later)
+        const windowExpiry = new Date(lastMsg.getTime() + (5 * 60 * 1000));
 
         if (now > windowExpiry) {
             console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
