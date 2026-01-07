@@ -124,7 +124,7 @@ May the Word guide and encourage you each day. 🙏
                 await delay(2000); // Wait 2s to ensure order
 
                 // 3. Gospel & Link
-                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`.substring(0, 1550);
+                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
                 await sendWhatsAppMessage(cleanPhone, msg3);
             } catch (e) {
                 console.error("Reading Fetch Error", e);
@@ -162,7 +162,7 @@ May the Word guide and encourage you each day. 🙏
                     .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
 
                 // 3. Assemble full message
-                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}`;
+                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
 
                 await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
