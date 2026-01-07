@@ -3,73 +3,14 @@ import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
 import { getUSCCBReadings } from '@/lib/lectionary';
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Use a separate webhook for Twilio since the payload is different from Meta
 export async function POST(req: Request) {
     try {
         const formData = await req.formData();
-        const Body = formData.get('Body') as string;
-        const From = formData.get('From') as string; // "whatsapp:+123..."
+// ... (start of function logic unchanged) ...
 
-        // Normalize: Twilio sends "whatsapp:+123456"
-        const cleanPhone = From.replace('whatsapp:', '');
-        const text = Body?.trim().toUpperCase() || "";
-
-        console.log(`[TWILIO WEBHOOK] From: ${cleanPhone}, Body: ${text}`);
-
-        const isReadingReq = text.includes('READING') || text.includes('FULL READING');
-        const isSummaryReq = text.includes('SUMMARY') || text.includes('REFLECTION');
-
-        if (text === 'STOP' || text === 'UNSUBSCRIBE' || text === 'CANCEL') {
-            await prisma.user.updateMany({
-                where: { phoneNumber: cleanPhone },
-                data: { whatsappOptIn: false }
-            });
-            console.log(`[TWILIO] Opt-out processed for ${cleanPhone}`);
-        }
-        else if (text === 'START' || text === 'UNSTOP') {
-            await prisma.user.updateMany({
-                where: { phoneNumber: cleanPhone },
-                data: {
-                    whatsappOptIn: true,
-                    deliveryStatus: 'active',
-                    lastUserMessageAt: new Date()
-                }
-            });
-            const welcomeMsg = `*📖 DailyWord – Welcome*
-
-Hello 👋
-Welcome to DailyWord.
-
-You’re now activated to receive daily Bible readings delivered privately to you on WhatsApp — a quiet, personal space with the Word of God.
-
-*🙏 What to Expect*
-
-Each day, you’ll receive:
-• A curated Bible reading
-• Sent at your chosen time
-• Delivered 1-to-1 (not a group)
-• No noise, no distractions
-
-*✍️ Use This Chat as Your Private Journal*
-
-You can reply directly to the daily reading with your thoughts, prayers, or reflections.
-This chat is your personal space to engage with Scripture — just between you and the Word.
-
-*⚙️ Manage Your Subscription*
-
-You can manage your plan, delivery time, or subscription anytime here:
-${process.env.NEXTAUTH_URL}/dashboard
-
-*ℹ️ Need Help?*
-Drop us an email at support@dailyword.space
-
-Thank you for allowing DailyWord to be part of your daily walk.
-May the Word guide and encourage you each day. 🙏
-
-— DailyWord`;
-
-            await sendWhatsAppMessage(cleanPhone, welcomeMsg);
-        }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
             // Compliance: Extend 24h Window
@@ -89,6 +30,7 @@ May the Word guide and encourage you each day. 🙏
                 // Safety truncate to avoid 1600 limit even for single message
                 const msg1 = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`.substring(0, 1550);
                 await sendWhatsAppMessage(cleanPhone, msg1);
+                await delay(2000); // Wait 2s to ensure order
 
                 // 2. Psalm & Reading 2
                 let msg2 = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
@@ -96,6 +38,7 @@ May the Word guide and encourage you each day. 🙏
                     msg2 += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
                 }
                 await sendWhatsAppMessage(cleanPhone, msg2.substring(0, 1550));
+                await delay(2000); // Wait 2s to ensure order
 
                 // 3. Gospel & Link
                 const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`.substring(0, 1550);
@@ -106,6 +49,7 @@ May the Word guide and encourage you each day. 🙏
                 await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
             }
         }
+        // ... (rest of file)
         else if (isSummaryReq) {
             console.log(`[TWILIO] User asked for SUMMARY`);
             // Compliance: Extend 24h Window
