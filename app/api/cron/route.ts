@@ -84,19 +84,7 @@ export async function GET(req: Request) {
             continue; // Skip processing this user
         }
 
-        // Compliance Check: Verify 24-Hour Window
-        // Use safely defaulting to epoch if null (shouldn't happen for active users, but safety first)
-        const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
-        const windowExpiry = new Date(lastMsg.getTime() + (24 * 60 * 60 * 1000));
 
-        if (now > windowExpiry) {
-            console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
-            await prisma.user.update({
-                where: { id: user.id },
-                data: { deliveryStatus: 'paused_inactive' }
-            });
-            continue; // Skip processing this user
-        }
 
         // Check time
         // We need to convert current UTC to user timezone.
