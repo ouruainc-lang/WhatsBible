@@ -98,3 +98,47 @@ export async function checkVerificationCode(to: string, code: string) {
         throw new Error(error.message || 'Twilio Verification Check Failed');
     }
 }
+
+// Send Quick Reply Buttons (Dynamic Content)
+// Creates a content resource on the fly and sends it.
+// NOTE: This creates a new Content SID for every unique message. Twilio limits might apply.
+// For high volume, use variables with a static template.
+export async function sendWhatsAppQuickReply(to: string, bodyText: string, buttons: string[]) {
+    if (!accountSid || !authToken || !fromNumber) throw new Error("Missing Twilio credentials");
+
+    const cleanNumber = to.replace(/[^\d+]/g, '');
+    const recipient = `whatsapp:${cleanNumber}`;
+    const sender = `whatsapp:${fromNumber}`;
+
+    try {
+        // 1. Create Content Resource
+        const content = await client.content.v1.contents.create({
+            friendlyName: `QuickReply-${Date.now()}`,
+            types: {
+                'twilio/quick-reply': {
+                    body: bodyText,
+                    actions: buttons.map(btn => ({
+                        title: btn,
+                        id: btn.toLowerCase().replace(/[^a-z0-9]/g, '_')
+                    }))
+                }
+            }
+        });
+
+        // 2. Send Message using Content SID
+        const message = await client.messages.create({
+            from: sender,
+            to: recipient,
+            contentSid: content.sid
+        });
+
+        console.log(`[TWILIO] QuickReply sent: ${message.sid} (Content: ${content.sid})`);
+        return message;
+
+    } catch (error: any) {
+        console.error('[TWILIO] Error sending QuickReply:', error);
+        // Fallback to text if Content API fails
+        console.log("[TWILIO] Falling back to plain text...");
+        return sendWhatsAppMessage(to, `${bodyText}\n\n(Reply: ${buttons.join(' or ')})`);
+    }
+}
