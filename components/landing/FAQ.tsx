@@ -28,10 +28,6 @@ export function FAQ() {
             question: "Why is there a cost?",
             answer: "The subscription covers the necessary costs to keep DailyWord running reliably. This includes WhatsApp messaging fees, server costs for on-time delivery, and support for our team to continue improving the service."
         },
-        {
-            question: "Why can't I use a US (+1) number?",
-            answer: "Meta has currently restricted 'Marketing' and 'Utility' templates for US numbers on the WhatsApp Business API. As our daily readings fall under this category, we cannot reliably deliver messages to US numbers at this time. We apologize for the inconvenience."
-        }
     ];
 
     return (

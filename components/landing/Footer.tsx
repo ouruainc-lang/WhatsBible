@@ -23,7 +23,7 @@ export function Footer() {
                                 Simple, beautiful, and consistent spiritual nourishment delivered to the app you use most.
                             </p>
                             <p className="text-xs text-red-500 bg-red-50 p-2 rounded border border-red-100">
-                                ⚠️ Service not available for US (+1) numbers due to Meta restrictions.
+
                             </p>
                         </div>
                     </div>

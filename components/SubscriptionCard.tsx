@@ -14,15 +14,6 @@ export function SubscriptionCard({ user }: { user: User }) {
     const [loading, setLoading] = useState(false);
 
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
-        // Confirmation before proceeding
-        const confirmed = window.confirm(
-            "⚠️ IMPORTANT: Are you using a US (+1) WhatsApp number?\n\n" +
-            "US numbers are NOT supported due to Meta restrictions.\n" +
-            "Please confirm you are using a NON-US number to proceed."
-        );
-
-        if (!confirmed) return;
-
         setLoading(true);
         try {
             const response = await fetch('/api/stripe/checkout', {
