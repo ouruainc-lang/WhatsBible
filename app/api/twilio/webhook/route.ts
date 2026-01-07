@@ -35,7 +35,40 @@ export async function POST(req: Request) {
                     lastUserMessageAt: new Date()
                 }
             });
-            await sendWhatsAppMessage(cleanPhone, `Messages Activated! 🕊️\n\nYou will receive your first message tomorrow at your scheduled time.\n\nManage settings: ${process.env.NEXTAUTH_URL}/dashboard`);
+            const welcomeMsg = `*📖 DailyWord – Welcome*
+
+Hello 👋
+Welcome to DailyWord.
+
+You’re now activated to receive daily Bible readings delivered privately to you on WhatsApp — a quiet, personal space with the Word of God.
+
+*🙏 What to Expect*
+
+Each day, you’ll receive:
+• A curated Bible reading
+• Sent at your chosen time
+• Delivered 1-to-1 (not a group)
+• No noise, no distractions
+
+*✍️ Use This Chat as Your Private Journal*
+
+You can reply directly to the daily reading with your thoughts, prayers, or reflections.
+This chat is your personal space to engage with Scripture — just between you and the Word.
+
+*⚙️ Manage Your Subscription*
+
+You can manage your plan, delivery time, or subscription anytime here:
+${process.env.NEXTAUTH_URL}/dashboard
+
+*ℹ️ Need Help?*
+Drop us an email at support@dailyword.space
+
+Thank you for allowing DailyWord to be part of your daily walk.
+May the Word guide and encourage you each day. 🙏
+
+— DailyWord`;
+
+            await sendWhatsAppMessage(cleanPhone, welcomeMsg);
         }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
