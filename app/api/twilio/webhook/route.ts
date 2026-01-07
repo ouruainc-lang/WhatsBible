@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage, sendWhatsAppQuickReply } from '@/lib/whatsapp';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
 import { getUSCCBReadings } from '@/lib/lectionary';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -124,8 +124,8 @@ May the Word guide and encourage you each day. 🙏
                 await delay(2000); // Wait 2s to ensure order
 
                 // 3. Gospel & Link
-                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
-                await sendWhatsAppQuickReply(cleanPhone, msg3, ["🙏 Amen", "✍️ Reflect"]);
+                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`.substring(0, 1550);
+                await sendWhatsAppMessage(cleanPhone, msg3);
             } catch (e) {
                 console.error("Reading Fetch Error", e);
                 await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
@@ -162,9 +162,9 @@ May the Word guide and encourage you each day. 🙏
                     .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
 
                 // 3. Assemble full message
-                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}`;
 
-                await sendWhatsAppQuickReply(cleanPhone, finalMsg, ["🙏 Amen", "✍️ Reflect"]);
+                await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
                 await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
             }
