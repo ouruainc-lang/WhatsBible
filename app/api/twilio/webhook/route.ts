@@ -9,8 +9,69 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export async function POST(req: Request) {
     try {
         const formData = await req.formData();
-// ... (start of function logic unchanged) ...
+        const Body = formData.get('Body') as string;
+        const From = formData.get('From') as string; // "whatsapp:+123..."
 
+        // Normalize: Twilio sends "whatsapp:+123456"
+        const cleanPhone = From.replace('whatsapp:', '');
+        const text = Body?.trim().toUpperCase() || "";
+
+        console.log(`[TWILIO WEBHOOK] From: ${cleanPhone}, Body: ${text}`);
+
+        const isReadingReq = text.includes('READING') || text.includes('FULL READING');
+        const isSummaryReq = text.includes('SUMMARY') || text.includes('REFLECTION');
+
+        if (text === 'STOP' || text === 'UNSUBSCRIBE' || text === 'CANCEL') {
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: { whatsappOptIn: false }
+            });
+            console.log(`[TWILIO] Opt-out processed for ${cleanPhone}`);
+        }
+        else if (text === 'START' || text === 'UNSTOP') {
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    whatsappOptIn: true,
+                    deliveryStatus: 'active',
+                    lastUserMessageAt: new Date()
+                }
+            });
+            const welcomeMsg = `*📖 DailyWord – Welcome*
+
+Hello 👋
+Welcome to DailyWord.
+
+You’re now activated to receive daily Bible readings delivered privately to you on WhatsApp — a quiet, personal space with the Word of God.
+
+*🙏 What to Expect*
+
+Each day, you’ll receive:
+• A curated Bible reading
+• Sent at your chosen time
+• Delivered 1-to-1 (not a group)
+• No noise, no distractions
+
+*✍️ Use This Chat as Your Private Journal*
+
+You can reply directly to the daily reading with your thoughts, prayers, or reflections.
+This chat is your personal space to engage with Scripture — just between you and the Word.
+
+*⚙️ Manage Your Subscription*
+
+You can manage your plan, delivery time, or subscription anytime here:
+${process.env.NEXTAUTH_URL}/dashboard
+
+*ℹ️ Need Help?*
+Drop us an email at support@dailyword.space
+
+Thank you for allowing DailyWord to be part of your daily walk.
+May the Word guide and encourage you each day. 🙏
+
+— DailyWord`;
+
+            await sendWhatsAppMessage(cleanPhone, welcomeMsg);
+        }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
             // Compliance: Extend 24h Window
