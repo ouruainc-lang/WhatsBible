@@ -29,6 +29,12 @@ model User {
   phoneVerificationExpires DateTime?
   phoneVerificationSentAt DateTime?
   lastTestMessageSentAt DateTime?
+  
+  // New Compliance Fields
+  lastUserMessageAt DateTime? // Tracks window start
+  lastDeliveryAt    DateTime? // Tracks daily sent
+  deliveryStatus    String    @default("pending_activation") // pending_activation, active, paused_inactive, unsubscribed
+
   trialStartDate   DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

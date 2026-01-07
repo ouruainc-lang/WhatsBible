@@ -29,12 +29,24 @@ export async function POST(req: Request) {
         else if (text === 'START' || text === 'UNSTOP') {
             await prisma.user.updateMany({
                 where: { phoneNumber: cleanPhone },
-                data: { whatsappOptIn: true }
+                data: {
+                    whatsappOptIn: true,
+                    deliveryStatus: 'active',
+                    lastUserMessageAt: new Date()
+                }
             });
-            await sendWhatsAppMessage(cleanPhone, "Welcome back! 🕊️");
+            await sendWhatsAppMessage(cleanPhone, `Messages Activated! 🕊️\n\nYou will receive your first message tomorrow at your scheduled time.\n\nManage settings: ${process.env.NEXTAUTH_URL}/dashboard`);
         }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
+            // Compliance: Extend 24h Window
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
             try {
                 const r = await getUSCCBReadings(new Date());
                 const dateStr = new Date().toLocaleDateString();
@@ -63,6 +75,14 @@ export async function POST(req: Request) {
         }
         else if (isSummaryReq) {
             console.log(`[TWILIO] User asked for SUMMARY`);
+            // Compliance: Extend 24h Window
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
             const dateKey = new Date().toLocaleDateString('en-CA');
             const dateStr = new Date().toLocaleDateString();
             const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
