@@ -71,14 +71,14 @@ export async function GET(req: Request) {
         }
 
         // Compliance Check: Verifying Usage Window
-        // TEST MODE: 5 Minutes Total Window. Warning at 4 Minutes.
+        // PRODUCTION MODE: 24 Hours Total Window. Warning at 23 Hours.
         // @ts-ignore
         const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
         const diffMs = now.getTime() - lastMsg.getTime();
         const minutesSinceLastMsg = diffMs / (1000 * 60);
 
-        // 1. Hard Stop: > 5 Minutes -> Pause
-        if (minutesSinceLastMsg > 5) {
+        // 1. Hard Stop: > 24 Hours (1440 mins) -> Pause
+        if (minutesSinceLastMsg > (24 * 60)) {
             console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
             await prisma.user.update({
                 where: { id: user.id },
@@ -87,8 +87,8 @@ export async function GET(req: Request) {
             continue;
         }
 
-        // 2. Warning Shot: > 4 Minutes -> Send Warning
-        if (minutesSinceLastMsg > 4) {
+        // 2. Warning Shot: > 23 Hours (1380 mins) -> Send Warning
+        if (minutesSinceLastMsg > (23 * 60)) {
             // Check debounce: Don't spam warning. Check if we sent anything in the last 2 mins.
             // @ts-ignore
             const lastDel = user.lastDeliveryAt ? new Date(user.lastDeliveryAt) : new Date(0);
