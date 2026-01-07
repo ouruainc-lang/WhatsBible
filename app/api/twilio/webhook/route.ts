@@ -29,15 +29,36 @@ export async function POST(req: Request) {
             console.log(`[TWILIO] Opt-out processed for ${cleanPhone}`);
         }
         else if (text === 'START' || text === 'UNSTOP') {
-            await prisma.user.updateMany({
-                where: { phoneNumber: cleanPhone },
-                data: {
-                    whatsappOptIn: true,
-                    deliveryStatus: 'active',
-                    lastUserMessageAt: new Date()
-                }
+            // Check if user exists first
+            const user = await prisma.user.findFirst({
+                where: { phoneNumber: cleanPhone }
             });
-            const welcomeMsg = `*📖 DailyWord – Welcome*
+
+            if (!user) {
+                console.log(`[TWILIO] START received from UNREGISTERED number: ${cleanPhone}`);
+                const notRegisteredMsg = `*👋 Welcome to DailyWord*
+
+It looks like this number isn't registered yet.
+
+To start receiving daily Bible readings:
+1.  Visit ${process.env.NEXTAUTH_URL}
+2.  Sign up and subscribe.
+3.  Verify this phone number in your dashboard.
+
+Once verified, simply reply *START* here to activate! 🙏`;
+                await sendWhatsAppMessage(cleanPhone, notRegisteredMsg);
+            } else {
+                // User exists - Activate
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        whatsappOptIn: true,
+                        deliveryStatus: 'active',
+                        lastUserMessageAt: new Date()
+                    }
+                });
+
+                const welcomeMsg = `*📖 DailyWord – Welcome*
 
 Hello 👋
 Welcome to DailyWord.
@@ -70,7 +91,8 @@ May the Word guide and encourage you each day. 🙏
 
 — DailyWord`;
 
-            await sendWhatsAppMessage(cleanPhone, welcomeMsg);
+                await sendWhatsAppMessage(cleanPhone, welcomeMsg);
+            }
         }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
