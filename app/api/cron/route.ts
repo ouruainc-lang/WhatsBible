@@ -70,19 +70,48 @@ export async function GET(req: Request) {
             continue;
         }
 
-        // Compliance Check: Verify 24-Hour Window
-        // @ts-ignore - Types might be stale in IDE, but valid in DB
+        // Compliance Check: Verifying Usage Window
+        // TEST MODE: 5 Minutes Total Window. Warning at 4 Minutes.
+        // @ts-ignore
         const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
-        // TEST MODE: 5 Minutes Window (Revert to 24h later)
-        const windowExpiry = new Date(lastMsg.getTime() + (5 * 60 * 1000));
+        const diffMs = now.getTime() - lastMsg.getTime();
+        const minutesSinceLastMsg = diffMs / (1000 * 60);
 
-        if (now > windowExpiry) {
+        // 1. Hard Stop: > 5 Minutes -> Pause
+        if (minutesSinceLastMsg > 5) {
             console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
             await prisma.user.update({
                 where: { id: user.id },
                 data: { deliveryStatus: 'paused_inactive' }
             });
-            continue; // Skip processing this user
+            continue;
+        }
+
+        // 2. Warning Shot: > 4 Minutes -> Send Warning
+        if (minutesSinceLastMsg > 4) {
+            // Check debounce: Don't spam warning. Check if we sent anything in the last 2 mins.
+            // @ts-ignore
+            const lastDel = user.lastDeliveryAt ? new Date(user.lastDeliveryAt) : new Date(0);
+            const minutesSinceDelivery = (now.getTime() - lastDel.getTime()) / (1000 * 60);
+
+            if (minutesSinceDelivery > 2) {
+                console.log(`[CRON] User ${user.id} WARNING (Inactivity Buffer).`);
+                // Send Warning
+                try {
+                    const { sendWhatsAppMessage } = await import('@/lib/whatsapp');
+                    await sendWhatsAppMessage(user.phoneNumber, "⏳ *Inactivity Alert*\n\nYour session is about to pause due to inactivity.\nReply with *START* (or any message) to keep your session open! 🕊️");
+
+                    // Update lastDeliveryAt to prevent spamming this warning
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { lastDeliveryAt: new Date() }
+                    });
+                } catch (e) {
+                    console.error(`[CRON] Failed to send warning to ${user.id}`, e);
+                }
+            }
+            // We continue; technically if a scheduled message matches EXACTLY now, they might get 2 messages.
+            // But that is acceptable edge case.
         }
 
 
