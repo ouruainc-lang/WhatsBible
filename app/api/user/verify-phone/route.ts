@@ -120,14 +120,8 @@ export async function POST(req: Request) {
                 });
             });
 
-            // Send Welcome Template
-            const { sendWhatsAppTemplate } = await import('@/lib/whatsapp');
-            try {
-                const welcomeTemplate = process.env.WHATSAPP_TEMPLATE_WELCOME || "HXa22877988d6033668434c1fc651ed58d";
-                await sendWhatsAppTemplate(pendingPhone, welcomeTemplate, {});
-            } catch (error) {
-                console.error("Failed to send welcome message", error);
-            }
+            // Compliance: Do NOT send welcome message automatically. 
+            // User must send 'START' to activate.
 
             return NextResponse.json({ success: true, message: 'Phone verified. Welcome message sent!' });
         }
