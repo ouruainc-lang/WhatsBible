@@ -54,12 +54,13 @@ export async function GET(req: Request) {
                 { subscriptionStatus: 'trial' }
             ],
             whatsappOptIn: true,
-            phoneNumber: { not: null }
+            phoneNumber: { not: null },
+            deliveryStatus: 'active'
         }
     });
 
     console.log(`[CRON] Started. System Time (UTC): ${now.toISOString()}`);
-    console.log(`[CRON] Found ${users.length} active/trial users.`);
+    console.log(`[CRON] Found ${users.length} active users.`);
 
     let sentCount = 0;
 
@@ -69,12 +70,39 @@ export async function GET(req: Request) {
             continue;
         }
 
+        // Compliance Check: Verify 24-Hour Window
+        // @ts-ignore - Types might be stale in IDE, but valid in DB
+        const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
+        const windowExpiry = new Date(lastMsg.getTime() + (24 * 60 * 60 * 1000));
+
+        if (now > windowExpiry) {
+            console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { deliveryStatus: 'paused_inactive' }
+            });
+            continue; // Skip processing this user
+        }
+
+        // Compliance Check: Verify 24-Hour Window
+        // Use safely defaulting to epoch if null (shouldn't happen for active users, but safety first)
+        const lastMsg = user.lastUserMessageAt ? new Date(user.lastUserMessageAt) : new Date(0);
+        const windowExpiry = new Date(lastMsg.getTime() + (24 * 60 * 60 * 1000));
+
+        if (now > windowExpiry) {
+            console.log(`[CRON] User ${user.id} PAUSED (Window Expired). Last Msg: ${lastMsg.toISOString()}`);
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { deliveryStatus: 'paused_inactive' }
+            });
+            continue; // Skip processing this user
+        }
+
         // Check time
         // We need to convert current UTC to user timezone.
         const userTime = new Date().toLocaleTimeString('en-US', { timeZone: user.timezone, hour12: false, hour: '2-digit', minute: '2-digit' });
         console.log(`[CRON] Checking User ${user.id} (${user.email}). User Delivery: ${user.deliveryTime}, Calculated Local: ${userTime}, Timezone: ${user.timezone}`);
 
-        // Check for force override
         // Check for force override
         // const { searchParams } = new URL(req.url); // Already parsed at top
         const force = searchParams.get('force');
@@ -122,7 +150,12 @@ export async function GET(req: Request) {
                     console.log(`[CRON] Sending Notification Template ${contentSid} to ${user.phoneNumber}`);
                     await sendWhatsAppTemplate(user.phoneNumber, contentSid, {});
 
-                    // Log
+                    // Log & Update Last Delivery
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { lastDeliveryAt: new Date() }
+                    });
+
                     await prisma.verseLog.create({
                         data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
                     });

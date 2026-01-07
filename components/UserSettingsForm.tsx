@@ -20,6 +20,7 @@ interface User {
     stripeCustomerId?: string | null;
     lastTestMessageSentAt?: Date | string | null;
     phoneVerificationCode?: string | null;
+    deliveryStatus?: string | null;
 }
 
 export function UserSettingsForm({ user }: { user: User }) {
@@ -72,11 +73,7 @@ export function UserSettingsForm({ user }: { user: User }) {
     const handleSendCode = async () => {
         if (!formData.phoneNumber) return toast.error("Please enter a phone number");
 
-        // Block US numbers
-        if (formData.phoneNumber.startsWith('+1')) {
-            toast.error("US Numbers (+1) are not supported due to Meta policies.");
-            return;
-        }
+
 
         setLoading(true);
         try {
@@ -300,16 +297,7 @@ export function UserSettingsForm({ user }: { user: User }) {
                             />
                         </div>
 
-                        {/* US Number Warning */}
-                        {(formData.phoneNumber || "").startsWith("+1") && (
-                            <div className="md:col-span-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-100 flex items-start gap-2">
-                                <span className="font-bold">⚠️ Notice:</span>
-                                <span>
-                                    US numbers (+1) are currently supported. Meta has restricted marketing templates in the USA.
-                                    Please use a non-US WhatsApp number.
-                                </span>
-                            </div>
-                        )}
+
 
                         {!isVerified && !verifying && (
                             <button
@@ -373,26 +361,48 @@ export function UserSettingsForm({ user }: { user: User }) {
                     )}
 
                     {isVerified && (
-                        <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
-                            <div className="flex items-center gap-3 w-full sm:w-auto">
-                                <div className={`w-3 h-3 rounded-full ${formData.whatsappOptIn ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                                <span className="text-sm text-gray-700 font-medium">
-                                    {formData.whatsappOptIn ? 'Daily Messages Active' : 'Messages Paused'}
-                                </span>
+                        <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-3 h-3 rounded-full ${(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
+                                        user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
+                                    }`}></div>
+
+                                <div className="flex-1">
+                                    <span className="block text-sm font-medium text-gray-900">
+                                        {(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'Active & Receiving Messages' :
+                                            user.deliveryStatus === 'pending_activation' ? 'Pending Activation' :
+                                                user.deliveryStatus === 'paused_inactive' ? 'Paused (24h Timeout)' :
+                                                    !formData.whatsappOptIn ? 'Paused by User' : 'Status Unknown'}
+                                    </span>
+                                    {user.deliveryStatus === 'pending_activation' && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Please open WhatsApp and send <strong>START</strong> to activate delivery.
+                                        </p>
+                                    )}
+                                    {user.deliveryStatus === 'paused_inactive' && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            No interaction in 24h. Reply to any message or send <strong>START</strong> on WhatsApp to resume.
+                                        </p>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                                <button
-                                    type="button"
-                                    onClick={handleTogglePause}
-                                    disabled={loading}
-                                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${formData.whatsappOptIn
-                                        ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
-                                        : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
-                                        }`}
-                                >
-                                    {formData.whatsappOptIn ? 'Pause Messages' : 'Resume Messages'}
-                                </button>
+                            <div className="flex gap-3 justify-end border-t border-gray-200 pt-3">
+                                {(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? (
+                                    <button
+                                        type="button"
+                                        onClick={handleTogglePause}
+                                        disabled={loading}
+                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border bg-white border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                                    >
+                                        Pause Messages
+                                    </button>
+                                ) : (
+                                    <div className="text-xs text-gray-500 flex items-center gap-2">
+                                        <Send className="w-3 h-3" />
+                                        Send "START" on WhatsApp
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
