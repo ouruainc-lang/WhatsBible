@@ -48,6 +48,9 @@ To start receiving daily Bible readings:
 Once verified, simply reply *START* here to activate! 🙏`;
                 await sendWhatsAppMessage(cleanPhone, notRegisteredMsg);
             } else {
+                // Determine if this is a first-time activation or a resume
+                const isFirstTime = user.deliveryStatus === 'pending_activation' || !user.deliveryStatus;
+
                 // User exists - Activate
                 await prisma.user.update({
                     where: { id: user.id },
@@ -58,7 +61,8 @@ Once verified, simply reply *START* here to activate! 🙏`;
                     }
                 });
 
-                const welcomeMsg = `*📖 DailyWord – Welcome*
+                if (isFirstTime) {
+                    const welcomeMsg = `*📖 DailyWord – Welcome*
 
 Hello 👋
 Welcome to DailyWord.
@@ -91,7 +95,11 @@ May the Word guide and encourage you each day. 🙏
 
 — DailyWord`;
 
-                await sendWhatsAppMessage(cleanPhone, welcomeMsg);
+                    await sendWhatsAppMessage(cleanPhone, welcomeMsg);
+                } else {
+                    // Resuming from Pause/Stop
+                    await sendWhatsAppMessage(cleanPhone, "Messages Activated! 🕊️\n\nYour daily readings will continue arriving at your scheduled time.");
+                }
             }
         }
         else if (isReadingReq) {
