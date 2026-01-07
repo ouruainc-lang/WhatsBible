@@ -99,7 +99,7 @@ export async function GET(req: Request) {
                 // Send Warning
                 try {
                     const { sendWhatsAppMessage } = await import('@/lib/whatsapp');
-                    await sendWhatsAppMessage(user.phoneNumber, "⏳ *Inactivity Alert*\n\nYour session is about to pause due to inactivity.\nReply with *START* (or any message) to keep your session open! 🕊️");
+                    await sendWhatsAppMessage(user.phoneNumber, "⏳ *Inactivity Alert*\n\nYour session is about to pause due to inactivity (to avoid spamming you).\nReply with *START* (or any message) to keep your session open! 🕊️");
 
                     // Update lastDeliveryAt to prevent spamming this warning
                     await prisma.user.update({
