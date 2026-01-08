@@ -115,8 +115,8 @@ export function SubscriptionCard({ user }: { user: User }) {
                                     <span className="block text-xs font-semibold text-gray-500 mb-0.5">Monthly</span>
                                     <span className="block text-lg font-bold text-gray-900">$4.99<span className="text-sm font-normal text-gray-400">/mo</span></span>
                                 </div>
-                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-2 h-2 rounded-full bg-gray-400 group-hover:bg-primary" />}
+                                <div className="px-3 py-1.5 bg-gray-100 group-hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors">
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start Trial"}
                                 </div>
                             </button>
 
@@ -132,8 +132,8 @@ export function SubscriptionCard({ user }: { user: User }) {
                                     <span className="block text-xs font-semibold text-amber-600 mb-0.5">Yearly (Best Value)</span>
                                     <span className="block text-lg font-bold text-gray-900">$29.99<span className="text-sm font-normal text-gray-400">/yr</span></span>
                                 </div>
-                                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 text-amber-600 transition-colors">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                <div className="px-3 py-1.5 bg-amber-100 group-hover:bg-amber-200 text-amber-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm">
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Start Trial <Sparkles className="w-3 h-3" /></>}
                                 </div>
                             </button>
                         </div>
