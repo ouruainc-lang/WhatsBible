@@ -92,6 +92,15 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
                 // Clean up reference (sometimes has newlines)
                 reference = reference.replace(/\s+/g, ' ').trim();
 
+                // Clean up text: Collapse multiple spaces/newlines into single lines
+                // We perform 2 steps:
+                // 1. Replace multiple spaces/tabs within lines with single space
+                // 2. Preserve Paragraphs? Actually, USCCB text is often one block.
+                // For safety against large gaps:
+                if (text) {
+                    text = text.replace(/\s+/g, ' ').trim();
+                }
+
                 if (text) {
                     readings[section.key] = { reference, text };
                 }
