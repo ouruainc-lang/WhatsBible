@@ -18,8 +18,11 @@ export async function POST(req: Request) {
 
         console.log(`[TWILIO WEBHOOK] From: ${cleanPhone}, Body: ${text}`);
 
-        const isReadingReq = text.includes('READING') || text.includes('FULL READING');
-        const isSummaryReq = text.includes('SUMMARY') || text.includes('REFLECTION');
+        // Strict Command Matching
+        // Prevents triggering on "I loved the reading today" (Conversational)
+        // We compare the exact trimmed string.
+        const isReadingReq = ['READING', 'FULL READING', 'READINGS'].includes(text);
+        const isSummaryReq = ['SUMMARY', 'REFLECTION', 'DAILY REFLECTION', 'WORD'].includes(text);
 
         if (text === 'STOP' || text === 'UNSUBSCRIBE' || text === 'CANCEL') {
             await prisma.user.updateMany({
