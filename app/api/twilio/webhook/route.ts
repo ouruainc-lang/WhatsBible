@@ -174,7 +174,8 @@ May the Word guide and encourage you each day. 🙏
                     .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
 
                 // 3. Assemble full message
-                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+                // Safety: Hard truncate to 1550 to prevent Twilio 1600 char limit error
+                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
 
                 await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
