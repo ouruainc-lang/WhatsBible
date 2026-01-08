@@ -87,35 +87,6 @@ export async function GET(req: Request) {
             continue;
         }
 
-        // 2. Warning Shot: > 23 Hours (1380 mins) -> Send Warning
-        if (minutesSinceLastMsg > (23 * 60)) {
-            // Check debounce: Don't spam warning. Check if we sent anything in the last 2 mins.
-            // @ts-ignore
-            const lastDel = user.lastDeliveryAt ? new Date(user.lastDeliveryAt) : new Date(0);
-            const minutesSinceDelivery = (now.getTime() - lastDel.getTime()) / (1000 * 60);
-
-            if (minutesSinceDelivery > 2) {
-                console.log(`[CRON] User ${user.id} WARNING (Inactivity Buffer).`);
-                // Send Warning
-                try {
-                    const { sendWhatsAppMessage } = await import('@/lib/whatsapp');
-                    await sendWhatsAppMessage(user.phoneNumber, "⏳ *Inactivity Alert*\n\nYour session is about to pause due to inactivity (to avoid spamming you).\nReply with *START* (or any message) to keep your session open! 🕊️");
-
-                    // Update lastDeliveryAt to prevent spamming this warning
-                    await prisma.user.update({
-                        where: { id: user.id },
-                        data: { lastDeliveryAt: new Date() }
-                    });
-                } catch (e) {
-                    console.error(`[CRON] Failed to send warning to ${user.id}`, e);
-                }
-            }
-            // We continue; technically if a scheduled message matches EXACTLY now, they might get 2 messages.
-            // But that is acceptable edge case.
-        }
-
-
-
         // Check time
         // We need to convert current UTC to user timezone.
         const userTime = new Date().toLocaleTimeString('en-US', { timeZone: user.timezone, hour12: false, hour: '2-digit', minute: '2-digit' });

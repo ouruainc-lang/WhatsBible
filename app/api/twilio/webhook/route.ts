@@ -105,11 +105,12 @@ May the Word guide and encourage you each day. 🙏
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
             // Compliance: Extend 24h Window
+            // NOTE: We do NOT set deliveryStatus='active' here.
+            // If they are paused, they get this reading, but remain paused for tomorrow unless they say something else.
             await prisma.user.updateMany({
                 where: { phoneNumber: cleanPhone },
                 data: {
-                    lastUserMessageAt: new Date(),
-                    deliveryStatus: 'active'
+                    lastUserMessageAt: new Date()
                 }
             });
             try {
@@ -146,8 +147,7 @@ May the Word guide and encourage you each day. 🙏
             await prisma.user.updateMany({
                 where: { phoneNumber: cleanPhone },
                 data: {
-                    lastUserMessageAt: new Date(),
-                    deliveryStatus: 'active'
+                    lastUserMessageAt: new Date()
                 }
             });
             const dateKey = new Date().toLocaleDateString('en-CA');
@@ -176,6 +176,18 @@ May the Word guide and encourage you each day. 🙏
             } else {
                 await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
             }
+        }
+        else {
+            // Generic Catch-All (e.g. "Amen", "Thanks", "Hello")
+            // This IS considered a resume intent.
+            console.log(`[TWILIO] User resumed via generic message: ${text.substring(0, 20)}`);
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
         }
 
         return new NextResponse('<Response></Response>', {
