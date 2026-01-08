@@ -162,6 +162,10 @@ May the Word guide and encourage you each day. 🙏
                 // 1. Convert Pipes to Newlines (Double spacing for sections)
                 let formatted = raw.replace(/ \| /g, "\n\n");
 
+                // 2. Clean Markdown: WhatsApp uses * for bold, not **. 
+                // We convert standard MD bold (**) to WhatsApp bold (*).
+                formatted = formatted.replace(/\*\*/g, '*');
+
                 // 2. Format Headers: Remove Markdown Bold (*), Add Newline
                 // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
                 formatted = formatted
