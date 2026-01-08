@@ -36,7 +36,7 @@ export async function generateReflection(readings: DailyReading): Promise<string
         Example:
         📖 *Word:* (Summary of the readings) | 🕊️ *Reflection:* (Spiritual application) | 🙏 *Prayer:* (Short prayer)
 
-        CRITICAL: Keep the total length under 1450 characters.
+        CRITICAL: Keep the total length under 1350 characters.
         `;
 
         const result = await model.generateContent(prompt);
