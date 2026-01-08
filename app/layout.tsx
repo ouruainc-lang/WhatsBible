@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "DailyWord | Catholic Daily Readings on WhatsApp",
-  description: "Get the daily Catholic Mass readings, reflections, and prayers delivered directly to your WhatsApp every morning. Start your day with grace.",
+  title: "DailyWord | Daily Bible Readings on WhatsApp",
+  description: "Get the daily Bible readings, reflections, and prayers delivered directly to your WhatsApp every morning. Start your day with grace.",
   icons: {
     icon: "/dailywordlogo.png",
     shortcut: "/dailywordlogo.png",
