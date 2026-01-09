@@ -175,7 +175,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">Sign Up</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Start your 7-day free trial. No credit card required upfront. Choose your preferred delivery time.
+                  Start your 7-day free trial. Cancel anytime. Choose your preferred delivery time.
                 </p>
               </div>
 
