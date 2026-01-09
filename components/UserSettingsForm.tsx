@@ -355,7 +355,9 @@ export function UserSettingsForm({ user }: { user: User }) {
                     {!['active', 'trial'].includes(user.subscriptionStatus) && (
                         <div>
                             <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
-                                🔒 Subscribe to enable WhatsApp delivery
+                                <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
+                                    🔒 Subscribe to enable WhatsApp delivery. 7 day Free Trial. Cancel anytime.
+                                </Link>
                             </Link>
                         </div>
                     )}
