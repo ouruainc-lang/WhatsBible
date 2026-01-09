@@ -22,7 +22,7 @@ export default function TermsOfService() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Service Description</h2>
                     <p>
-                        DailyWord, operated by <strong>DWS Digital Services (Malaysia)</strong>, provides scheduled Bible readings delivered via WhatsApp. You may view or manage your subscription and delivery preferences through our dashboard: <a href="https://dailyword.space/dashboard" className="text-primary hover:underline">https://dailyword.space/dashboard</a>.
+                        DailyWord, operated by <strong>DWS Digital Services</strong>, provides scheduled Bible readings delivered via WhatsApp. You may view or manage your subscription and delivery preferences through our dashboard: <a href="https://dailyword.space/dashboard" className="text-primary hover:underline">https://dailyword.space/dashboard</a>.
                     </p>
                 </section>
 

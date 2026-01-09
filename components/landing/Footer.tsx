@@ -51,7 +51,7 @@ export function Footer() {
                 <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-xs text-gray-400">
                         <p>© {new Date().getFullYear()} DailyWord. All rights reserved.</p>
-                        <p className="mt-1">Operated by DWS Digital Services (Malaysia).</p>
+                        <p className="mt-1">Operated by DWS Digital Services.</p>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                         <span>Made with</span>

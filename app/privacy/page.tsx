@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
                 <section>
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
                     <p>
-                        DailyWord, operated by <strong>DWS Digital Services (Malaysia)</strong> (“we”, “our”, “us”), respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our WhatsApp Bible reading service and website (<a href="https://dailyword.space" className="text-primary hover:underline">https://dailyword.space</a>).
+                        DailyWord, operated by <strong>DWS Digital Services</strong> (“we”, “our”, “us”), respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our WhatsApp Bible reading service and website (<a href="https://dailyword.space" className="text-primary hover:underline">https://dailyword.space</a>).
                     </p>
                 </section>
 
