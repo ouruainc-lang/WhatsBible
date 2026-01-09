@@ -14,6 +14,9 @@ export function SubscriptionButton({ priceId, isTrial = false }: SubscriptionBut
     const handleSubscribe = async () => {
         try {
             setIsLoading(true);
+            // Track Meta Pixel Event
+            (window as any).fbq?.('track', 'InitiateCheckout');
+
             const response = await fetch("/api/stripe/checkout", {
                 method: "POST",
                 headers: {

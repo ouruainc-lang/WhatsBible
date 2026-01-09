@@ -16,6 +16,9 @@ export function SubscriptionCard({ user }: { user: User }) {
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
         setLoading(true);
         try {
+            // Track Meta Pixel Event
+            (window as any).fbq?.('track', 'InitiateCheckout');
+
             const response = await fetch('/api/stripe/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
