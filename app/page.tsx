@@ -53,6 +53,10 @@ export default function Home() {
 
               {/* Text Content */}
               <div className="flex-1 text-center lg:text-left space-y-8">
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 bg-amber-50 mx-auto lg:mx-0">
+                  <span className="flex h-2 w-2 rounded-full bg-amber-600"></span>
+                  The First Automated WhatsApp Daily Bible Reading
+                </div>
                 <h1 className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight text-gray-900">
                   Daily Grace, <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-500">Delivered.</span>
@@ -74,8 +78,16 @@ export default function Home() {
                     How it Works
                   </Link>
                 </div>
-                <div className="pt-4 flex items-center justify-center lg:justify-start gap-2 text-sm text-gray-500">
-                  {/* <Check className="w-4 h-4 text-green-500" /> No credit card required for trial */}
+                <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm font-medium text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" /> Cancel Anytime
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" /> 7-Day Free Trial
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" /> Instant Setup
+                  </div>
                 </div>
               </div>
 
