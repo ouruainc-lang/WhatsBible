@@ -156,6 +156,54 @@ export default function Home() {
           </div>
         </section>
 
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-20 bg-white">
+          <div className="container px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold font-serif mb-4">Start Your Journey in 3 Simple Steps</h2>
+              <p className="text-gray-600">Join thousands of believers who have made Scripture a daily habit.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 relative">
+              {/* Connector Line (Desktop) */}
+              <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 -z-10"></div>
+
+              {/* Step 1 */}
+              <div className="text-center bg-white p-6 rounded-2xl relative">
+                <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg relative z-10">
+                  <span className="text-4xl font-bold text-amber-600 font-serif">1</span>
+                </div>
+                <h3 className="text-xl font-bold mb-3">Sign Up</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Start your 7-day free trial. No credit card required upfront. Choose your preferred delivery time.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="text-center bg-white p-6 rounded-2xl relative">
+                <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg relative z-10">
+                  <span className="text-4xl font-bold text-amber-600 font-serif">2</span>
+                </div>
+                <h3 className="text-xl font-bold mb-3">Receive</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Get a daily WhatsApp message with the Gospel, a reflection, and a prayer — right when you need it.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="text-center bg-white p-6 rounded-2xl relative">
+                <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg relative z-10">
+                  <span className="text-4xl font-bold text-amber-600 font-serif">3</span>
+                </div>
+                <h3 className="text-xl font-bold mb-3">Reflect</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Read in your private chat. Reply with "Amen" or your own prayer to build a spiritual journal.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Features Section */}
         <section id="features" className="py-20 bg-white/50">
           <div className="container px-6 mx-auto">
