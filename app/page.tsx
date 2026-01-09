@@ -199,7 +199,7 @@ export default function Home() {
               <div className="glass-card p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-all">
                 <h3 className="text-2xl font-bold text-gray-900">Monthly</h3>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight text-gray-900">$4.99</span>
+                  <span className="text-4xl font-bold tracking-tight text-gray-900">$2.99</span>
                   <span className="text-gray-500">/mo</span>
                 </div>
                 <p className="mt-4 text-gray-500 text-sm">Cancel anytime.</p>
@@ -218,10 +218,10 @@ export default function Home() {
                 <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl">BEST VALUE</div>
                 <h3 className="text-2xl font-bold text-gray-900">Yearly</h3>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight text-gray-900">$29.99</span>
+                  <span className="text-4xl font-bold tracking-tight text-gray-900">$24.99</span>
                   <span className="text-gray-500">/yr</span>
                 </div>
-                <p className="mt-4 text-green-600 font-medium text-sm">Save 50% vs Monthly</p>
+                <p className="mt-4 text-green-600 font-medium text-sm">Save 30% vs Monthly</p>
                 <Link href="/dashboard" className="block w-full py-3 px-4 mt-8 bg-primary text-white font-bold rounded-xl text-center hover:bg-amber-700 transition-colors shadow-lg hover:shadow-xl hover:scale-[1.02] transform duration-200">
                   Start Yearly Plan
                 </Link>
