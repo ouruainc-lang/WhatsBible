@@ -46,7 +46,7 @@ export function SubscriptionButton({ priceId, isTrial = false }: SubscriptionBut
             className="w-full bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-amber-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isTrial ? "Start Free Trial" : "Subscribe ($4.99/mo)"}
+            {isTrial ? "Start Free Trial" : "Subscribe ($2.99/mo)"}
         </button>
     );
 }
