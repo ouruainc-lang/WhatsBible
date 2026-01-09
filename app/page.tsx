@@ -254,6 +254,82 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Testimonials Section */}
+        <section className="py-20 bg-white">
+          <div className="container px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold font-serif mb-4">Community Stories</h2>
+              <p className="text-gray-600">Hear from our early users about their daily walk with the Word.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Jack */}
+              <div className="bg-amber-50/30 p-8 rounded-2xl border border-amber-100/50 hover:shadow-lg transition-shadow">
+                <div className="flex text-amber-500 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 leading-relaxed mb-6 italic">
+                  "I used to miss daily readings more often than I’d like to admit. Getting the passage quietly on WhatsApp each day has made Scripture part of my routine again. I especially appreciate that it’s private — no group chats, no distractions."
+                </blockquote>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center font-bold text-amber-800">J</div>
+                  <div>
+                    <div className="font-bold text-gray-900">Jack</div>
+                    <div className="text-sm text-gray-500">Early User</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Barbara */}
+              <div className="bg-amber-50/30 p-8 rounded-2xl border border-amber-100/50 hover:shadow-lg transition-shadow">
+                <div className="flex text-amber-500 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 leading-relaxed mb-6 italic">
+                  "What I love most is the simplicity. One message, once a day, at a time I choose. I often reply with a short reflection or prayer, and over time it’s become a personal spiritual journal. It feels very intentional."
+                </blockquote>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-800">B</div>
+                  <div>
+                    <div className="font-bold text-gray-900">Barbara</div>
+                    <div className="text-sm text-gray-500">Beta User</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Larry */}
+              <div className="bg-amber-50/30 p-8 rounded-2xl border border-amber-100/50 hover:shadow-lg transition-shadow">
+                <div className="flex text-amber-500 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 leading-relaxed mb-6 italic">
+                  "I’m already in church groups, but this is different. DailyWord feels more personal and prayerful. It’s just me and the reading. That quiet space has helped me slow down and reflect more deeply."
+                </blockquote>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-800">L</div>
+                  <div>
+                    <div className="font-bold text-gray-900">Larry</div>
+                    <div className="text-sm text-gray-500">Early User</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
         {/* Pricing Section */}
         <section id="pricing" className="py-20">
           <div className="container px-6 mx-auto">
