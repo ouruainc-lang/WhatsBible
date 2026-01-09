@@ -202,6 +202,59 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
+        <section className="py-20 bg-amber-50/50 border-y border-amber-100/50">
+          <div className="container px-6 mx-auto">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl lg:text-4xl font-bold font-serif text-gray-900 mb-12">
+                A Quiet, Personal Space for Prayer & Reflection
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-8 text-left">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                  <div className="p-3 bg-green-100 rounded-xl text-green-700">
+                    <Smartphone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">Delivered 1-to-1</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">Your daily reading arrives in a private chat. No group chat noise, no distractions.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                  <div className="p-3 bg-blue-100 rounded-xl text-blue-700">
+                    <Heart className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">Personal Response</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">Reply with your own reflections or prayers. This is your safe journal space.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                  <div className="p-3 bg-purple-100 rounded-xl text-purple-700">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">Your Rhythm</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">Build a consistent personal habit. Scripture becomes a natural part of your day.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                  <div className="p-3 bg-amber-100 rounded-xl text-amber-700">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">Deep Reflection</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">Take a moment to pause, read, and listen to what God is speaking to you today.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
         <section id="pricing" className="py-20">
           <div className="container px-6 mx-auto">
             <h2 className="text-3xl lg:text-4xl font-bold text-center mb-16">Simple, Transparent Pricing</h2>
