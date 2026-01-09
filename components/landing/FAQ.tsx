@@ -14,7 +14,7 @@ export function FAQ() {
         },
         {
             question: "Can I cancel anytime?",
-            answer: "Absolutely. You can manage your subscription directly from your dashboard or simply reply STOP to any message. There are no long-term contracts."
+            answer: "Absolutely. You can manage your subscription directly from your dashboard. There are no long-term contracts."
         },
         {
             question: "Is my phone number safe?",
