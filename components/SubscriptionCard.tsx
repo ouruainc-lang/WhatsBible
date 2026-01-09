@@ -25,6 +25,14 @@ export function SubscriptionCard({ user }: { user: User }) {
                 console.warn("Meta Pixel (fbq) not found.");
             }
 
+            // Track TikTok Pixel Event
+            if ((window as any).ttq) {
+                console.log("Firing TikTok Pixel: InitiateCheckout");
+                (window as any).ttq.track('InitiateCheckout', {});
+            } else {
+                console.warn("TikTok Pixel (ttq) not found.");
+            }
+
             const response = await fetch('/api/stripe/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

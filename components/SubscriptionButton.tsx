@@ -15,7 +15,16 @@ export function SubscriptionButton({ priceId, isTrial = false }: SubscriptionBut
         try {
             setIsLoading(true);
             // Track Meta Pixel Event
-            (window as any).fbq?.('track', 'InitiateCheckout');
+            if ((window as any).fbq) {
+                console.log("Firing Meta Pixel: InitiateCheckout");
+                (window as any).fbq('track', 'InitiateCheckout');
+            }
+
+            // Track TikTok Pixel Event
+            if ((window as any).ttq) {
+                console.log("Firing TikTok Pixel: InitiateCheckout");
+                (window as any).ttq.track('InitiateCheckout', {});
+            }
 
             const response = await fetch("/api/stripe/checkout", {
                 method: "POST",
