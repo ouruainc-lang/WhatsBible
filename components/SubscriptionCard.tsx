@@ -16,8 +16,14 @@ export function SubscriptionCard({ user }: { user: User }) {
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
         setLoading(true);
         try {
+            console.log("Starting subscription process...");
             // Track Meta Pixel Event
-            (window as any).fbq?.('track', 'InitiateCheckout');
+            if ((window as any).fbq) {
+                console.log("Firing Meta Pixel: InitiateCheckout");
+                (window as any).fbq('track', 'InitiateCheckout');
+            } else {
+                console.warn("Meta Pixel (fbq) not found.");
+            }
 
             const response = await fetch('/api/stripe/checkout', {
                 method: 'POST',
