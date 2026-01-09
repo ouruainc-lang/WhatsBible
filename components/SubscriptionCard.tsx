@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,19 +12,6 @@ interface User {
 
 export function SubscriptionCard({ user }: { user: User }) {
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        // Track TikTok ViewContent on mount
-        if ((window as any).ttq) {
-            console.log("Firing TikTok Pixel: ViewContent");
-            (window as any).ttq.track('ViewContent', {
-                contents: [
-                    { content_id: 'MONTHLY', content_type: 'product', price: 2.99, currency: 'USD' },
-                    { content_id: 'YEARLY', content_type: 'product', price: 24.99, currency: 'USD' }
-                ]
-            });
-        }
-    }, []);
 
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
         setLoading(true);
