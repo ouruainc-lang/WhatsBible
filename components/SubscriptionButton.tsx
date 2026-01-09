@@ -23,7 +23,15 @@ export function SubscriptionButton({ priceId, isTrial = false }: SubscriptionBut
             // Track TikTok Pixel Event
             if ((window as any).ttq) {
                 console.log("Firing TikTok Pixel: InitiateCheckout");
-                (window as any).ttq.track('InitiateCheckout', {});
+                (window as any).ttq.track('InitiateCheckout', {
+                    contents: [
+                        {
+                            content_id: priceId,
+                            content_type: 'product',
+                            currency: 'USD'
+                        }
+                    ]
+                });
             }
 
             const response = await fetch("/api/stripe/checkout", {

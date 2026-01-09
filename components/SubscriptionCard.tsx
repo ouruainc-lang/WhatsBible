@@ -28,7 +28,16 @@ export function SubscriptionCard({ user }: { user: User }) {
             // Track TikTok Pixel Event
             if ((window as any).ttq) {
                 console.log("Firing TikTok Pixel: InitiateCheckout");
-                (window as any).ttq.track('InitiateCheckout', {});
+                (window as any).ttq.track('InitiateCheckout', {
+                    contents: [
+                        {
+                            content_id: plan,
+                            content_type: 'product',
+                            price: plan === 'MONTHLY' ? 2.99 : 24.99,
+                            currency: 'USD'
+                        }
+                    ]
+                });
             } else {
                 console.warn("TikTok Pixel (ttq) not found.");
             }
