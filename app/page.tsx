@@ -69,7 +69,7 @@ export default function Home() {
                     href="/dashboard"
                     className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white shadow-xl transition-all hover:bg-amber-700 hover:scale-105 active:scale-95"
                   >
-                    Start Free Trial
+                    Sign Up Now
                   </Link>
                   <Link
                     href="#how-it-works"
@@ -429,6 +429,6 @@ export default function Home() {
       </main>
 
       <Footer />
-    </div>
+    </div >
   );
 }
