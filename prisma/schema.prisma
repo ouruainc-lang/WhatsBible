@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url       = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -18,7 +18,6 @@ model User {
   name             String?
   timezone         String   @default("UTC")
   deliveryTime     String   @default("08:00") // 24h format
-  language         String   @default("en") // en, pt-br
   bibleVersion     String   @default("KJV")
   contentPreference String  @default("VER") // VER (Verse), RDG (Reading), REF (Reflection)
   whatsappOptIn    Boolean  @default(false)
@@ -91,7 +90,10 @@ model VerseLog {
 
 model DailyReflection {
   id        String   @id @default(cuid())
-  date      String   @unique // YYYY-MM-DD
+  date      String   // YYYY-MM-DD
+  language  String   @default("en") // en, pt
   content   String   // The generated AI content
   createdAt DateTime @default(now())
+
+  @@unique([date, language])
 }
