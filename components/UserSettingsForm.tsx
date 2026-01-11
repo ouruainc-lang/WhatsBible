@@ -311,6 +311,25 @@ export function UserSettingsForm({ user }: { user: User }) {
                             </button>
                         )}
 
+                        <div className="space-y-2">
+                            <Label htmlFor="language" className="text-gray-700 font-medium flex items-center gap-2">
+                                <BookOpen className="w-4 h-4 text-amber-600" />
+                                Bible Version / Language
+                            </Label>
+                            <select
+                                id="language"
+                                value={formData.language || 'en'}
+                                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-gray-900"
+                            >
+                                <option value="en">NABRE (English - USCCB)</option>
+                                <option value="pt-br">Ave-Maria (Português - CNBB)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 pl-1">
+                                Determines the language of your daily readings and reflections.
+                            </p>
+                        </div>
+
                         {verifying && (
                             <div className="flex flex-col gap-2 flex-1 md:flex-none">
                                 <div className="flex gap-2">

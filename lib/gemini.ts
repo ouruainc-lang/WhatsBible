@@ -12,32 +12,58 @@ interface DailyReading {
     gospel: { reference: string; text: string };
 }
 
-export async function generateReflection(readings: DailyReading): Promise<string | null> {
+export async function generateReflection(
+    readingText: string,
+    date: string,
+    language: string = 'en'
+): Promise<string> {
     if (!genAI) {
         console.error("GOOGLE_GENERATIVE_AI_API_KEY is not set");
-        return null; // Handle null in caller
+        return ""; // Return empty string as per new Promise<string> type
     }
 
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash-lite",
-        });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-        const prompt = `
-        You are a Catholic spiritual guide. Based on today's Mass readings, provide a structured reflection.
-        
-        Readings:
-        1. ${readings.reading1.reference}: ${readings.reading1.text.substring(0, 500)}...
-        2. Psalm: ${readings.psalm.text.substring(0, 200)}...
-        ${readings.reading2 ? `3. Second Reading (${readings.reading2.reference}): ${readings.reading2.text.substring(0, 500)}...` : ''}
-        4. Gospel (${readings.gospel.reference}): ${readings.gospel.text.substring(0, 800)}...
+        const maxChars = 1450;
 
-        Format the output as a SINGLE LINE with no line breaks, using '|' as a separator. Bold certain keywords and make sure to include the full verse reference if you're doing a reference like "In the beginning was the Word, and the Word was with God, and the Word was God"(John 1:1).
-        Example:
-        📖 *Word:* (Summary of the readings) | 🕊️ *Reflection:* (Spiritual application) | 🙏 *Prayer:* (Short prayer)
+        let prompt = "";
 
-        CRITICAL: Keep the total length under 1450 characters.
-        `;
+        if (language === 'pt-br') {
+            prompt = `
+Você é um companheiro espiritual católico gentil, sábio e encorajador.
+Sua tarefa é escrever uma "Reflexão Diária" curta, inspiradora e pessoal baseada nas leituras do evangelho de hoje (${date}).
+
+A leitura é:
+"${readingText.substring(0, 2000)}"
+
+Requisitos Estritos:
+1. Comece com uma saudação calorosa e pessoal (ex: "Bom dia, alma abençoada", "Paz e bem", "Querido irmão/irmã").
+2. Escreva 2-3 parágrafos curtos refletindo sobre o significado espiritual do texto.
+3. Use a tradução "Bíblia Sagrada Ave-Maria" se citar versículos.
+4. O tom deve ser de esperança, graça e aplicação prática na vida diária.
+5. Termine com uma oração curta e poderosa de 1-2 frases.
+6. Assine como "- DailyWord AI".
+7. IMPORTANTE: O texto TOTAL deve ter MENOS de ${maxChars} caracteres para caber numa mensagem de WhatsApp. Não use hashtags.
+        `.trim();
+        } else {
+            prompt = `
+You are a gentle, wise, and encouraging Catholic spiritual companion.
+Your task is to write a short, uplifting, and personal "Daily Reflection" based on today's gospel reading (${date}).
+
+The reading is:
+"${readingText.substring(0, 2000)}"
+
+Strict Requirements:
+1. Start with a warm, personal greeting (e.g., "Good morning, blessed soul", "Peace be with you").
+2. Write 2-3 short paragraphs reflecting on the spiritual meaning of the text. Focus on God's love, grace, and practical application.
+3. Tone: Solace, hope, encouragement. Not judgmental or overly theological.
+4. End with a short, powerful 1-2 sentence prayer.
+5. Sign off with "- DailyWord AI".
+6. CRITICAL: Total text length MUST be under ${maxChars} characters to fit in a single text message. Do NOT use hashtags.
+7. Use Markdown for bolding key phrases (*text*) if appropriate, but keep it minimal.
+  `.trim();
+        }
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
