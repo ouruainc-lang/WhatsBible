@@ -106,8 +106,15 @@ export async function GET(req: Request) {
                 // 1. Ensure AI content is pre-warmed (Cached)
                 // We check this for every user to ensure availability, but effectively it runs once per day.
                 const dateKey = new Date().toLocaleDateString('en-CA');
+
+                // Schema Change: DailyReflection is now unique by [date, language]
                 const existingReflection = await prisma.dailyReflection.findUnique({
-                    where: { date: dateKey }
+                    where: {
+                        date_language: {
+                            date: dateKey,
+                            language: 'en'
+                        }
+                    }
                 });
 
                 if (!existingReflection) {
@@ -118,10 +125,14 @@ export async function GET(req: Request) {
                     if (r && r.structure) {
                         const readingsForAi = { ...r.structure, date: dateKey };
                         try {
-                            const generated = await generateReflection(readingsForAi);
+                            const generated = await generateReflection(readingsForAi, 'en');
                             if (generated) {
                                 await prisma.dailyReflection.create({
-                                    data: { date: dateKey, content: generated }
+                                    data: {
+                                        date: dateKey,
+                                        language: 'en',
+                                        content: generated
+                                    }
                                 });
                                 console.log("[CRON] AI Reflection generated and cached.");
                             }
