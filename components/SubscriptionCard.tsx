@@ -122,8 +122,12 @@ export function SubscriptionCard({ user }: { user: User }) {
                     </div>
                 ) : (
                     <div className="mt-4 space-y-4">
-                        <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-100/50">
-                            <h4 className="font-serif font-bold text-amber-900 mb-2 text-lg">
+                        <div
+                            onClick={() => handleSubscription('MONTHLY')}
+                            className="p-4 bg-amber-50/50 rounded-xl border border-amber-100/50 cursor-pointer hover:bg-amber-100/50 hover:border-amber-200 transition-all group"
+                            role="button"
+                        >
+                            <h4 className="font-serif font-bold text-amber-900 mb-2 text-lg group-hover:text-amber-800 transition-colors">
                                 Start 7-Day Free Trial
                             </h4>
                             <p className="text-sm text-amber-800/70 mb-0">
