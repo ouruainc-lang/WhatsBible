@@ -405,24 +405,12 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                     </div>
 
                     {!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) && (
-                        <div className="flex flex-col gap-2">
+                        <div>
                             <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
                                 {['canceled', 'past_due'].includes(user.subscriptionStatus) || user.stripeSubscriptionId // Check ID to catch returning users
                                     ? "🔒 Subscription inactive. Click to resume daily delivery."
                                     : "🔒 Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime."}
                             </Link>
-
-                            <button
-                                type="button"
-                                onClick={handleSubscription}
-                                disabled={loading}
-                                className="text-xs text-center text-amber-600 hover:text-amber-800 underline transition-colors"
-                            >
-                                {(['canceled', 'past_due'].includes(user.subscriptionStatus) || user.subscriptionStatus === 'inactive' || !!user.stripeSubscriptionId)
-                                    ? "Click here to continue your subscription"
-                                    : "Click here to Start Your 7 day Free Trial"
-                                }
-                            </button>
                         </div>
                     )}
 
@@ -430,8 +418,8 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                         <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <div className="flex items-center gap-3">
                                 <div className={`w-3 h-3 rounded-full ${!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? 'bg-red-500' :
-                                        (user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
-                                            user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
+                                    (user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
+                                        user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
                                     }`}></div>
 
                                 <div className="flex-1">
