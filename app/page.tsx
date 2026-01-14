@@ -81,11 +81,11 @@ export default function Home() {
                 <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm font-medium text-gray-500">
                   <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-500" /> Cancel Anytime
-                  </div>
-                  <div className="flex items-center gap-2">
+                    <span className="text-gray-300">|</span>
                     <Check className="w-4 h-4 text-green-500" /> 7-Day Free Trial
-                  </div>
-                  <div className="flex items-center gap-2">
+                    <span className="text-gray-300">|</span>
+                    <Check className="w-4 h-4 text-green-500" /> No Credit Card Required
+                    <span className="text-gray-300">|</span>
                     <Check className="w-4 h-4 text-green-500" /> Instant Setup
                   </div>
                 </div>
@@ -174,8 +174,8 @@ export default function Home() {
                   <span className="text-4xl font-bold text-amber-600 font-serif">1</span>
                 </div>
                 <h3 className="text-xl font-bold mb-3">Sign Up</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Start your 7-day free trial. Cancel anytime. Choose your preferred delivery time.
+                <p className="mt-2 text-base leading-7 text-gray-600">
+                  Start your 7-day free trial. No credit card required. Cancel anytime. Choose your preferred delivery time.
                 </p>
               </div>
 

@@ -127,7 +127,7 @@ export function SubscriptionCard({ user }: { user: User }) {
                                 Start 7-Day Free Trial
                             </h4>
                             <p className="text-sm text-amber-800/70 mb-0">
-                                Experience daily grace delivered directly to your phone. Cancel anytime.
+                                Experience daily grace delivered directly to your phone. No credit card required. Cancel anytime.
                             </p>
                         </div>
 
