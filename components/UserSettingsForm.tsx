@@ -429,16 +429,18 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                     {isVerified && (
                         <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <div className="flex items-center gap-3">
-                                <div className={`w-3 h-3 rounded-full ${(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
-                                    user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
+                                <div className={`w-3 h-3 rounded-full ${!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? 'bg-red-500' :
+                                        (user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'bg-green-500' :
+                                            user.deliveryStatus === 'pending_activation' ? 'bg-amber-500' : 'bg-gray-300'
                                     }`}></div>
 
                                 <div className="flex-1">
                                     <span className="block text-sm font-medium text-gray-900">
-                                        {(user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'Active & Receiving Messages' :
-                                            user.deliveryStatus === 'pending_activation' ? 'Pending Activation' :
-                                                user.deliveryStatus === 'paused_inactive' ? 'Paused (24h Timeout)' :
-                                                    !formData.whatsappOptIn ? 'Paused by User' : 'Status Unknown'}
+                                        {!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? 'Paused (Subscription Inactive)' :
+                                            (user.deliveryStatus === 'active' || !user.deliveryStatus) && formData.whatsappOptIn ? 'Active & Receiving Messages' :
+                                                user.deliveryStatus === 'pending_activation' ? 'Pending Activation' :
+                                                    user.deliveryStatus === 'paused_inactive' ? 'Paused (24h Timeout)' :
+                                                        !formData.whatsappOptIn ? 'Paused by User' : 'Status Unknown'}
                                     </span>
                                     {user.deliveryStatus === 'pending_activation' && (
                                         <p className="text-xs text-gray-500 mt-1">
