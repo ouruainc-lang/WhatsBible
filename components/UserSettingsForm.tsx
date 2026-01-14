@@ -318,8 +318,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-xs text-gray-500 hover:text-green-600 underline transition-colors w-full inline-block mt-1"
-                                        >
-                                            Not receiving OTA? Click here
+                                            Not receiving verification code? Click here
                                         </a>
                                     </div>
                                 )}
