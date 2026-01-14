@@ -137,6 +137,30 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
         }
     };
 
+    const handleSubscription = async () => {
+        setLoading(true);
+        try {
+            // Track Pixels
+            if ((window as any).fbq) (window as any).fbq('track', 'InitiateCheckout');
+            if ((window as any).ttq) (window as any).ttq.track('InitiateCheckout', { contents: [{ content_id: 'MONTHLY', content_type: 'product', price: 2.99, currency: 'USD' }] });
+
+            const response = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ plan: 'MONTHLY', isTrial: true }),
+            });
+
+            if (!response.ok) throw new Error("Failed to start subscription");
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
 
     const handleTogglePause = async () => {
@@ -380,10 +404,22 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                     </div>
 
                     {!['active', 'trial'].includes(user.subscriptionStatus) && (
-                        <div>
+                        <div className="flex flex-col gap-2">
                             <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
                                 🔒 Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime.
                             </Link>
+
+                            <button
+                                type="button"
+                                onClick={handleSubscription}
+                                disabled={loading}
+                                className="text-xs text-center text-amber-600 hover:text-amber-800 underline transition-colors"
+                            >
+                                {['canceled', 'past_due'].includes(user.subscriptionStatus)
+                                    ? "Click here to continue your subscription"
+                                    : "Click here to Start Your 7 day Free Trial"
+                                }
+                            </button>
                         </div>
                     )}
 
