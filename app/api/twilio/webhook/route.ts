@@ -105,116 +105,115 @@ May the Word guide and encourage you each day. 🙏
                 }
             }
         }
-    }
         else if (text === 'NO-OTP' || text === 'NO OTP') {
-        console.log(`[TWILIO] User sent NO-OTP to open session: ${cleanPhone}`);
-        // Just acknowledging this message opens the 24h window
-        await sendWhatsAppMessage(cleanPhone, `✅ Support Session Active.
+            console.log(`[TWILIO] User sent NO-OTP to open session: ${cleanPhone}`);
+            // Just acknowledging this message opens the 24h window
+            await sendWhatsAppMessage(cleanPhone, `✅ Support Session Active.
              
 You can now receive your verification code.
 
 Please return to the dashboard to request the code again:
 ${process.env.NEXTAUTH_URL}/dashboard`);
-    }
-    else if (isReadingReq) {
-        console.log(`[TWILIO] User asked for READING`);
-        // Compliance: Extend 24h Window
-        await prisma.user.updateMany({
-            where: { phoneNumber: cleanPhone },
-            data: {
-                lastUserMessageAt: new Date(),
-                deliveryStatus: 'active'
+        }
+        else if (isReadingReq) {
+            console.log(`[TWILIO] User asked for READING`);
+            // Compliance: Extend 24h Window
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
+            try {
+                const r = await getUSCCBReadings(new Date());
+                const dateStr = new Date().toLocaleDateString();
+                const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
+
+                // 1. Reading 1 (Send first)
+                // Safety truncate to avoid 1600 limit even for single message
+                const msg1 = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`.substring(0, 1550);
+                await sendWhatsAppMessage(cleanPhone, msg1);
+                await delay(2000); // Wait 2s to ensure order
+
+                // 2. Psalm & Reading 2
+                let msg2 = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                if (r.reading2) {
+                    msg2 += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                }
+                await sendWhatsAppMessage(cleanPhone, msg2.substring(0, 1550));
+                await delay(2000); // Wait 2s to ensure order
+
+                // 3. Gospel & Link
+                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
+                await sendWhatsAppMessage(cleanPhone, msg3);
+            } catch (e) {
+                console.error("Reading Fetch Error", e);
+                await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
             }
-        });
-        try {
-            const r = await getUSCCBReadings(new Date());
+        }
+        // ... (rest of file)
+        else if (isSummaryReq) {
+            console.log(`[TWILIO] User asked for SUMMARY`);
+            // Compliance: Extend 24h Window
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
+            const dateKey = new Date().toLocaleDateString('en-CA');
             const dateStr = new Date().toLocaleDateString();
-            const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
+            const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
-            // 1. Reading 1 (Send first)
-            // Safety truncate to avoid 1600 limit even for single message
-            const msg1 = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`.substring(0, 1550);
-            await sendWhatsAppMessage(cleanPhone, msg1);
-            await delay(2000); // Wait 2s to ensure order
+            let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
 
-            // 2. Psalm & Reading 2
-            let msg2 = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
-            if (r.reading2) {
-                msg2 += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+            if (dailyReflection) {
+                let raw = dailyReflection.content;
+
+                // 1. Convert Pipes to Newlines (Double spacing for sections)
+                let formatted = raw.replace(/ \| /g, "\n\n");
+
+                // 2. Clean Markdown: WhatsApp uses * for bold, not **. 
+                // We convert standard MD bold (**) to WhatsApp bold (*).
+                formatted = formatted.replace(/\*\*/g, '*');
+
+                // 2. Format Headers: Remove Markdown Bold (*), Add Newline
+                // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
+                formatted = formatted
+                    .replace(/📖 \*Word:\* ?/g, "📖 Word:\n")
+                    .replace(/🕊️ \*Reflection:\* ?/g, "🕊️ Reflection:\n")
+                    .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
+
+                // 3. Assemble full message
+                // Safety: Hard truncate to 1550 to prevent Twilio 1600 char limit error
+                const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
+
+                await sendWhatsAppMessage(cleanPhone, finalMsg);
+            } else {
+                await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
             }
-            await sendWhatsAppMessage(cleanPhone, msg2.substring(0, 1550));
-            await delay(2000); // Wait 2s to ensure order
-
-            // 3. Gospel & Link
-            const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
-            await sendWhatsAppMessage(cleanPhone, msg3);
-        } catch (e) {
-            console.error("Reading Fetch Error", e);
-            await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
         }
-    }
-    // ... (rest of file)
-    else if (isSummaryReq) {
-        console.log(`[TWILIO] User asked for SUMMARY`);
-        // Compliance: Extend 24h Window
-        await prisma.user.updateMany({
-            where: { phoneNumber: cleanPhone },
-            data: {
-                lastUserMessageAt: new Date(),
-                deliveryStatus: 'active'
-            }
-        });
-        const dateKey = new Date().toLocaleDateString('en-CA');
-        const dateStr = new Date().toLocaleDateString();
-        const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-
-        let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
-
-        if (dailyReflection) {
-            let raw = dailyReflection.content;
-
-            // 1. Convert Pipes to Newlines (Double spacing for sections)
-            let formatted = raw.replace(/ \| /g, "\n\n");
-
-            // 2. Clean Markdown: WhatsApp uses * for bold, not **. 
-            // We convert standard MD bold (**) to WhatsApp bold (*).
-            formatted = formatted.replace(/\*\*/g, '*');
-
-            // 2. Format Headers: Remove Markdown Bold (*), Add Newline
-            // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
-            formatted = formatted
-                .replace(/📖 \*Word:\* ?/g, "📖 Word:\n")
-                .replace(/🕊️ \*Reflection:\* ?/g, "🕊️ Reflection:\n")
-                .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
-
-            // 3. Assemble full message
-            // Safety: Hard truncate to 1550 to prevent Twilio 1600 char limit error
-            const finalMsg = `*Daily Word • ${dateStr}*\n\n${formatted}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
-
-            await sendWhatsAppMessage(cleanPhone, finalMsg);
-        } else {
-            await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
+        else {
+            // Generic Catch-All (e.g. "Amen", "Thanks", "Hello")
+            // This IS considered a resume intent.
+            console.log(`[TWILIO] User resumed via generic message: ${text.substring(0, 20)}`);
+            await prisma.user.updateMany({
+                where: { phoneNumber: cleanPhone },
+                data: {
+                    lastUserMessageAt: new Date(),
+                    deliveryStatus: 'active'
+                }
+            });
         }
-    }
-    else {
-        // Generic Catch-All (e.g. "Amen", "Thanks", "Hello")
-        // This IS considered a resume intent.
-        console.log(`[TWILIO] User resumed via generic message: ${text.substring(0, 20)}`);
-        await prisma.user.updateMany({
-            where: { phoneNumber: cleanPhone },
-            data: {
-                lastUserMessageAt: new Date(),
-                deliveryStatus: 'active'
-            }
+
+        return new NextResponse('<Response></Response>', {
+            headers: { 'Content-Type': 'text/xml' }
         });
+
+    } catch (error) {
+        console.error('[TWILIO WEBHOOK] Error:', error);
+        return new NextResponse('Internal Error', { status: 500 });
     }
-
-    return new NextResponse('<Response></Response>', {
-        headers: { 'Content-Type': 'text/xml' }
-    });
-
-} catch (error) {
-    console.error('[TWILIO WEBHOOK] Error:', error);
-    return new NextResponse('Internal Error', { status: 500 });
-}
 }
