@@ -353,9 +353,21 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         disabled={resendTimer > 0 || loading}
                                         className="text-xs text-gray-500 hover:text-gray-900 underline disabled:no-underline disabled:text-gray-300 transition-colors"
                                     >
-                                        {resendTimer > 0 ? `Resend Code in ${resendTimer}s` : "Resend Code"}
+                                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend Code'}
                                     </button>
                                 </div>
+                                {botNumber && (
+                                    <div className="text-right mt-1">
+                                        <a
+                                            href={`https://wa.me/${botNumber.replace(/[^\d]/g, '')}?text=no-otp`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-gray-500 hover:text-green-600 underline transition-colors"
+                                        >
+                                            Not receiving verification code? Click here
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         )}
 
