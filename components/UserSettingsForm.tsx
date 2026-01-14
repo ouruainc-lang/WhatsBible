@@ -315,9 +315,9 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                 numberInputProps={{
                                     className: "bg-transparent border-none outline-none w-full ml-2 text-sm text-gray-900 placeholder:text-gray-400"
                                 }}
-                                className={`flex items-center w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all ${!['active', 'trial'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                                className={`flex items-center w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all ${!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                                     }`}
-                                disabled={verifying || !['active', 'trial'].includes(user.subscriptionStatus)}
+                                disabled={verifying || !['active', 'trial', 'trialing'].includes(user.subscriptionStatus)}
                             />
                         </div>
 
@@ -328,7 +328,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                 <button
                                     type="button"
                                     onClick={handleSendCode}
-                                    disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial'].includes(user.subscriptionStatus)}
+                                    disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial', 'trialing'].includes(user.subscriptionStatus)}
                                     className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -403,10 +403,12 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                         )}
                     </div>
 
-                    {!['active', 'trial'].includes(user.subscriptionStatus) && (
+                    {!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) && (
                         <div className="flex flex-col gap-2">
                             <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
-                                🔒 Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime.
+                                {['canceled', 'past_due'].includes(user.subscriptionStatus) || user.stripeSubscriptionId // Check ID to catch returning users
+                                    ? "🔒 Subscription inactive. Click to resume daily delivery."
+                                    : "🔒 Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime."}
                             </Link>
 
                             <button
@@ -415,7 +417,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                 disabled={loading}
                                 className="text-xs text-center text-amber-600 hover:text-amber-800 underline transition-colors"
                             >
-                                {['canceled', 'past_due'].includes(user.subscriptionStatus)
+                                {(['canceled', 'past_due'].includes(user.subscriptionStatus) || user.subscriptionStatus === 'inactive' || !!user.stripeSubscriptionId)
                                     ? "Click here to continue your subscription"
                                     : "Click here to Start Your 7 day Free Trial"
                                 }
