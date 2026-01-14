@@ -301,16 +301,6 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
 
                         {!isVerified && !verifying && (
                             <div className="flex flex-col gap-2">
-                                {botNumber && (
-                                    <a
-                                        href={`https://wa.me/${botNumber.replace(/[^\d]/g, '')}?text=START`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-4 py-2 bg-blue-50 text-blue-600 text-xs font-semibold rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2 justify-center border border-blue-200 text-center"
-                                    >
-                                        1️⃣ Click to start chat
-                                    </a>
-                                )}
                                 <button
                                     type="button"
                                     onClick={handleSendCode}
@@ -318,8 +308,21 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                     className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                    {resendTimer > 0 ? `Wait ${resendTimer}s` : (botNumber ? '2️⃣ Verify' : 'Verify')}
+                                    {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
                                 </button>
+
+                                {botNumber && (
+                                    <div className="text-center">
+                                        <a
+                                            href={`https://wa.me/${botNumber.replace(/[^\d]/g, '')}?text=no-otp`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-gray-500 hover:text-green-600 underline transition-colors w-full inline-block mt-1"
+                                        >
+                                            Not receiving OTA? Click here
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         )}
 
