@@ -30,6 +30,8 @@ export async function POST(req: Request) {
             where: { id: user.id }
         });
 
+        const hasUsedTrial = !!dbUser?.stripeSubscriptionId;
+
         let checkoutOptions: any = {
             mode: 'subscription',
             allow_promotion_codes: true,
@@ -42,16 +44,19 @@ export async function POST(req: Request) {
             metadata: {
                 userId: user.id as string,
             },
-            subscription_data: {
-                trial_period_days: 7,
-            },
             success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
             cancel_url: `${process.env.NEXTAUTH_URL}/dashboard?canceled=true`,
         };
 
-        // Allow trial without credit card
-        if (body.isTrial) {
-            checkoutOptions.payment_method_collection = 'if_required';
+        // Only offer trial if user has never subscribed before
+        if (!hasUsedTrial) {
+            checkoutOptions.subscription_data = {
+                trial_period_days: 7,
+            };
+            // Allow trial without credit card
+            if (body.isTrial) {
+                checkoutOptions.payment_method_collection = 'if_required';
+            }
         }
 
         if (dbUser?.stripeCustomerId) {
