@@ -106,13 +106,10 @@ export function SubscriptionCard({ user }: { user: User }) {
 
                 {isActive ? (
                     <div className="bg-green-50/50 border border-green-100 rounded-xl p-6 mt-4">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-6">
                             <Check className="w-5 h-5 text-green-600" />
                             <h4 className="font-medium text-green-900">Active Plan</h4>
                         </div>
-                        <p className="text-sm text-green-700/80 mb-6">
-                            You are subscribed to the {user.subscriptionPlan || "Monthly"} plan.
-                        </p>
                         <button
                             onClick={handlePortal}
                             disabled={loading}
