@@ -84,6 +84,43 @@ export async function POST(req: Request) {
         console.log(`[STRIPE WEBHOOK] DB Update Result: ${result.count} records updated for ID ${subscription.id}`);
     }
 
+    if (event.type === "customer.subscription.trial_will_end") {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[STRIPE WEBHOOK] Trial ending soon for ${subscription.id}`);
+
+        const user = await prisma.user.findFirst({
+            where: { stripeSubscriptionId: subscription.id }
+        });
+
+        if (user && user.phoneNumber) {
+            try {
+                // Create Billing Portal Session for them to add payment method
+                const portalSession = await stripe.billingPortal.sessions.create({
+                    customer: user.stripeCustomerId!,
+                    return_url: `${process.env.NEXTAUTH_URL}/dashboard`,
+                });
+
+                const msg = `⏳ *Trial Ending Soon*
+
+Your DailyWord free trial ends in 3 days.
+
+To continue your journey without interruption, please add a payment method:
+${portalSession.url}
+
+You can cancel anytime. 🙏`;
+
+                import('@/lib/whatsapp').then(({ sendWhatsAppMessage }) => {
+                    sendWhatsAppMessage(user.phoneNumber!, msg).catch(err => console.error("Async send failed", err));
+                });
+                console.log(`[STRIPE WEBHOOK] Sent trial reminder to ${user.phoneNumber}`);
+            } catch (e: any) {
+                console.error(`[STRIPE WEBHOOK] Failed to send trial reminder: ${e.message}`);
+            }
+        } else {
+            console.log(`[STRIPE WEBHOOK] User not found or no phone for sub ${subscription.id}`);
+        }
+    }
+
     if (event.type === "customer.subscription.deleted") {
         const subscription = event.data.object as Stripe.Subscription;
         await prisma.user.updateMany({
