@@ -150,7 +150,7 @@ export function SubscriptionCard({ user }: { user: User }) {
                                     <span className="block text-lg font-bold text-gray-900">$2.99<span className="text-sm font-normal text-gray-400">/mo</span></span>
                                 </div>
                                 <div className="px-3 py-1.5 bg-amber-100 group-hover:bg-amber-200 text-amber-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Start Trial <Sparkles className="w-3 h-3" /></>}
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isReturning ? "Select Plan" : "Start Trial"} {!isReturning && <Sparkles className="w-3 h-3" />}</>}
                                 </div>
                             </button>
 
