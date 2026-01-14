@@ -38,7 +38,7 @@ export default async function Dashboard() {
                             </div>
                             <h2 className="text-xl font-bold font-serif">Delivery Settings</h2>
                         </div>
-                        <UserSettingsForm user={user} />
+                        <UserSettingsForm user={user} botNumber={process.env.TWILIO_PHONE_NUMBER} />
                     </div>
                 </div>
 

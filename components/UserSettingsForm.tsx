@@ -23,7 +23,7 @@ interface User {
     deliveryStatus?: string | null;
 }
 
-export function UserSettingsForm({ user }: { user: User }) {
+export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: string }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [verifying, setVerifying] = useState(false); // UI state for entering code
@@ -300,15 +300,27 @@ export function UserSettingsForm({ user }: { user: User }) {
 
 
                         {!isVerified && !verifying && (
-                            <button
-                                type="button"
-                                onClick={handleSendCode}
-                                disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial'].includes(user.subscriptionStatus)}
-                                className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
-                            >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
-                            </button>
+                            <div className="flex flex-col gap-2">
+                                {botNumber && (
+                                    <a
+                                        href={`https://wa.me/${botNumber.replace(/[^\d]/g, '')}?text=START`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-blue-50 text-blue-600 text-xs font-semibold rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2 justify-center border border-blue-200 text-center"
+                                    >
+                                        1️⃣ Click to start chat
+                                    </a>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleSendCode}
+                                    disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial'].includes(user.subscriptionStatus)}
+                                    className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
+                                >
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                    {resendTimer > 0 ? `Wait ${resendTimer}s` : (botNumber ? '2️⃣ Verify' : 'Verify')}
+                                </button>
+                            </div>
                         )}
 
                         {verifying && (
