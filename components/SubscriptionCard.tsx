@@ -135,14 +135,14 @@ export function SubscriptionCard({ user }: { user: User }) {
                             <button
                                 onClick={() => handleSubscription('MONTHLY')}
                                 disabled={loading}
-                                className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-gray-200 hover:border-primary/30 rounded-xl transition-all group text-left shadow-sm hover:shadow-md"
+                                className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-amber-200 hover:border-amber-400 rounded-xl transition-all group text-left shadow-md hover:shadow-lg ring-1 ring-amber-100"
                             >
                                 <div>
-                                    <span className="block text-xs font-semibold text-gray-500 mb-0.5">Monthly</span>
+                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">Monthly</span>
                                     <span className="block text-lg font-bold text-gray-900">$2.99<span className="text-sm font-normal text-gray-400">/mo</span></span>
                                 </div>
-                                <div className="px-3 py-1.5 bg-gray-100 group-hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start Trial"}
+                                <div className="px-3 py-1.5 bg-amber-100 group-hover:bg-amber-200 text-amber-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm">
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Start Trial <Sparkles className="w-3 h-3" /></>}
                                 </div>
                             </button>
 
