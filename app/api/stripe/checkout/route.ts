@@ -49,6 +49,11 @@ export async function POST(req: Request) {
             cancel_url: `${process.env.NEXTAUTH_URL}/dashboard?canceled=true`,
         };
 
+        // Allow trial without credit card
+        if (body.isTrial) {
+            checkoutOptions.payment_method_collection = 'if_required';
+        }
+
         if (dbUser?.stripeCustomerId) {
             checkoutOptions.customer = dbUser.stripeCustomerId;
         } else {

@@ -246,21 +246,6 @@ export function UserSettingsForm({ user }: { user: User }) {
                         className={inputClasses}
                     />
                 </div>
-
-                <div>
-                    <label className={labelClasses}>Bible Version</label>
-                    <select
-                        name="bibleVersion"
-                        value={formData.bibleVersion}
-                        onChange={handleChange}
-                        className={inputClasses}
-                    >
-                        <option value="KJV">King James Version (KJV)</option>
-                        <option value="NABRE">New American Bible (Catholic)</option>
-                        <option value="RSVCI">RSV Catholic Edition</option>
-                        <option value="AVE_MARIA">Bíblia Sagrada Ave-Maria (Portuguese)</option>
-                    </select>
-                </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
