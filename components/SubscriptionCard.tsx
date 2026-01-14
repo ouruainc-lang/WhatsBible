@@ -8,6 +8,7 @@ interface User {
     subscriptionStatus: string;
     subscriptionPlan?: string | null;
     stripeCustomerId?: string | null;
+    stripeSubscriptionId?: string | null;
 }
 
 export function SubscriptionCard({ user }: { user: User }) {
@@ -76,7 +77,8 @@ export function SubscriptionCard({ user }: { user: User }) {
         }
     };
 
-    const isActive = ['active', 'trial'].includes(user.subscriptionStatus);
+    const isActive = ['active', 'trial', 'trialing'].includes(user.subscriptionStatus);
+    const isReturning = !!user.stripeSubscriptionId && !isActive;
 
     return (
         <div id="subscription-section" className="glass-card p-6 rounded-2xl h-full border-t-4 border-t-primary flex flex-col">
@@ -97,7 +99,7 @@ export function SubscriptionCard({ user }: { user: User }) {
                         ? 'bg-green-50 text-green-700 border border-green-100'
                         : 'bg-gray-50 text-gray-600 border border-gray-100'
                         }`}>
-                        <span className="capitalize mr-2">{user.subscriptionStatus === 'trial' ? 'Free Trial' : user.subscriptionStatus}</span>
+                        <span className="capitalize mr-2">{['trial', 'trialing'].includes(user.subscriptionStatus) ? 'Free Trial' : user.subscriptionStatus}</span>
                         {isActive && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
                     </div>
                 </div>
@@ -128,10 +130,12 @@ export function SubscriptionCard({ user }: { user: User }) {
                             role="button"
                         >
                             <h4 className="font-serif font-bold text-amber-900 mb-2 text-lg group-hover:text-amber-800 transition-colors">
-                                Start 7-Day Free Trial
+                                {isReturning ? "Resume Subscription" : "Start 7-Day Free Trial"}
                             </h4>
                             <p className="text-sm text-amber-800/70 mb-0">
-                                Experience daily grace delivered directly to your phone. No credit card required. Cancel anytime.
+                                {isReturning
+                                    ? "Welcome back! Reactivate your daily grace delivery now."
+                                    : "Experience daily grace delivered directly to your phone. No credit card required. Cancel anytime."}
                             </p>
                         </div>
 
