@@ -18,6 +18,7 @@ interface User {
     subscriptionStatus: string;
     subscriptionPlan?: string | null;
     stripeCustomerId?: string | null;
+    stripeSubscriptionId?: string | null;
     lastTestMessageSentAt?: Date | string | null;
     phoneVerificationCode?: string | null;
     deliveryStatus?: string | null;
