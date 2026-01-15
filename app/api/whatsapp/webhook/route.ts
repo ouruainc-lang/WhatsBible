@@ -19,7 +19,8 @@ export async function GET(req: Request) {
 }
 
 // ... (imports)
-import { getUSCCBReadings } from '@/lib/lectionary';
+// ... imports
+import { getDailyReadings } from '@/lib/lectionary';
 
 // ... (GET handler unchanged)
 
@@ -36,6 +37,12 @@ export async function POST(req: Request) {
         if (value?.messages) {
             const message = value.messages[0];
             const from = message.from;
+
+            // Fetch User Globally to determine language/version
+            const user = await prisma.user.findFirst({
+                where: { phoneNumber: from }
+            });
+            const bibleVersion = user?.bibleVersion || 'NABRE';
 
             // Determine Input Type (Text vs Interactive)
             let inputId = "";
@@ -63,7 +70,7 @@ export async function POST(req: Request) {
                 // Fetch Readings
                 console.log(`[WEBHOOK] User ${from} requested READING`);
                 try {
-                    const r = await getUSCCBReadings(new Date());
+                    const r = await getDailyReadings(new Date(), bibleVersion);
 
                     // Format Free-Form Message (No Template Constraints!)
                     let content = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n`;
@@ -89,15 +96,32 @@ export async function POST(req: Request) {
                 // Fetch Summary
                 console.log(`[WEBHOOK] User ${from} requested SUMMARY`);
                 const dateKey = new Date().toLocaleDateString('en-CA');
-                let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
+                const lang = (bibleVersion === 'ABTAG2001') ? 'Tagalog' : 'English';
 
-                // If not cached, we could try generating on-fly, but cron *should* have done it.
-                // We'll rely on cache primarily for speed.
+                let dailyReflection = await prisma.dailyReflection.findUnique({
+                    where: { date_language: { date: dateKey, language: lang } }
+                });
+
+                // On-demand fallback
+                if (!dailyReflection) {
+                    const { generateReflection } = await import('@/lib/gemini');
+                    try {
+                        const r = await getDailyReadings(new Date(), bibleVersion);
+                        if (r) {
+                            // @ts-ignore
+                            const generated = await generateReflection({ ...r, date: dateKey }, lang);
+                            if (generated) {
+                                dailyReflection = await prisma.dailyReflection.create({
+                                    data: { date: dateKey, language: lang, content: generated }
+                                });
+                            }
+                        }
+                    } catch (e) {
+                        console.error("On-demand reflection gen failed", e);
+                    }
+                }
+
                 if (dailyReflection) {
-                    // The content is likely stored as strict single-line string from cron generation.
-                    // But since this is free-form, we can just send it.
-                    // Or if we want to restore newlines (replace | with \n), we can!
-                    // User's prompt generated `|` separators. Let's make it nice for free-form.
                     let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
                     await sendWhatsAppMessage(from, niceBody);
                 } else {
