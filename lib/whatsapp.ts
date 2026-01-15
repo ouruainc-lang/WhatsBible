@@ -122,9 +122,9 @@ export function formatReflectionMessage(rawContent: string, date: string, link: 
     // Format Headers: Remove Markdown Bold (*), Add Newline
     // Supports English and Tagalog
     body = body
-        .replace(/📖 \*(Word|Salita):\* ?/g, "📖 $1:\n")
-        .replace(/🕊️ \*(Reflection|Pagninilay):\* ?/g, "🕊️ $1:\n")
-        .replace(/🙏 \*(Prayer|Panalangin):\* ?/g, "🙏 $1:\n");
+        .replace(/📖 \*(Word|Salita|Palavra):\* ?/g, "📖 $1:\n")
+        .replace(/🕊️ \*(Reflection|Pagninilay|Reflexão):\* ?/g, "🕊️ $1:\n")
+        .replace(/🙏 \*(Prayer|Panalangin|Oração):\* ?/g, "🙏 $1:\n");
 
     // Smart Truncation: Preserve Header and Footer
     const maxBodyLen = 1550 - header.length - footer.length;

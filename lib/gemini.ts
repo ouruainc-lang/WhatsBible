@@ -23,9 +23,12 @@ export async function generateReflection(readings: DailyReading, language: strin
             model: "gemini-2.5-flash-lite",
         });
 
-        const langInstruction = language === 'Tagalog'
-            ? "CRITICAL: Write the ENTIRE content in TAGALOG (Filipino). Translate the labels 'Word', 'Reflection', 'Prayer' to Tagalog (e.g. 'Salita', 'Pagninilay', 'Panalangin') BUT MUST KEEP the emoji icons (📖, 🕊️, 🙏) and the '|' separator."
-            : "";
+        let langInstruction = "";
+        if (language === 'Tagalog') {
+            langInstruction = "CRITICAL: Write the ENTIRE content in TAGALOG (Filipino). Translate the labels 'Word', 'Reflection', 'Prayer' to Tagalog (e.g. 'Salita', 'Pagninilay', 'Panalangin') BUT MUST KEEP the emoji icons (📖, 🕊️, 🙏) and the '|' separator.";
+        } else if (language === 'Portuguese') {
+            langInstruction = "CRITICAL: Write the ENTIRE content in PORTUGUESE. Translate the labels 'Word', 'Reflection', 'Prayer' to 'Palavra', 'Reflexão', 'Oração'. BUT MUST KEEP the emoji icons (📖, 🕊️, 🙏) and the '|' separator.";
+        }
 
         const prompt = `
         You are a Catholic spiritual guide. Based on today's Mass readings, provide a structured reflection.
