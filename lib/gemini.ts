@@ -12,7 +12,7 @@ interface DailyReading {
     gospel: { reference: string; text: string };
 }
 
-export async function generateReflection(readings: DailyReading): Promise<string | null> {
+export async function generateReflection(readings: DailyReading, language: string = 'English'): Promise<string | null> {
     if (!genAI) {
         console.error("GOOGLE_GENERATIVE_AI_API_KEY is not set");
         return null; // Handle null in caller
@@ -23,8 +23,13 @@ export async function generateReflection(readings: DailyReading): Promise<string
             model: "gemini-2.5-flash-lite",
         });
 
+        const langInstruction = language === 'Tagalog'
+            ? "CRITICAL: Write the ENTIRE output (Word, Reflection, Prayer) in TAGALOG (Filipino). Translate the labels 'Word', 'Reflection', 'Prayer' to Tagalog as well if appropriate, or keep them as standard markers but ensure content is Tagalog."
+            : "";
+
         const prompt = `
         You are a Catholic spiritual guide. Based on today's Mass readings, provide a structured reflection.
+        ${langInstruction}
         
         Readings:
         1. ${readings.reading1.reference}: ${readings.reading1.text.substring(0, 500)}...

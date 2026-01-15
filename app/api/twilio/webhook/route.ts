@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
-import { getUSCCBReadings } from '@/lib/lectionary';
+import { getDailyReadings } from '@/lib/lectionary';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -126,7 +126,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 }
             });
             try {
-                const r = await getUSCCBReadings(new Date());
+                const r = await getDailyReadings(new Date(), user.bibleVersion || 'NABRE');
                 const dateStr = new Date().toLocaleDateString();
                 const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
 

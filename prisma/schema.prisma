@@ -90,7 +90,10 @@ model VerseLog {
 
 model DailyReflection {
   id        String   @id @default(cuid())
-  date      String   @unique // YYYY-MM-DD
+  date      String // YYYY-MM-DD
+  language  String   @default("English")
   content   String   // The generated AI content
   createdAt DateTime @default(now())
+
+  @@unique([date, language])
 }

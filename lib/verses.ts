@@ -13,9 +13,9 @@ const DAILY_READINGS = [
     "Matthew 1", "Matthew 2", "Matthew 3"
 ];
 
-import { getUSCCBReadings } from './lectionary';
+import { getDailyReadings } from './lectionary';
 
-export async function getContentForToday(type: 'VER' | 'RDG') {
+export async function getContentForToday(type: 'VER' | 'RDG', bibleVersion: string = 'NABRE') {
     if (type === 'VER') {
         return getVerseForToday();
     }
@@ -23,7 +23,7 @@ export async function getContentForToday(type: 'VER' | 'RDG') {
     // Logic for Reading (USCCB Lectionary)
     try {
         const today = new Date();
-        const readings = await getUSCCBReadings(today);
+        const readings = await getDailyReadings(today, bibleVersion);
 
         // Format for simple consumption
         // We return a "text" block that composes all of them, or a structured object?
