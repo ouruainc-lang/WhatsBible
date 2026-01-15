@@ -13,6 +13,65 @@ export interface ReadingContent {
     text: string;
 }
 
+export async function getDailyReadings(date: Date, bibleVersion: string = 'NABRE'): Promise<DailyReading> {
+    // 1. Always get USCCB references first (Source of Truth for "What to read")
+    const usccb = await getUSCCBReadings(date);
+
+    // 2. If standard version, return USCCB directly
+    if (bibleVersion === 'NABRE' || bibleVersion === 'USCCB') {
+        return usccb;
+    }
+
+    // 3. If "ABTAG2001" (Tagalog), scrape BibleGateway
+    if (bibleVersion === 'ABTAG2001') {
+        console.log(`[LECTIONARY] Fetching Tagalog (ABTAG2001) for ${date.toISOString()}...`);
+
+        // Parallel fetch for speed
+        const [r1, psalm, r2, gospel] = await Promise.all([
+            fetchFromBibleGateway(usccb.reading1.reference, 'ABTAG2001'),
+            fetchFromBibleGateway(usccb.psalm.reference, 'ABTAG2001'),
+            usccb.reading2 ? fetchFromBibleGateway(usccb.reading2.reference, 'ABTAG2001') : Promise.resolve(null),
+            fetchFromBibleGateway(usccb.gospel.reference, 'ABTAG2001')
+        ]);
+
+        return {
+            title: usccb.title,
+            reading1: { reference: usccb.reading1.reference, text: r1 || usccb.reading1.text },
+            psalm: { reference: usccb.psalm.reference, text: psalm || usccb.psalm.text },
+            reading2: (usccb.reading2 && r2) ? { reference: usccb.reading2.reference, text: r2 } : usccb.reading2,
+            gospel: { reference: usccb.gospel.reference, text: gospel || usccb.gospel.text }
+        };
+    }
+
+    return usccb;
+}
+
+async function fetchFromBibleGateway(reference: string, version: string): Promise<string | null> {
+    if (!reference || reference === 'Unknown') return null;
+
+    const query = encodeURIComponent(reference);
+    const url = `https://www.biblegateway.com/passage/?search=${query}&version=${version}`;
+
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Compatible; WhatsBible/1.0)' } });
+        if (!res.ok) return null;
+
+        const html = await res.text();
+        const $ = cheerio.load(html);
+
+        let text = '';
+        $('.passage-content').each((_, el) => {
+            $(el).find('.crossreference, .footnote, .sup, .chapternum, .versenum').remove();
+            text += $(el).text() + ' ';
+        });
+
+        return text.replace(/\s+/g, ' ').trim();
+    } catch (e) {
+        console.error(`[BG SCRAPER] Failed to fetch ${reference}`, e);
+        return null;
+    }
+}
+
 export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
     // Format date as MMDDYY for USCCB URL
     const mm = String(date.getMonth() + 1).padStart(2, '0');
