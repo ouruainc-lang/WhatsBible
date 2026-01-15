@@ -73,6 +73,7 @@ export async function POST(req: Request) {
                 console.log(`[WEBHOOK] User ${from} requested READING`);
                 try {
                     const r = await getDailyReadings(new Date(), bibleVersion);
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
 
                     // 1. Reading 1
                     const msg1Raw = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
