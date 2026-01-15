@@ -24,7 +24,7 @@ export async function generateReflection(readings: DailyReading, language: strin
         });
 
         const langInstruction = language === 'Tagalog'
-            ? "CRITICAL: Write the ENTIRE output (Word, Reflection, Prayer) in TAGALOG (Filipino). Translate the labels 'Word', 'Reflection', 'Prayer' to Tagalog as well if appropriate, or keep them as standard markers but ensure content is Tagalog."
+            ? "CRITICAL: Write the ENTIRE content in TAGALOG (Filipino). Translate the labels 'Word', 'Reflection', 'Prayer' to Tagalog (e.g. 'Salita', 'Pagninilay', 'Panalangin') BUT MUST KEEP the emoji icons (📖, 🕊️, 🙏) and the '|' separator."
             : "";
 
         const prompt = `

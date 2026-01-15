@@ -201,18 +201,18 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
             }
 
             if (dailyReflection) {
-                let raw = dailyReflection.content;
+                const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
+                const header = `*Daily Word • ${new Date().toLocaleDateString()}*\n\n`;
+                const footer = `\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
 
-                // 1. Convert Pipes to Newlines (Double spacing for sections)
-                let formatted = raw.replace(/ \| /g, "\n\n");
+                let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
 
-                // 2. Clean Markdown: WhatsApp uses * for bold, not **. 
-                // We convert standard MD bold (**) to WhatsApp bold (*).
-                formatted = formatted.replace(/\*\*/g, '*');
+                // Convert standard MD bold (**) to WhatsApp bold (*).
+                niceBody = niceBody.replace(/\*\*/g, '*');
 
-                // 2. Format Headers: Remove Markdown Bold (*), Add Newline
+                // Format Headers: Remove Markdown Bold (*), Add Newline
                 // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
-                formatted = formatted
+                niceBody = niceBody
                     .replace(/📖 \*Word:\* ?/g, "📖 Word:\n")
                     .replace(/🕊️ \*Reflection:\* ?/g, "🕊️ Reflection:\n")
                     .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");

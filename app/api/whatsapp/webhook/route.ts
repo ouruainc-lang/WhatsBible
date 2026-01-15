@@ -131,8 +131,12 @@ export async function POST(req: Request) {
                 }
 
                 if (dailyReflection) {
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
+                    const header = `Daily Word • ${new Date().toLocaleDateString()}\n\n`;
+                    const footer = `\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+
                     let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
-                    await sendWhatsAppMessage(from, niceBody);
+                    await sendWhatsAppMessage(from, header + niceBody + footer);
                 } else {
                     await sendWhatsAppMessage(from, "Today's reflection is not ready yet. Please check back shortly!");
                 }
