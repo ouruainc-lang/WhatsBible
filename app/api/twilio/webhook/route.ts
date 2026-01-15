@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, formatTruncatedMessage } from '@/lib/whatsapp';
 import { getDailyReadings } from '@/lib/lectionary';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
