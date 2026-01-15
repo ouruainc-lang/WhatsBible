@@ -97,12 +97,14 @@ export async function checkVerificationCode(to: string, code: string) {
         console.error('[TWILIO] Error checking verification:', error);
         throw new Error(error.message || 'Twilio Verification Check Failed');
     }
-    // Helper: Truncate message and append link if too long
-    export function formatTruncatedMessage(content: string, link: string, limit: number = 1500): string {
-        if (content.length <= limit) return content;
+}
 
-        // Truncate and add link
-        // Reserve ~100 chars for the "Read full" suffix to be safe against limit
-        const truncated = content.substring(0, limit - 100);
-        return `${truncated}...\n\n(Msg truncated)\nRead full: ${link}`;
-    }
+// Helper: Truncate message and append link if too long
+export function formatTruncatedMessage(content: string, link: string, limit: number = 1500): string {
+    if (content.length <= limit) return content;
+
+    // Truncate and add link
+    // Reserve ~100 chars for the "Read full" suffix to be safe against limit
+    const truncated = content.substring(0, limit - 100);
+    return `${truncated}...\n\n(Msg truncated)\nRead full: ${link}`;
+}
