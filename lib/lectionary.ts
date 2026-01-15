@@ -106,6 +106,11 @@ async function fetchFromBibleApi(reference: string, version: string): Promise<st
         reference = reference.replace(/Psalms?/i, 'Salmos');
     }
 
+    // PATCH: bible-api.com rejects verse suffixes like "22a" (Returns 404)
+    // We strip single lowercase letters immediately following digits.
+    // Safe for "1 Samuel" (Uppercase S)
+    reference = reference.replace(/(\d+)[a-z]/g, '$1');
+
     const query = encodeURIComponent(reference);
     const url = `https://bible-api.com/${query}?translation=${version}`;
 
