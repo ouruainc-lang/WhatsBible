@@ -72,11 +72,17 @@ export async function POST(req: Request) {
                 // Fetch Readings
                 console.log(`[WEBHOOK] User ${from} requested READING`);
                 try {
-                    const r = await getDailyReadings(new Date(), bibleVersion);
-                    const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
+                    // Use User's Timezone
+                    const userTz = user?.timezone || 'UTC';
+                    const dateKey = new Date().toLocaleDateString('en-CA', { timeZone: userTz });
+                    const today = new Date(dateKey);
+                    const dateStr = new Date().toLocaleDateString('en-US', { timeZone: userTz });
+
+                    const r = await getDailyReadings(today, bibleVersion);
+                    const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                     // 1. Reading 1
-                    const msg1Raw = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
+                    const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
                     await sendWhatsAppMessage(from, formatTruncatedMessage(msg1Raw, link));
                     await delay(2000);
 
@@ -104,8 +110,14 @@ export async function POST(req: Request) {
             } else if (isSummaryReq) {
                 // Fetch Summary
                 console.log(`[WEBHOOK] User ${from} requested SUMMARY`);
-                const dateKey = new Date().toLocaleDateString('en-CA');
+
+                const userTz = user?.timezone || 'UTC';
+                const dateKey = new Date().toLocaleDateString('en-CA', { timeZone: userTz });
+                const today = new Date(dateKey);
+                const dateStr = new Date().toLocaleDateString('en-US', { timeZone: userTz });
+                // Check lang
                 const lang = (bibleVersion === 'ABTAG2001') ? 'Tagalog' : (bibleVersion === 'almeida' ? 'Portuguese' : 'English');
+
 
                 let dailyReflection = await prisma.dailyReflection.findUnique({
                     where: { date_language: { date: dateKey, language: lang } }
@@ -115,7 +127,7 @@ export async function POST(req: Request) {
                 if (!dailyReflection) {
                     const { generateReflection } = await import('@/lib/gemini');
                     try {
-                        const r = await getDailyReadings(new Date(), bibleVersion);
+                        const r = await getDailyReadings(today, bibleVersion);
                         if (r) {
                             // @ts-ignore
                             const generated = await generateReflection({ ...r, date: dateKey }, lang);
@@ -132,7 +144,7 @@ export async function POST(req: Request) {
 
                 if (dailyReflection) {
                     const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                    const finalMsg = formatReflectionMessage(dailyReflection.content, new Date().toLocaleDateString(), link);
+                    const finalMsg = formatReflectionMessage(dailyReflection.content, dateStr, link);
                     await sendWhatsAppMessage(from, finalMsg);
                 } else {
                     await sendWhatsAppMessage(from, "Today's reflection is not ready yet. Please check back shortly!");

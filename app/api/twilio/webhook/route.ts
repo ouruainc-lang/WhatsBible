@@ -129,9 +129,14 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 }
             });
             try {
-                const r = await getDailyReadings(new Date(), user?.bibleVersion || 'NABRE');
-                const dateStr = new Date().toLocaleDateString();
-                const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
+                // Use User's Timezone
+                const userTz = user?.timezone || 'UTC';
+                const dateKey = new Date().toLocaleDateString('en-CA', { timeZone: userTz });
+                const today = new Date(dateKey); // Treat as UTC 00:00 to preserve YYYY-MM-DD components
+                const dateStr = new Date().toLocaleDateString('en-US', { timeZone: userTz });
+
+                const r = await getDailyReadings(today, user?.bibleVersion || 'NABRE');
+                const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                 // 1. Reading 1 (Send first)
                 const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
@@ -170,8 +175,12 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                     deliveryStatus: 'active'
                 }
             });
-            const dateKey = new Date().toLocaleDateString('en-CA');
-            const dateStr = new Date().toLocaleDateString();
+            // Use User's Timezone
+            const userTz = user?.timezone || 'UTC';
+            const dateKey = new Date().toLocaleDateString('en-CA', { timeZone: userTz });
+            const today = new Date(dateKey);
+            const dateStr = new Date().toLocaleDateString('en-US', { timeZone: userTz });
+
             const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
             const lang = (user?.bibleVersion === 'ABTAG2001') ? 'Tagalog' : (user?.bibleVersion === 'almeida' ? 'Portuguese' : 'English');
@@ -185,7 +194,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 const { generateReflection } = await import('@/lib/gemini');
                 const { getDailyReadings } = await import('@/lib/lectionary');
                 try {
-                    const r = await getDailyReadings(new Date(), user?.bibleVersion || 'NABRE');
+                    const r = await getDailyReadings(today, user?.bibleVersion || 'NABRE');
                     if (r) {
                         // @ts-ignore
                         const generated = await generateReflection({ ...r, date: dateKey }, lang);
@@ -202,7 +211,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
 
             if (dailyReflection) {
                 const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                const finalMsg = formatReflectionMessage(dailyReflection.content, new Date().toLocaleDateString(), link);
+                const finalMsg = formatReflectionMessage(dailyReflection.content, dateStr, link);
                 await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
                 await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
