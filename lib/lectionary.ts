@@ -101,6 +101,11 @@ async function fetchFromBibleGateway(reference: string, version: string): Promis
 async function fetchFromBibleApi(reference: string, version: string): Promise<string | null> {
     if (!reference || reference === 'Unknown') return null;
 
+    // PATCH: bible-api.com 'almeida' requires "Salmos" instead of "Psalm"
+    if (version === 'almeida') {
+        reference = reference.replace(/Psalms?/i, 'Salmos');
+    }
+
     const query = encodeURIComponent(reference);
     const url = `https://bible-api.com/${query}?translation=${version}`;
 
