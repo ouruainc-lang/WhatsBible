@@ -108,3 +108,29 @@ export function formatTruncatedMessage(content: string, link: string, limit: num
     const truncated = content.substring(0, limit - 100);
     return `${truncated}...\n\n(Msg truncated)\nRead full: ${link}`;
 }
+// Helper: Format Reflection Message (Standardize Bold, Headers, English/Tagalog, Truncation)
+export function formatReflectionMessage(rawContent: string, date: string, link: string): string {
+    const header = `*Daily Word • ${date}*\n\n`;
+    const footer = `\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+
+    // Process Body
+    let body = rawContent.replace(/ \| /g, "\n\n");
+
+    // Convert standard MD bold (**) to WhatsApp bold (*).
+    body = body.replace(/\*\*/g, '*');
+
+    // Format Headers: Remove Markdown Bold (*), Add Newline
+    // Supports English and Tagalog
+    body = body
+        .replace(/📖 \*(Word|Salita):\* ?/g, "📖 $1:\n")
+        .replace(/🕊️ \*(Reflection|Pagninilay):\* ?/g, "🕊️ $1:\n")
+        .replace(/🙏 \*(Prayer|Panalangin):\* ?/g, "🙏 $1:\n");
+
+    // Smart Truncation: Preserve Header and Footer
+    const maxBodyLen = 1550 - header.length - footer.length;
+    if (body.length > maxBodyLen) {
+        body = body.substring(0, maxBodyLen - 3) + "...";
+    }
+
+    return header + body + footer;
+}

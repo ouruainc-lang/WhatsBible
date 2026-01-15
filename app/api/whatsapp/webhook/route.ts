@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage, formatTruncatedMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage } from '@/lib/whatsapp';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -132,11 +132,8 @@ export async function POST(req: Request) {
 
                 if (dailyReflection) {
                     const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                    const header = `Daily Word • ${new Date().toLocaleDateString()}\n\n`;
-                    const footer = `\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
-
-                    let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
-                    await sendWhatsAppMessage(from, header + niceBody + footer);
+                    const finalMsg = formatReflectionMessage(dailyReflection.content, new Date().toLocaleDateString(), link);
+                    await sendWhatsAppMessage(from, finalMsg);
                 } else {
                     await sendWhatsAppMessage(from, "Today's reflection is not ready yet. Please check back shortly!");
                 }

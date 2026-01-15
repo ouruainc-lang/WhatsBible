@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage, formatTruncatedMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage } from '@/lib/whatsapp';
 import { getDailyReadings } from '@/lib/lectionary';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -202,25 +202,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
 
             if (dailyReflection) {
                 const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
-                const header = `*Daily Word • ${new Date().toLocaleDateString()}*\n\n`;
-                const footer = `\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
-
-                let niceBody = dailyReflection.content.replace(/ \| /g, "\n\n");
-
-                // Convert standard MD bold (**) to WhatsApp bold (*).
-                niceBody = niceBody.replace(/\*\*/g, '*');
-
-                // Format Headers: Remove Markdown Bold (*), Add Newline
-                // Matches "📖 *Word:* Content" -> "📖 Word:\nContent" or "📖 *Word:* " -> "📖 Word:\n"
-                niceBody = niceBody
-                    .replace(/📖 \*Word:\* ?/g, "📖 Word:\n")
-                    .replace(/🕊️ \*Reflection:\* ?/g, "🕊️ Reflection:\n")
-                    .replace(/🙏 \*Prayer:\* ?/g, "🙏 Prayer:\n");
-
-                // 3. Assemble full message
-                // Safety: Hard truncate to 1550 to prevent Twilio 1600 char limit error
-                const finalMsg = (header + niceBody + footer).substring(0, 1550);
-
+                const finalMsg = formatReflectionMessage(dailyReflection.content, new Date().toLocaleDateString(), link);
                 await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
                 await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
