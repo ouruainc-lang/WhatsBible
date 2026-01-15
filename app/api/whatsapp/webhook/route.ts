@@ -79,15 +79,19 @@ export async function POST(req: Request) {
                     await sendWhatsAppMessage(from, formatTruncatedMessage(msg1Raw, link));
                     await delay(2000);
 
-                    // 2. Psalm & Reading 2
-                    let msg2Raw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
-                    if (r.reading2) {
-                        msg2Raw += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
-                    }
-                    await sendWhatsAppMessage(from, formatTruncatedMessage(msg2Raw, link));
+                    // 2. Psalm
+                    const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                    await sendWhatsAppMessage(from, formatTruncatedMessage(msgPsalmRaw, link));
                     await delay(2000);
 
-                    // 3. Gospel & Link
+                    // 3. Reading 2 (Optional)
+                    if (r.reading2) {
+                        const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                        await sendWhatsAppMessage(from, formatTruncatedMessage(msg2Raw, link));
+                        await delay(2000);
+                    }
+
+                    // 4. Gospel & Link
                     const msg3Raw = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`;
                     await sendWhatsAppMessage(from, formatTruncatedMessage(msg3Raw, link));
 

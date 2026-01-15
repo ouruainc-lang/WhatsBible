@@ -134,22 +134,26 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
 
                 // 1. Reading 1 (Send first)
-                // Safety truncate to avoid 1600 limit even for single message
-                const msg1 = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`.substring(0, 1550);
+                const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
+                const msg1 = formatTruncatedMessage(msg1Raw, link);
                 await sendWhatsAppMessage(cleanPhone, msg1);
                 await delay(2000); // Wait 2s to ensure order
 
-                // 2. Psalm & Reading 2
-                let msg2 = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
-                if (r.reading2) {
-                    msg2 += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
-                }
-                await sendWhatsAppMessage(cleanPhone, msg2.substring(0, 1550));
-                await delay(2000); // Wait 2s to ensure order
+                // 2. Psalm
+                const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msgPsalmRaw, link));
+                await delay(2000);
 
-                // 3. Gospel & Link
-                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`.substring(0, 1550);
-                await sendWhatsAppMessage(cleanPhone, msg3);
+                // 3. Reading 2 (Optional)
+                if (r.reading2) {
+                    const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                    await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msg2Raw, link));
+                    await delay(2000);
+                }
+
+                // 4. Gospel & Link
+                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+                await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msg3, link));
             } catch (e) {
                 console.error("Reading Fetch Error", e);
                 await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
