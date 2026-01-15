@@ -99,6 +99,37 @@ export async function checkVerificationCode(to: string, code: string) {
     }
 }
 
+// Helper: Send Long Message (Split into Chunks)
+// Replaces formatTruncatedMessage usage where possible
+export async function sendSplitWhatsAppMessage(to: string, text: string) {
+    const limit = 1550;
+    if (text.length <= limit) {
+        return sendWhatsAppMessage(to, text);
+    }
+
+    // Split into chunks
+    const chunks = [];
+    let remaining = text;
+    while (remaining.length > 0) {
+        if (remaining.length <= limit) {
+            chunks.push(remaining);
+            break;
+        }
+
+        // Find last space before limit to avoid breaking words
+        let splitIndex = remaining.lastIndexOf(' ', limit);
+        if (splitIndex === -1) splitIndex = limit; // No space, hard cut
+
+        chunks.push(remaining.substring(0, splitIndex));
+        remaining = remaining.substring(splitIndex).trim();
+    }
+
+    for (const chunk of chunks) {
+        await sendWhatsAppMessage(to, chunk);
+        await new Promise(r => setTimeout(r, 1000)); // 1s delay to maintain order
+    }
+}
+
 // Helper: Truncate message and append link if too long
 export function formatTruncatedMessage(content: string, link: string, limit: number = 1500): string {
     if (content.length <= limit) return content;
