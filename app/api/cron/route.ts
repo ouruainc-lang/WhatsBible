@@ -103,31 +103,48 @@ export async function GET(req: Request) {
             // Simple prevention: `VerseLog` with `createdAt` > today start.
 
             try {
-                // 1. Ensure AI content is pre-warmed (Cached)
-                // We check this for every user to ensure availability, but effectively it runs once per day.
+                // 1. Ensure AI content is pre-warmed (Cached) for ALL supported languages
                 const dateKey = new Date().toLocaleDateString('en-CA');
-                const existingReflection = await prisma.dailyReflection.findUnique({
-                    where: { date: dateKey }
-                });
+                const supportedLanguages = ['English', 'Tagalog'];
 
-                if (!existingReflection) {
-                    console.log(`[CRON] Pre-warming AI Reflection for ${dateKey}...`);
-                    const { generateReflection } = await import('@/lib/gemini');
-                    const r = readingOfDay as any;
+                const { generateReflection } = await import('@/lib/gemini');
+                // Dynamically import to ensure we have the latest logic
+                const { getDailyReadings } = await import('@/lib/lectionary');
 
-                    if (r && r.structure) {
-                        const readingsForAi = { ...r.structure, date: dateKey };
-                        try {
-                            const generated = await generateReflection(readingsForAi);
-                            if (generated) {
-                                await prisma.dailyReflection.create({
-                                    data: { date: dateKey, content: generated }
-                                });
-                                console.log("[CRON] AI Reflection generated and cached.");
+                for (const lang of supportedLanguages) {
+                    try {
+                        const existingReflection = await prisma.dailyReflection.findUnique({
+                            where: {
+                                date_language: { date: dateKey, language: lang }
                             }
-                        } catch (err) {
-                            console.error("Failed to generate AI reflection", err);
+                        });
+
+                        if (!existingReflection) {
+                            console.log(`[CRON] Pre-warming AI Reflection for ${dateKey} (${lang})...`);
+
+                            // We need the reading text in the correct language to generate a good reflection
+                            const versionToUse = lang === 'Tagalog' ? 'ABTAG2001' : 'NABRE';
+
+                            // Fetch specific reading version for AI generation
+                            const readings = await getDailyReadings(new Date(), versionToUse);
+
+                            // Transform to DailyReading interface format if needed or pass directly
+                            // getDailyReadings returns DailyReading structure matching gemini expectation
+                            if (readings) {
+                                // @ts-ignore
+                                const readingsForAi = { ...readings, date: dateKey };
+                                const generated = await generateReflection(readingsForAi, lang);
+
+                                if (generated) {
+                                    await prisma.dailyReflection.create({
+                                        data: { date: dateKey, language: lang, content: generated }
+                                    });
+                                    console.log(`[CRON] AI Reflection generated and cached (${lang}).`);
+                                }
+                            }
                         }
+                    } catch (err) {
+                        console.error(`[CRON] Failed to pre-warm reflection for ${lang}`, err);
                     }
                 }
 

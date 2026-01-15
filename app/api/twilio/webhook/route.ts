@@ -167,7 +167,31 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
             const dateStr = new Date().toLocaleDateString();
             const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
-            let dailyReflection = await prisma.dailyReflection.findUnique({ where: { date: dateKey } });
+            const lang = (user?.bibleVersion === 'ABTAG2001') ? 'Tagalog' : 'English';
+
+            let dailyReflection = await prisma.dailyReflection.findUnique({
+                where: { date_language: { date: dateKey, language: lang } }
+            });
+
+            // On-demand fallback
+            if (!dailyReflection) {
+                const { generateReflection } = await import('@/lib/gemini');
+                const { getDailyReadings } = await import('@/lib/lectionary');
+                try {
+                    const r = await getDailyReadings(new Date(), user?.bibleVersion || 'NABRE');
+                    if (r) {
+                        // @ts-ignore
+                        const generated = await generateReflection({ ...r, date: dateKey }, lang);
+                        if (generated) {
+                            dailyReflection = await prisma.dailyReflection.create({
+                                data: { date: dateKey, language: lang, content: generated }
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error("On-demand reflection gen failed", e);
+                }
+            }
 
             if (dailyReflection) {
                 let raw = dailyReflection.content;
