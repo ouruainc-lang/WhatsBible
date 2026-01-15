@@ -82,18 +82,18 @@ export async function POST(req: Request) {
                     const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                     // 1. Reading 1
-                    const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}\n\nRead full: ${link}`;
+                    const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
                     await sendSplitWhatsAppMessage(from, msg1Raw);
                     await delay(2000);
 
                     // 2. Psalm
-                    const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}\n\nRead full: ${link}`;
+                    const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
                     await sendSplitWhatsAppMessage(from, msgPsalmRaw);
                     await delay(2000);
 
                     // 3. Reading 2 (Optional)
                     if (r.reading2) {
-                        const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}\n\nRead full: ${link}`;
+                        const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
                         await sendSplitWhatsAppMessage(from, msg2Raw);
                         await delay(2000);
                     }
