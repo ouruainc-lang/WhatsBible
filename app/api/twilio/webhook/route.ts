@@ -24,6 +24,11 @@ export async function POST(req: Request) {
         const isReadingReq = ['READING', 'FULL READING', 'READINGS'].includes(text);
         const isSummaryReq = ['SUMMARY', 'REFLECTION', 'DAILY REFLECTION', 'WORD', 'SUMMARY & REFLECTION'].includes(text);
 
+        // Fetch User Globally
+        const user = await prisma.user.findFirst({
+            where: { phoneNumber: cleanPhone }
+        });
+
         if (text === 'STOP' || text === 'UNSUBSCRIBE' || text === 'CANCEL') {
             await prisma.user.updateMany({
                 where: { phoneNumber: cleanPhone },
@@ -33,9 +38,7 @@ export async function POST(req: Request) {
         }
         else if (text === 'START' || text === 'UNSTOP') {
             // Check if user exists first
-            const user = await prisma.user.findFirst({
-                where: { phoneNumber: cleanPhone }
-            });
+            // Already fetched above
 
             if (!user) {
                 console.log(`[TWILIO] START received from UNREGISTERED number: ${cleanPhone}`);
@@ -126,7 +129,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 }
             });
             try {
-                const r = await getDailyReadings(new Date(), user.bibleVersion || 'NABRE');
+                const r = await getDailyReadings(new Date(), user?.bibleVersion || 'NABRE');
                 const dateStr = new Date().toLocaleDateString();
                 const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
 
