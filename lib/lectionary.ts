@@ -43,6 +43,26 @@ export async function getDailyReadings(date: Date, bibleVersion: string = 'NABRE
         };
     }
 
+    // 4. "almeida" (Portuguese) - Use bible-api.com
+    if (bibleVersion === 'almeida') {
+        console.log(`[LECTIONARY] Fetching Portuguese (almeida) for ${date.toISOString()}...`);
+
+        const [r1, psalm, r2, gospel] = await Promise.all([
+            fetchFromBibleApi(usccb.reading1.reference, 'almeida'),
+            fetchFromBibleApi(usccb.psalm.reference, 'almeida'),
+            usccb.reading2 ? fetchFromBibleApi(usccb.reading2.reference, 'almeida') : Promise.resolve(null),
+            fetchFromBibleApi(usccb.gospel.reference, 'almeida')
+        ]);
+
+        return {
+            title: usccb.title,
+            reading1: { reference: usccb.reading1.reference, text: r1 || usccb.reading1.text },
+            psalm: { reference: usccb.psalm.reference, text: psalm || usccb.psalm.text },
+            reading2: (usccb.reading2 && r2) ? { reference: usccb.reading2.reference, text: r2 } : usccb.reading2,
+            gospel: { reference: usccb.gospel.reference, text: gospel || usccb.gospel.text }
+        };
+    }
+
     return usccb;
 }
 
@@ -74,6 +94,27 @@ async function fetchFromBibleGateway(reference: string, version: string): Promis
         return text.replace(/\s+/g, ' ').trim();
     } catch (e) {
         console.error(`[BG SCRAPER] Failed to fetch ${reference}`, e);
+        return null;
+    }
+}
+
+async function fetchFromBibleApi(reference: string, version: string): Promise<string | null> {
+    if (!reference || reference === 'Unknown') return null;
+
+    const query = encodeURIComponent(reference);
+    const url = `https://bible-api.com/${query}?translation=${version}`;
+
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Compatible; WhatsBible/1.0)' } });
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        if (data.text) {
+            return data.text.replace(/\s+/g, ' ').trim();
+        }
+        return null;
+    } catch (e) {
+        console.error(`[BIBLE-API] Failed to fetch ${reference}`, e);
         return null;
     }
 }

@@ -284,6 +284,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                     >
                         <option value="NABRE">NABRE (USCCB) - Standard</option>
                         <option value="ABTAG2001">Ang Biblia 2001 (Tagalog)</option>
+                        <option value="almeida">João Ferreira de Almeida (Portuguese)</option>
                         <option value="COMING_SOON" disabled>More versions coming soon...</option>
                     </select>
                 </div>
