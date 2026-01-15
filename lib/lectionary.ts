@@ -61,7 +61,13 @@ async function fetchFromBibleGateway(reference: string, version: string): Promis
 
         let text = '';
         $('.passage-content').each((_, el) => {
-            $(el).find('.crossreference, .footnote, .sup, .chapternum, .versenum').remove();
+            // Remove unwanted elements:
+            // - footnotes/crossrefs/superscripts
+            // - chapter/verse numbers
+            // - headers (titles like "Pinagaling...")
+            // - "Read full chapter" links
+            $(el).find('.crossreference, .footnote, .sup, .chapternum, .versenum, h1, h2, h3, h4, h5, h6, .full-chap-link, .passage-bottom, .footnotes').remove();
+
             text += $(el).text() + ' ';
         });
 
