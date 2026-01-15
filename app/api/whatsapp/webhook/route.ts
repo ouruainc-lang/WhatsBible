@@ -105,7 +105,7 @@ export async function POST(req: Request) {
                 // Fetch Summary
                 console.log(`[WEBHOOK] User ${from} requested SUMMARY`);
                 const dateKey = new Date().toLocaleDateString('en-CA');
-                const lang = (bibleVersion === 'ABTAG2001') ? 'Tagalog' : 'English';
+                const lang = (bibleVersion === 'ABTAG2001') ? 'Tagalog' : (bibleVersion === 'almeida' ? 'Portuguese' : 'English');
 
                 let dailyReflection = await prisma.dailyReflection.findUnique({
                     where: { date_language: { date: dateKey, language: lang } }

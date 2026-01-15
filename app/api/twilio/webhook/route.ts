@@ -174,7 +174,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
             const dateStr = new Date().toLocaleDateString();
             const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
-            const lang = (user?.bibleVersion === 'ABTAG2001') ? 'Tagalog' : 'English';
+            const lang = (user?.bibleVersion === 'ABTAG2001') ? 'Tagalog' : (user?.bibleVersion === 'almeida' ? 'Portuguese' : 'English');
 
             let dailyReflection = await prisma.dailyReflection.findUnique({
                 where: { date_language: { date: dateKey, language: lang } }
