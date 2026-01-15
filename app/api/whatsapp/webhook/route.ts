@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, formatTruncatedMessage } from '@/lib/whatsapp';
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Meta Verification Token from .env
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -72,20 +74,22 @@ export async function POST(req: Request) {
                 try {
                     const r = await getDailyReadings(new Date(), bibleVersion);
 
-                    // Format Free-Form Message (No Template Constraints!)
-                    let content = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n`;
-                    content += `📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}\n\n`;
-                    content += `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}\n\n`;
-                    content += `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\n`;
+                    // 1. Reading 1
+                    const msg1Raw = `*Daily Readings for ${new Date().toLocaleDateString()}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
+                    await sendWhatsAppMessage(from, formatTruncatedMessage(msg1Raw, link));
+                    await delay(2000);
 
+                    // 2. Psalm & Reading 2
+                    let msg2Raw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
                     if (r.reading2) {
-                        content += `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}\n\n`;
+                        msg2Raw += `\n\n📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
                     }
+                    await sendWhatsAppMessage(from, formatTruncatedMessage(msg2Raw, link));
+                    await delay(2000);
 
-                    const link = `${process.env.NEXTAUTH_URL}/readings/${new Date().toLocaleDateString('en-CA')}`;
-                    content += `Read full: ${link}`;
-
-                    await sendWhatsAppMessage(from, content);
+                    // 3. Gospel & Link
+                    const msg3Raw = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}`;
+                    await sendWhatsAppMessage(from, formatTruncatedMessage(msg3Raw, link));
 
                 } catch (e) {
                     console.error("Reading Fetch Error", e);
