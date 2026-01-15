@@ -105,7 +105,7 @@ export async function GET(req: Request) {
             try {
                 // 1. Ensure AI content is pre-warmed (Cached) for ALL supported languages
                 const dateKey = new Date().toLocaleDateString('en-CA');
-                const supportedLanguages = ['English', 'Tagalog'];
+                const supportedLanguages = ['English', 'Tagalog', 'Portuguese'];
 
                 const { generateReflection } = await import('@/lib/gemini');
                 // Dynamically import to ensure we have the latest logic
@@ -123,7 +123,9 @@ export async function GET(req: Request) {
                             console.log(`[CRON] Pre-warming AI Reflection for ${dateKey} (${lang})...`);
 
                             // We need the reading text in the correct language to generate a good reflection
-                            const versionToUse = lang === 'Tagalog' ? 'ABTAG2001' : 'NABRE';
+                            let versionToUse = 'NABRE';
+                            if (lang === 'Tagalog') versionToUse = 'ABTAG2001';
+                            if (lang === 'Portuguese') versionToUse = 'almeida';
 
                             // Fetch specific reading version for AI generation
                             const readings = await getDailyReadings(new Date(), versionToUse);
