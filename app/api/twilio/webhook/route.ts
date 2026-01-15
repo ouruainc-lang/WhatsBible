@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage, sendSplitWhatsAppMessage } from '@/lib/whatsapp';
 import { getDailyReadings } from '@/lib/lectionary';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -139,26 +139,25 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                 // 1. Reading 1 (Send first)
-                const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
-                const msg1 = formatTruncatedMessage(msg1Raw, link);
-                await sendWhatsAppMessage(cleanPhone, msg1);
+                const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}\n\nRead full: ${link}`;
+                await sendSplitWhatsAppMessage(cleanPhone, msg1Raw);
                 await delay(2000); // Wait 2s to ensure order
 
                 // 2. Psalm
-                const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
-                await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msgPsalmRaw, link));
+                const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}\n\nRead full: ${link}`;
+                await sendSplitWhatsAppMessage(cleanPhone, msgPsalmRaw);
                 await delay(2000);
 
                 // 3. Reading 2 (Optional)
                 if (r.reading2) {
-                    const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
-                    await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msg2Raw, link));
+                    const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}\n\nRead full: ${link}`;
+                    await sendSplitWhatsAppMessage(cleanPhone, msg2Raw);
                     await delay(2000);
                 }
 
                 // 4. Gospel & Link
                 const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
-                await sendWhatsAppMessage(cleanPhone, formatTruncatedMessage(msg3, link));
+                await sendSplitWhatsAppMessage(cleanPhone, msg3);
             } catch (e) {
                 console.error("Reading Fetch Error", e);
                 await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
