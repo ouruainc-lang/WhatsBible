@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage, sendWhatsAppTemplate } from '@/lib/whatsapp';
 import { getVerseForToday } from '@/lib/verses';
+import { SystemLanguage } from '@/lib/i18n/dictionaries';
 
 export async function GET(req: Request) {
     // Vercel Cron verification
@@ -150,27 +151,24 @@ export async function GET(req: Request) {
                     }
                 }
 
-                // 2. Send the "Content Ready" Utility Template
-                // This template has buttons: "📖 Full Reading" and "✍️ Summary & Reflection"
-                const contentSid = process.env.WHATSAPP_TEMPLATE_CONTENT_READY;
+                // 2. Send the "Content Ready" Free-Form Message (No Template SID)
+                const lang = (user.systemLanguage as SystemLanguage || 'en');
+                const { dictionaries } = await import('@/lib/i18n/dictionaries');
+                const contentMsg = dictionaries[lang].messages.contentReady;
 
-                if (contentSid) {
-                    console.log(`[CRON] Sending Notification Template ${contentSid} to ${user.phoneNumber}`);
-                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {});
+                console.log(`[CRON] Sending Notification to ${user.phoneNumber} (Lang: ${lang})`);
+                await sendWhatsAppMessage(user.phoneNumber, contentMsg);
 
-                    // Log & Update Last Delivery
-                    await prisma.user.update({
-                        where: { id: user.id },
-                        data: { lastDeliveryAt: new Date() }
-                    });
+                // Log & Update Last Delivery
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { lastDeliveryAt: new Date() }
+                });
 
-                    await prisma.verseLog.create({
-                        data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
-                    });
-                    sentCount++;
-                } else {
-                    console.error("MISSING ENV: WHATSAPP_TEMPLATE_CONTENT_READY");
-                }
+                await prisma.verseLog.create({
+                    data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
+                });
+                sentCount++;
             } catch (e) {
                 console.error(`Failed to send to ${user.id}`, e);
             }

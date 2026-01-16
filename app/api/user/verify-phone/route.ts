@@ -51,8 +51,15 @@ export async function POST(req: Request) {
                 }
             });
 
+            // 5. Get User Language for OTP Message
+            // @ts-ignore
+            const lang = (user.systemLanguage as SystemLanguage) || 'en';
+            const { dictionaries } = await import('@/lib/i18n/dictionaries');
+            const messageRaw = dictionaries[lang].messages.otpMessage;
+            const message = messageRaw.replace('{code}', otp);
+
             // Send via WhatsApp
-            await sendWhatsAppMessage(phoneNumber, `Your DailyWord verification code is: *${otp}*\n\nThis code expires in 10 minutes.`);
+            await sendWhatsAppMessage(phoneNumber, message);
 
             return NextResponse.json({ success: true, message: 'Code sent' });
         }
