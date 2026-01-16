@@ -151,29 +151,37 @@ export async function GET(req: Request) {
                     }
                 }
 
-                // 2. Send the "Content Ready" Free-Form Message (No Template SID)
-                const lang = (user.systemLanguage as SystemLanguage || 'en');
-                const { dictionaries } = await import('@/lib/i18n/dictionaries');
-                const contentMsg = dictionaries[lang].messages.contentReady;
+                // 2. Send the "Content Ready" Utility Template
+                // This template has buttons: "📖 Full Reading" and "✍️ Summary & Reflection"
+                // Support localized templates via Env Vars suffix: _PT, _TL
+                const lang = (user.systemLanguage as string || 'en').toUpperCase();
+                let contentSid = process.env.WHATSAPP_TEMPLATE_CONTENT_READY;
 
-                console.log(`[CRON] Sending Notification to ${user.phoneNumber} (Lang: ${lang})`);
-                await sendWhatsAppMessage(user.phoneNumber, contentMsg);
+                if (lang === 'PT' && process.env.WHATSAPP_TEMPLATE_CONTENT_READY_PT) {
+                    contentSid = process.env.WHATSAPP_TEMPLATE_CONTENT_READY_PT;
+                } else if (lang === 'TL' && process.env.WHATSAPP_TEMPLATE_CONTENT_READY_TL) {
+                    contentSid = process.env.WHATSAPP_TEMPLATE_CONTENT_READY_TL;
+                }
 
-                // Log & Update Last Delivery
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data: { lastDeliveryAt: new Date() }
-                });
+                if (contentSid) {
+                    console.log(`[CRON] Sending Notification Template ${contentSid} to ${user.phoneNumber} (Lang: ${lang})`);
+                    await sendWhatsAppTemplate(user.phoneNumber, contentSid, {});
 
-                await prisma.verseLog.create({
-                    data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
-                });
-                sentCount++;
-            } catch (e) {
-                console.error(`Failed to send to ${user.id}`, e);
+                    // Log & Update Last Delivery
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { lastDeliveryAt: new Date() }
+                    });
+
+                    await prisma.verseLog.create({
+                        data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
+                    });
+                    sentCount++;
+                } catch (e) {
+                    console.error(`Failed to send to ${user.id}`, e);
+                }
             }
-        }
     }
 
-    return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
-}
+        return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
+    }
