@@ -175,7 +175,7 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
                 const innerBlock = header.closest('.innerblock');
                 if (innerBlock.length) {
                     reference = innerBlock.find('.address a').text().trim() || innerBlock.find('.address').text().trim();
-                    text = innerBlock.find('.content-body').text().trim();
+                    text = cleanText(innerBlock.find('.content-body'));
                 }
 
                 // Strategy 2: Look for next siblings if structure is flat
@@ -192,7 +192,7 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
                     // Try to find content body
                     const contentBody = header.closest('.content-header').next('.content-body');
                     if (contentBody.length) {
-                        text = contentBody.text().trim();
+                        text = cleanText(contentBody);
                     }
                 }
 
@@ -201,22 +201,14 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
                     const container = header.closest('.b-verse');
                     if (container.length) {
                         reference = container.find('.address').text().trim();
-                        text = container.find('.content-body').text().trim();
+                        text = cleanText(container.find('.content-body'));
                     }
                 }
 
                 // Clean up reference (sometimes has newlines)
                 reference = reference.replace(/\s+/g, ' ').trim();
 
-                // Clean up text: Collapse multiple spaces/newlines into single lines
-                // We perform 2 steps:
-                // 1. Replace multiple spaces/tabs within lines with single space
-                // 2. Preserve Paragraphs? Actually, USCCB text is often one block.
-                // For safety against large gaps:
-                if (text) {
-                    text = text.replace(/\s+/g, ' ').trim();
-                }
-
+                // Text is already cleaned by cleanText helper
                 if (text) {
                     readings[section.key] = { reference, text };
                 }
@@ -237,4 +229,22 @@ export async function getUSCCBReadings(date: Date): Promise<DailyReading> {
         // Fallback or re-throw
         throw e;
     }
+}
+
+// Helper: Extract text with proper spacing between block elements
+function cleanText($el: any): string {
+    if (!$el || !$el.length) return "";
+
+    // Clone to avoid mutation side-effects on the passed reference if reused (though we only read mostly)
+    // We only need shallow clone of the wrapper, but deep structure.
+    // Cheerio's clone is deep by default.
+    const clone = $el.clone();
+
+    // Replace common block breaks with a space to ensure separation
+    clone.find('br').replaceWith(' ');
+    clone.find('p, div, h1, h2, h3, h4, h5, h6, li').after(' ');
+
+    // Get text and normalize whitespace
+    // collapsed into single spaces
+    return clone.text().replace(/\s+/g, ' ').trim();
 }
