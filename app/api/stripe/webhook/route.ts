@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import type { Stripe } from "stripe";
+import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 export async function POST(req: Request) {
     const body = await req.text();
@@ -100,14 +101,9 @@ export async function POST(req: Request) {
                     return_url: `${process.env.NEXTAUTH_URL}/dashboard`,
                 });
 
-                const msg = `⏳ *Trial Ending Soon*
-
-Your DailyWord free trial ends in 3 days.
-
-To continue your journey without interruption, please add a payment method:
-${portalSession.url}
-
-You can cancel anytime. 🙏`;
+                // @ts-ignore
+                const sysLang = (user.systemLanguage as SystemLanguage) || 'en';
+                const msg = dictionaries[sysLang].messages.trialExpiring.replace('{link}', portalSession.url);
 
                 import('@/lib/whatsapp').then(({ sendWhatsAppMessage }) => {
                     sendWhatsAppMessage(user.phoneNumber!, msg).catch(err => console.error("Async send failed", err));
