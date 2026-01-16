@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage, sendSplitWhatsAppMessage } from '@/lib/whatsapp';
 import { getDailyReadings } from '@/lib/lectionary';
+import { dictionaries, SystemLanguage } from '@/lib/i18n/dictionaries';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
         const user = await prisma.user.findFirst({
             where: { phoneNumber: cleanPhone }
         });
+        // @ts-ignore
+        const sysLang: SystemLanguage = (user?.systemLanguage as SystemLanguage) || 'en';
+        const d = dictionaries[sysLang];
 
         if (text === 'STOP' || text === 'UNSUBSCRIBE' || text === 'CANCEL') {
             await prisma.user.updateMany({
@@ -52,7 +56,13 @@ To start receiving daily Bible readings:
 3.  Verify this phone number in your dashboard.
 
 Once verified, simply reply *START* here to activate! 🙏`;
-                await sendWhatsAppMessage(cleanPhone, notRegisteredMsg);
+                console.log(`[TWILIO] START received from UNREGISTERED number: ${cleanPhone}`);
+                // TODO: Update Not Registered message in dictionary to accept URL if needed, or keep hardcoded English for unregistered?
+                // Actually, if they are unregistered, we don't know their language.
+                // We should default to English.
+                // But we used 'd' which defaults to 'en' if user is null?
+                // Wait, if user is null, `sysLang` will be 'en'. Correct.
+                await sendWhatsAppMessage(cleanPhone, d.messages.notRegistered + `\n\n${process.env.NEXTAUTH_URL}`);
             } else {
                 // Determine if this is a first-time activation or a resume
                 const isFirstTime = user.deliveryStatus === 'pending_activation' || !user.deliveryStatus;
@@ -104,7 +114,7 @@ May the Word guide and encourage you each day. 🙏
                     await sendWhatsAppMessage(cleanPhone, welcomeMsg);
                 } else {
                     // Resuming from Pause/Stop
-                    await sendWhatsAppMessage(cleanPhone, "Messages Activated! 🕊️\n\nYour daily readings will continue arriving at your scheduled time.");
+                    await sendWhatsAppMessage(cleanPhone, d.messages.resumed);
                 }
             }
         }
@@ -139,28 +149,28 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                 // 1. Reading 1 (Send first)
-                const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
+                const msg1Raw = `*${d.messages.readingHeader} ${dateStr}*\n\n📖 *${d.messages.reading1}*\n${r.reading1.reference}\n${r.reading1.text}`;
                 await sendSplitWhatsAppMessage(cleanPhone, msg1Raw);
                 await delay(2000); // Wait 2s to ensure order
 
                 // 2. Psalm
-                const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                const msgPsalmRaw = `🎵 *${d.messages.psalm}*\n${r.psalm.reference}\n${r.psalm.text}`;
                 await sendSplitWhatsAppMessage(cleanPhone, msgPsalmRaw);
                 await delay(2000);
 
                 // 3. Reading 2 (Optional)
                 if (r.reading2) {
-                    const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                    const msg2Raw = `📜 *${d.messages.reading2}*\n${r.reading2.reference}\n${r.reading2.text}`;
                     await sendSplitWhatsAppMessage(cleanPhone, msg2Raw);
                     await delay(2000);
                 }
 
                 // 4. Gospel & Link
-                const msg3 = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+                const msg3 = `✨ *${d.messages.gospel}*\n${r.gospel.reference}\n${r.gospel.text}\n\n${d.messages.readFull}: ${link}\n\n${d.messages.replyAmen}`;
                 await sendSplitWhatsAppMessage(cleanPhone, msg3);
             } catch (e) {
                 console.error("Reading Fetch Error", e);
-                await sendWhatsAppMessage(cleanPhone, "Sorry, I couldn't fetch the readings. Please try again later.");
+                await sendWhatsAppMessage(cleanPhone, d.messages.errorInit);
             }
         }
         // ... (rest of file)
@@ -213,7 +223,7 @@ ${process.env.NEXTAUTH_URL}/dashboard`);
                 const finalMsg = formatReflectionMessage(dailyReflection.content, dateStr, link);
                 await sendWhatsAppMessage(cleanPhone, finalMsg);
             } else {
-                await sendWhatsAppMessage(cleanPhone, "Today's reflection is not ready yet. Please check back shortly.");
+                await sendWhatsAppMessage(cleanPhone, d.messages.reflectionNotReady);
             }
         }
         else {

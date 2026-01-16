@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage, formatTruncatedMessage, formatReflectionMessage, sendSplitWhatsAppMessage } from '@/lib/whatsapp';
+import { dictionaries, SystemLanguage } from '@/lib/i18n/dictionaries';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
                 where: { phoneNumber: from }
             });
             const bibleVersion = user?.bibleVersion || 'NABRE';
+            // @ts-ignore
+            const sysLang: SystemLanguage = (user?.systemLanguage as SystemLanguage) || 'en';
+            const d = dictionaries[sysLang];
 
             // Determine Input Type (Text vs Interactive)
             let inputId = "";
@@ -82,29 +86,29 @@ export async function POST(req: Request) {
                     const link = `${process.env.NEXTAUTH_URL}/readings/${dateKey}`;
 
                     // 1. Reading 1
-                    const msg1Raw = `*Daily Readings for ${dateStr}*\n\n📖 *Reading 1*\n${r.reading1.reference}\n${r.reading1.text}`;
+                    const msg1Raw = `*${d.messages.readingHeader} ${dateStr}*\n\n📖 *${d.messages.reading1}*\n${r.reading1.reference}\n${r.reading1.text}`;
                     await sendSplitWhatsAppMessage(from, msg1Raw);
                     await delay(2000);
 
                     // 2. Psalm
-                    const msgPsalmRaw = `🎵 *Psalm*\n${r.psalm.reference}\n${r.psalm.text}`;
+                    const msgPsalmRaw = `🎵 *${d.messages.psalm}*\n${r.psalm.reference}\n${r.psalm.text}`;
                     await sendSplitWhatsAppMessage(from, msgPsalmRaw);
                     await delay(2000);
 
                     // 3. Reading 2 (Optional)
                     if (r.reading2) {
-                        const msg2Raw = `📜 *Reading 2*\n${r.reading2.reference}\n${r.reading2.text}`;
+                        const msg2Raw = `📜 *${d.messages.reading2}*\n${r.reading2.reference}\n${r.reading2.text}`;
                         await sendSplitWhatsAppMessage(from, msg2Raw);
                         await delay(2000);
                     }
 
                     // 4. Gospel & Link
-                    const msg3Raw = `✨ *Gospel*\n${r.gospel.reference}\n${r.gospel.text}\n\nRead full: ${link}\n\nYou’re welcome to respond with 🙏 Amen or share a reflection.`;
+                    const msg3Raw = `✨ *${d.messages.gospel}*\n${r.gospel.reference}\n${r.gospel.text}\n\n${d.messages.readFull}: ${link}\n\n${d.messages.replyAmen}`;
                     await sendSplitWhatsAppMessage(from, msg3Raw);
 
                 } catch (e) {
                     console.error("Reading Fetch Error", e);
-                    await sendWhatsAppMessage(from, "Sorry, I couldn't fetch the readings right now. Please try again later.");
+                    await sendWhatsAppMessage(from, d.messages.errorInit);
                 }
 
             } else if (isSummaryReq) {
@@ -147,7 +151,7 @@ export async function POST(req: Request) {
                     const finalMsg = formatReflectionMessage(dailyReflection.content, dateStr, link);
                     await sendWhatsAppMessage(from, finalMsg);
                 } else {
-                    await sendWhatsAppMessage(from, "Today's reflection is not ready yet. Please check back shortly!");
+                    await sendWhatsAppMessage(from, d.messages.reflectionNotReady);
                 }
 
             } else if (isStart) {
@@ -160,14 +164,14 @@ export async function POST(req: Request) {
                         email: `user_${from}@temp.dailyword.space`
                     }
                 });
-                await sendWhatsAppMessage(from, "Welcome to DailyWord! 🕊️\nYou will receive a notification when today's word is ready.\nReply STOP to unsubscribe.");
+                await sendWhatsAppMessage(from, d.messages.welcome);
 
             } else if (isStop) {
                 await prisma.user.updateMany({
                     where: { phoneNumber: from },
                     data: { whatsappOptIn: false }
                 });
-                await sendWhatsAppMessage(from, "You have been unsubscribed. God bless!");
+                await sendWhatsAppMessage(from, d.messages.unsubscribed);
             }
         }
 
