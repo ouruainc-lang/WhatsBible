@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
