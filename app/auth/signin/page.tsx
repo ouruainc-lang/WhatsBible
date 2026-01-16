@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, ArrowRight } from "lucide-react";
+import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 export default function SignIn() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isSent, setIsSent] = useState(false);
+
+    // Add Language State
+    const [lang, setLang] = useState<SystemLanguage>('en');
+
+    // Load Language from LocalStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('dailyword-lang') as SystemLanguage;
+        if (saved && dictionaries[saved]) {
+            setLang(saved);
+        }
+    }, []);
+
+    const t = dictionaries[lang].auth;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,8 +67,8 @@ export default function SignIn() {
                 <div className="bg-white/80 backdrop-blur-md border border-white/50 p-8 rounded-2xl shadow-xl">
                     {!isSent ? (
                         <>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h2>
-                            <p className="text-gray-500 mb-8">Sign in to your account</p>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.welcomeBack}</h2>
+                            <p className="text-gray-500 mb-8">{t.subtitle}</p>
 
                             <button
                                 onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
@@ -78,7 +92,7 @@ export default function SignIn() {
                                         fill="#EA4335"
                                     />
                                 </svg>
-                                Sign in with Google
+                                {t.signInGoogle}
                             </button>
 
                             <div className="relative mb-6">
@@ -86,13 +100,13 @@ export default function SignIn() {
                                     <div className="w-full border-t border-gray-200"></div>
                                 </div>
                                 <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+                                    <span className="px-2 bg-white text-gray-500">{t.orEmail}</span>
                                 </div>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label htmlFor="email" className="sr-only">Email address</label>
+                                    <label htmlFor="email" className="sr-only">{t.srEmail}</label>
                                     <input
                                         id="email"
                                         name="email"
@@ -102,7 +116,7 @@ export default function SignIn() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                        placeholder="name@example.com"
+                                        placeholder={t.placeholderEmail}
                                     />
                                 </div>
 
@@ -115,7 +129,7 @@ export default function SignIn() {
                                         <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
                                         <>
-                                            Sign In with Email
+                                            {t.signInEmail}
                                             <ArrowRight className="ml-2 w-4 h-4" />
                                         </>
                                     )}
@@ -129,22 +143,22 @@ export default function SignIn() {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Check your email</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">{t.checkEmail}</h3>
                             <p className="text-gray-500 mb-6">
-                                We sent a magic link to <span className="font-semibold text-gray-900">{email}</span>. Click the link to sign in.
+                                {t.magicLinkSent} <span className="font-semibold text-gray-900">{email}</span>. {t.clickLink}
                             </p>
                             <button
                                 onClick={() => setIsSent(false)}
                                 className="text-sm text-gray-500 hover:text-gray-900 underline"
                             >
-                                Try a different email
+                                {t.tryDifferent}
                             </button>
                         </div>
                     )}
                 </div>
 
                 <p className="mt-8 text-center text-sm text-gray-500">
-                    By clicking continue, you agree to our <a href="#" className="underline hover:text-gray-900">Terms of Service</a> and <a href="#" className="underline hover:text-gray-900">Privacy Policy</a>.
+                    {t.terms} <a href="#" className="underline hover:text-gray-900">{t.termsLink}</a> {t.and} <a href="#" className="underline hover:text-gray-900">{t.privacyLink}</a>.
                 </p>
             </div>
         </div>
