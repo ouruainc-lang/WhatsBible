@@ -22,8 +22,8 @@ export async function POST(req: Request) {
         // Strict Command Matching
         // Prevents triggering on "I loved the reading today" (Conversational)
         // We compare the exact trimmed string.
-        const isReadingReq = ['READING', 'FULL READING', 'READINGS'].includes(text);
-        const isSummaryReq = ['SUMMARY', 'REFLECTION', 'DAILY REFLECTION', 'WORD', 'SUMMARY & REFLECTION'].includes(text);
+        const isReadingReq = ['READING', 'FULL READING', 'READINGS', 'LEITURA COMPLETA', 'BUONG PAGBABASA'].includes(text);
+        const isSummaryReq = ['SUMMARY', 'REFLECTION', 'DAILY REFLECTION', 'WORD', 'SUMMARY & REFLECTION', 'RESUMO & REFLEXÃO', 'BUOD AT PAGNINILAY'].includes(text);
 
         // Fetch User Globally
         const user = await prisma.user.findFirst({
