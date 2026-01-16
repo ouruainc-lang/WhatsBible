@@ -46,23 +46,10 @@ export async function POST(req: Request) {
 
             if (!user) {
                 console.log(`[TWILIO] START received from UNREGISTERED number: ${cleanPhone}`);
-                const notRegisteredMsg = `*👋 Welcome to DailyWord*
-
-It looks like this number isn't registered yet.
-
-To start receiving daily Bible readings:
-1.  Visit ${process.env.NEXTAUTH_URL}
-2.  Sign up and subscribe.
-3.  Verify this phone number in your dashboard.
-
-Once verified, simply reply *START* here to activate! 🙏`;
                 console.log(`[TWILIO] START received from UNREGISTERED number: ${cleanPhone}`);
-                // TODO: Update Not Registered message in dictionary to accept URL if needed, or keep hardcoded English for unregistered?
-                // Actually, if they are unregistered, we don't know their language.
-                // We should default to English.
-                // But we used 'd' which defaults to 'en' if user is null?
-                // Wait, if user is null, `sysLang` will be 'en'. Correct.
-                await sendWhatsAppMessage(cleanPhone, d.messages.notRegistered + `\n\n${process.env.NEXTAUTH_URL}`);
+                // Default to English for unregistered users as we don't know their language preference yet
+                const notRegisteredMsg = dictionaries['en'].messages.notRegistered.replace('{url}', process.env.NEXTAUTH_URL!);
+                await sendWhatsAppMessage(cleanPhone, notRegisteredMsg);
             } else {
                 // Determine if this is a first-time activation or a resume
                 const isFirstTime = user.deliveryStatus === 'pending_activation' || !user.deliveryStatus;

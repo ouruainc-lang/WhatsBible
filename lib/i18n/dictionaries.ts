@@ -4,7 +4,7 @@ export const dictionaries = {
     en: {
         messages: {
             welcome: "Welcome to DailyWord! 🕊️\nYou will receive a notification when today's word is ready.\nReply STOP to unsubscribe.",
-            notRegistered: "It looks like this number isn't registered yet.",
+            notRegistered: "*👋 Welcome to DailyWord*\n\nIt looks like this number isn't registered yet.\n\nTo start receiving daily Bible readings:\n1.  Visit {url}\n2.  Sign up and subscribe.\n3.  Verify this phone number in your dashboard.\n\nOnce verified, simply reply *START* here to activate! 🙏",
             replyAmen: "You’re welcome to respond with 🙏 Amen or share a reflection.",
             unsubscribed: "You have been unsubscribed. God bless!",
             resumed: "Messages Activated! 🕊️\n\nYour daily readings will continue arriving at your scheduled time.",
@@ -109,7 +109,7 @@ export const dictionaries = {
     pt: {
         messages: {
             welcome: "Bem-vindo ao DailyWord! 🕊️\nVocê receberá uma notificação quando a palavra de hoje estiver pronta.\nResponda PARAR para cancelar a assinatura.",
-            notRegistered: "Parece que este número ainda não está registrado.",
+            notRegistered: "*👋 Bem-vindo ao DailyWord*\n\nParece que este número ainda não está cadastrado.\n\nPara começar a receber leituras bíblicas diárias:\n1.  Visite {url}\n2.  Inscreva-se e assine.\n3.  Verifique este número de telefone no seu painel.\n\nUma vez verificado, basta responder *INICIAR* (ou START) aqui para ativar! 🙏",
             replyAmen: "Sinta-se à vontade para responder com 🙏 Amém ou compartilhar uma reflexão.",
             unsubscribed: "Sua assinatura foi cancelada. Deus te abençoe!",
             resumed: "Mensagens Ativadas! 🕊️\n\nSuas leituras diárias continuarão chegando no horário agendado.",
@@ -214,7 +214,7 @@ export const dictionaries = {
     tl: {
         messages: {
             welcome: "Maligayang pagdating sa DailyWord! 🕊️\nMakakatanggap ka ng abiso kapag handa na ang salita ngayong araw.\nSumagot ng STOP upang mag-unsubscribe.",
-            notRegistered: "Mukhang hindi pa nakarehistro ang numerong ito.",
+            notRegistered: "*👋 Maligayang pagdating sa DailyWord*\n\nMukhang hindi pa nakarehistro ang numerong ito.\n\nUpang simulan ang pagtanggap ng pang-araw-araw na pagbasa ng Bibliya:\n1.  Bisitahin ang {url}\n2.  Mag-sign up at mag-subscribe.\n3.  I-verify ang numero ng teleponong ito sa iyong dashboard.\n\nKapag na-verify na, sumagot lang ng *START* dito upang i-activate! 🙏",
             replyAmen: "Maaari kang sumagot ng 🙏 Amen o magbahagi ng pagninilay.",
             unsubscribed: "Ikaw ay naka-unsubscribe na. Pagpalain ka ng Diyos!",
             resumed: "Aktibo na ang mga Mensahe! 🕊️\n\nAng iyong pang-araw-araw na pagbasa ay darating sa iyong itinakdang oras.",
