@@ -62,8 +62,68 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
         return () => clearInterval(interval);
     }, [resendTimer]);
 
+    // Smart Language Auto-Sync
+    useEffect(() => {
+        const checkAutoSync = async () => {
+            const hasConfigured = localStorage.getItem('dailyword-lang-configured');
+            // If already configured or user already has a specific language set in DB (not default 'en'), skip
+            if (hasConfigured || user.systemLanguage !== 'en') return;
+
+            const browserLang = navigator.language.split('-')[0];
+            let newLang = '';
+            let newBible = '';
+
+            if (browserLang === 'pt') {
+                newLang = 'pt';
+                newBible = 'almeida';
+            } else if (browserLang === 'tl' || browserLang === 'fil') {
+                newLang = 'tl';
+                newBible = 'ABTAG2001';
+            }
+
+            if (newLang) {
+                console.log(`[Auto-Sync] Detected ${newLang}, syncing defaults...`);
+
+                // 1. Optimistic UI Update
+                setFormData(prev => ({
+                    ...prev,
+                    systemLanguage: newLang,
+                    bibleVersion: newBible
+                }));
+
+                // 2. Persist to DB
+                try {
+                    await fetch('/api/user', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ...formData,
+                            systemLanguage: newLang,
+                            bibleVersion: newBible
+                        })
+                    });
+                    toast.success("Language set to " + (newLang === 'pt' ? "Português" : "Tagalog"));
+                } catch (e) {
+                    console.error("Auto-sync failed", e);
+                }
+
+                // 3. Mark as configured so we don't overwrite later
+                localStorage.setItem('dailyword-lang-configured', 'true');
+                router.refresh();
+            }
+        };
+
+        checkAutoSync();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
+
+        // If user manually changes language/bible, mark as explicitly configured
+        if (name === 'systemLanguage' || name === 'bibleVersion') {
+            localStorage.setItem('dailyword-lang-configured', 'true');
+        }
 
         // If changing phone number, reset verification
         if (name === 'phoneNumber' && value !== user.phoneNumber) {
