@@ -19,6 +19,7 @@ model User {
   timezone         String   @default("UTC")
   deliveryTime     String   @default("08:00") // 24h format
   bibleVersion     String   @default("KJV")
+  systemLanguage   String   @default("en") // en, pt, tl
   contentPreference String  @default("VER") // VER (Verse), RDG (Reading), REF (Reflection)
   whatsappOptIn    Boolean  @default(false)
   subscriptionStatus String @default("inactive") // inactive, active, trial, past_due
