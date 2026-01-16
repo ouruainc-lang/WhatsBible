@@ -8,6 +8,7 @@ import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 export function LandingPageContent() {
     const [lang, setLang] = useState<SystemLanguage>('en');
+    const [isLangOpen, setIsLangOpen] = useState(false);
 
     useEffect(() => {
         // Load preference
@@ -25,6 +26,7 @@ export function LandingPageContent() {
     const changeLang = (l: SystemLanguage) => {
         setLang(l);
         localStorage.setItem('dailyword-lang', l);
+        setIsLangOpen(false);
     };
 
     const t = dictionaries[lang].landing;
@@ -44,8 +46,7 @@ export function LandingPageContent() {
                             className="h-10 w-auto object-contain"
                             priority
                         />
-                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight hidden sm:block">DailyWord</span>
-                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight sm:hidden">DW</span>
+                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight">DailyWord</span>
                     </Link>
 
                     {/* Desktop Nav Links */}
