@@ -285,28 +285,27 @@ export function LandingPageContent() {
                             <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t.pricing.features[2]} (Features)</h2>
                             <p className="text-gray-600">{t.footer.description}</p>
                         </div>
-                        {/* Static Icons for now, text is tricky to map 1:1 if structure changed. Keeping english for icons/layout but could map manually */}
                         <div className="grid md:grid-cols-3 gap-8">
                             <div className="glass-card p-8 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
                                 <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-6">
                                     <BookOpen className="w-6 h-6 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">Curated Content</h3>
-                                <p className="text-gray-600">Daily Readings (USCCB), Almeida, or Ang Biblia.</p>
+                                <h3 className="text-xl font-bold mb-3">{t.featureCards.curated.title}</h3>
+                                <p className="text-gray-600">{t.featureCards.curated.desc}</p>
                             </div>
                             <div className="glass-card p-8 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
                                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                                     <Clock className="w-6 h-6 text-blue-600" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">Your Schedule</h3>
-                                <p className="text-gray-600">{t.pricing.features[1]}</p>
+                                <h3 className="text-xl font-bold mb-3">{t.featureCards.schedule.title}</h3>
+                                <p className="text-gray-600">{t.featureCards.schedule.desc}</p>
                             </div>
                             <div className="glass-card p-8 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
                                 <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-6">
                                     <Heart className="w-6 h-6 text-rose-600" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">Spiritual Growth</h3>
-                                <p className="text-gray-600">Build a habit of prayer.</p>
+                                <h3 className="text-xl font-bold mb-3">{t.featureCards.growth.title}</h3>
+                                <p className="text-gray-600">{t.featureCards.growth.desc}</p>
                             </div>
                         </div>
                     </div>

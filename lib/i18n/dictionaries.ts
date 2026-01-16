@@ -93,7 +93,12 @@ export const dictionaries = {
                 ctaPrimary: "Start For Free",
                 ctaSecondary: "How it Works",
                 trusted: "Loved by 100+ believers",
-                benefits: ["Cancel Anytime", "7-Day Free Trial", "No Credit Card Required", "Instant Setup"]
+                benefits: ["Cancel Anytime", "7-Day Free Trial", "No Credit Card Required", "Instant Setup"],
+                featureCards: {
+                    curated: { title: "Curated Content", desc: "Daily Readings (USCCB), Almeida, or Ang Biblia." },
+                    schedule: { title: "Your Schedule", desc: "Set your own delivery time." },
+                    growth: { title: "Spiritual Growth", desc: "Build a consistent habit of prayer." }
+                }
             },
             howItWorks: {
                 title: "Start Your Journey in 3 Simple Steps",
@@ -216,7 +221,12 @@ export const dictionaries = {
                 ctaPrimary: "Começar Grátis",
                 ctaSecondary: "Como Funciona",
                 trusted: "Amado por 100+ fiéis",
-                benefits: ["Cancele a Qualquer Momento", "7 Dias Grátis", "Sem Cartão de Crédito", "Instalação Instantânea"]
+                benefits: ["Cancele a Qualquer Momento", "7 Dias Grátis", "Sem Cartão de Crédito", "Instalação Instantânea"],
+                featureCards: {
+                    curated: { title: "Conteúdo Curado", desc: "Leituras Diárias (USCCB), Almeida ou Ang Biblia." },
+                    schedule: { title: "Seu Horário", desc: "Defina seu próprio horário de envio." },
+                    growth: { title: "Crescimento Espiritual", desc: "Construa um hábito consistente de oração." }
+                }
             },
             howItWorks: {
                 title: "Comece sua Jornada em 3 Passos Simples",
@@ -339,7 +349,12 @@ export const dictionaries = {
                 ctaPrimary: "Magsimula nang Libre",
                 ctaSecondary: "Paano Ito Gumagana",
                 trusted: "Minamahal ng 100+ mananampalataya",
-                benefits: ["Kanselahin Anumang Oras", "7-Araw na Libreng Pagsubok", "Walang Credit Card", "Mabilis na Setup"]
+                benefits: ["Kanselahin Anumang Oras", "7-Araw na Libreng Pagsubok", "Walang Credit Card", "Mabilis na Setup"],
+                featureCards: {
+                    curated: { title: "Piling Nilalaman", desc: "Araw-araw na Pagbasa (USCCB), Almeida, o Ang Biblia." },
+                    schedule: { title: "Iyong Oras", desc: "Itakda ang sariling oras ng pagtanggap." },
+                    growth: { title: "Paglagong Espirituwal", desc: "Bumuo ng matibay na ugali ng panalangin." }
+                }
             },
             howItWorks: {
                 title: "Simulan ang Iyong Paglalakbay sa 3 Simpleng Hakbang",
