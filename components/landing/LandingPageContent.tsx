@@ -65,14 +65,21 @@ export function LandingPageContent() {
                     {/* Right Side Actions (Visible on Mobile) */}
                     <div className="flex items-center gap-3 sm:gap-4">
                         {/* Language Selector */}
-                        <div className="relative group py-2"> {/* Added py-2 to container to help with hover target area from sides if needed, but mainly for vertical flow */}
-                            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-gray-100/50 transition-colors">
+                        <div
+                            className="relative py-2"
+                            onMouseEnter={() => setIsLangOpen(true)}
+                            onMouseLeave={() => setIsLangOpen(false)}
+                        >
+                            <button
+                                onClick={() => setIsLangOpen(!isLangOpen)}
+                                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-gray-100/50 transition-colors"
+                            >
                                 <Globe className="w-4 h-4" />
                                 <span className="uppercase">{lang}</span>
                             </button>
 
                             {/* Dropdown with padding bridge */}
-                            <div className="absolute right-0 top-full pt-2 w-32 hidden group-hover:block z-50">
+                            <div className={`absolute right-0 top-full pt-2 w-32 z-50 ${isLangOpen ? 'block' : 'hidden'}`}>
                                 <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-1">
                                     <button onClick={() => changeLang('en')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors ${lang === 'en' ? 'font-bold text-primary' : 'text-gray-600'}`}>English</button>
                                     <button onClick={() => changeLang('pt')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors ${lang === 'pt' ? 'font-bold text-primary' : 'text-gray-600'}`}>Português</button>
