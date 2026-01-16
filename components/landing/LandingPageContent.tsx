@@ -44,8 +44,11 @@ export function LandingPageContent() {
                             className="h-10 w-auto object-contain"
                             priority
                         />
-                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight">DailyWord</span>
+                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight hidden sm:block">DailyWord</span>
+                        <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight sm:hidden">DW</span>
                     </Link>
+
+                    {/* Desktop Nav Links */}
                     <nav className="hidden md:flex gap-8 items-center">
                         <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#features">
                             {t.nav.features}
@@ -53,30 +56,37 @@ export function LandingPageContent() {
                         <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#pricing">
                             {t.nav.pricing}
                         </Link>
-
-                        {/* Language Selector */}
-                        <div className="relative group">
-                            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900">
-                                <Globe className="w-4 h-4" />
-                                <span className="uppercase">{lang}</span>
-                            </button>
-                            <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-xl shadow-xl border border-gray-100 hidden group-hover:block p-1">
-                                <button onClick={() => changeLang('en')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 ${lang === 'en' ? 'font-bold text-primary' : 'text-gray-600'}`}>English</button>
-                                <button onClick={() => changeLang('pt')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 ${lang === 'pt' ? 'font-bold text-primary' : 'text-gray-600'}`}>Português</button>
-                                <button onClick={() => changeLang('tl')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 ${lang === 'tl' ? 'font-bold text-primary' : 'text-gray-600'}`}>Tagalog</button>
-                            </div>
-                        </div>
-
                         <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="/dashboard">
                             {t.nav.login}
                         </Link>
                     </nav>
-                    <Link
-                        href="/dashboard"
-                        className="px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
-                    >
-                        {t.nav.getStarted}
-                    </Link>
+
+                    {/* Right Side Actions (Visible on Mobile) */}
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        {/* Language Selector */}
+                        <div className="relative group py-2"> {/* Added py-2 to container to help with hover target area from sides if needed, but mainly for vertical flow */}
+                            <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-gray-100/50 transition-colors">
+                                <Globe className="w-4 h-4" />
+                                <span className="uppercase">{lang}</span>
+                            </button>
+
+                            {/* Dropdown with padding bridge */}
+                            <div className="absolute right-0 top-full pt-2 w-32 hidden group-hover:block z-50">
+                                <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-1">
+                                    <button onClick={() => changeLang('en')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors ${lang === 'en' ? 'font-bold text-primary' : 'text-gray-600'}`}>English</button>
+                                    <button onClick={() => changeLang('pt')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors ${lang === 'pt' ? 'font-bold text-primary' : 'text-gray-600'}`}>Português</button>
+                                    <button onClick={() => changeLang('tl')} className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 transition-colors ${lang === 'tl' ? 'font-bold text-primary' : 'text-gray-600'}`}>Tagalog</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Link
+                            href="/dashboard"
+                            className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
+                        >
+                            {t.nav.getStarted}
+                        </Link>
+                    </div>
                 </div>
             </header>
 
