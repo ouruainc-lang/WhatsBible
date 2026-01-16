@@ -7,11 +7,13 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { dictionaries, SystemLanguage } from '@/lib/i18n/dictionaries';
 
 interface User {
     deliveryTime: string;
     timezone: string;
     bibleVersion: string;
+    systemLanguage?: string;
     contentPreference: string;
     whatsappOptIn: boolean;
     phoneNumber?: string | null;
@@ -41,10 +43,14 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
         deliveryTime: user.deliveryTime || "08:00",
         timezone: user.timezone || "UTC",
         bibleVersion: user.bibleVersion || "KJV",
+        systemLanguage: user.systemLanguage || "en",
         contentPreference: user.contentPreference || "REF",
         whatsappOptIn: user.whatsappOptIn,
         phoneNumber: user.phoneNumber || "",
     });
+
+    const sysLang = (formData.systemLanguage as SystemLanguage) || 'en';
+    const d = dictionaries[sysLang] || dictionaries.en;
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -72,9 +78,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
     };
 
     const handleSendCode = async () => {
-        if (!formData.phoneNumber) return toast.error("Please enter a phone number");
-
-
+        if (!formData.phoneNumber) return toast.error(d.ui.enterPhone);
 
         setLoading(true);
         try {
@@ -177,7 +181,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                 body: JSON.stringify({ ...formData, whatsappOptIn: newState })
             });
             if (res.ok) {
-                toast.success(newState ? "Messages Resumed! 🎉" : "Messages Paused ⏸️");
+                toast.success(newState ? d.messages?.resumed || "Messages Resumed!" : "Messages Paused ⏸️");
                 router.refresh();
             } else {
                 throw new Error("Failed");
@@ -200,7 +204,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
             });
             if (res.ok) {
                 router.refresh();
-                toast.success('Settings saved successfully!');
+                toast.success(d.ui.saved);
             } else {
                 toast.error('Failed to save settings');
             }
@@ -221,6 +225,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
         formData.deliveryTime !== (user.deliveryTime || "08:00") ||
         formData.timezone !== (user.timezone || "UTC") ||
         formData.bibleVersion !== (user.bibleVersion || "KJV") ||
+        formData.systemLanguage !== (user.systemLanguage || "en") ||
         formData.contentPreference !== (user.contentPreference || "VER") ||
         formData.whatsappOptIn !== user.whatsappOptIn ||
         isPhoneDirty;
@@ -229,7 +234,21 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
         <form onSubmit={handleSave} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label className={labelClasses}>Timezone</label>
+                    <label className={labelClasses}>{d.ui.systemLanguage}</label>
+                    <select
+                        name="systemLanguage"
+                        value={formData.systemLanguage}
+                        onChange={handleChange}
+                        className={inputClasses}
+                    >
+                        <option value="en">English</option>
+                        <option value="pt">Português</option>
+                        <option value="tl">Tagalog</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className={labelClasses}>{d.ui.timezone}</label>
                     <select
                         name="timezone"
                         value={formData.timezone}
@@ -262,7 +281,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                 </div>
 
                 <div>
-                    <label className={labelClasses}>Delivery Time (Local)</label>
+                    <label className={labelClasses}>{d.ui.deliveryTime}</label>
                     <input
                         type="time"
                         name="deliveryTime"
@@ -275,7 +294,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
 
             <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label className={labelClasses}>Bible Version</label>
+                    <label className={labelClasses}>{d.ui.bibleVersion}</label>
                     <select
                         name="bibleVersion"
                         value={formData.bibleVersion}
@@ -293,13 +312,13 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
             </div>
 
             <div className="pt-4 border-t border-gray-100">
-                <label className={labelClasses}>WhatsApp Connection</label>
+                <label className={labelClasses}>{d.ui.whatsappConnection}</label>
 
                 <div className="space-y-4">
                     <div className="flex flex-col md:flex-row gap-3 relative">
                         <div className="flex-1">
                             <PhoneInput
-                                placeholder="Enter phone number"
+                                placeholder={d.ui.enterPhone}
                                 value={formData.phoneNumber || ''}
                                 onChange={(value?: any) => {
                                     const newValue = value || "";
@@ -335,7 +354,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                     className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                    {resendTimer > 0 ? `Wait ${resendTimer}s` : 'Verify'}
+                                    {resendTimer > 0 ? `Wait ${resendTimer}s` : d.ui.verify}
                                 </button>
 
                                 {botNumber && (
@@ -370,7 +389,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         disabled={loading}
                                         className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                                     >
-                                        Confirm
+                                        {d.ui.confirm}
                                     </button>
                                 </div>
                                 <div className="text-right">
@@ -380,7 +399,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         disabled={resendTimer > 0 || loading}
                                         className="text-xs text-gray-500 hover:text-gray-900 underline disabled:no-underline disabled:text-gray-300 transition-colors"
                                     >
-                                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend Code'}
+                                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : d.ui.resend}
                                     </button>
                                 </div>
                                 {botNumber && (
@@ -401,7 +420,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                         {isVerified && (
                             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl border border-green-100 font-medium whitespace-nowrap">
                                 <CheckCircle className="w-5 h-5" />
-                                Verified
+                                {d.ui.verified}
                             </div>
                         )}
                     </div>
@@ -458,7 +477,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         disabled={loading}
                                         className="text-xs font-semibold px-3 py-1.5 rounded-lg border bg-white border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
                                     >
-                                        Pause Messages
+                                        {d.ui.pause}
                                     </button>
                                 ) : (
                                     <a
@@ -468,7 +487,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         className="text-xs font-semibold px-3 py-1.5 rounded-lg border bg-green-50 border-green-200 text-green-700 hover:bg-green-100 transition-colors flex items-center gap-2"
                                     >
                                         <Send className="w-3 h-3" />
-                                        Activate on WhatsApp
+                                        {d.ui.resume}
                                     </a>
                                 )}
                             </div>
@@ -485,7 +504,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                     title={isPhoneDirty ? "Please verify phone number to save" : ""}
                 >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    {loading ? 'Saving...' : 'Save Settings'}
+                    {loading ? d.ui.saving : d.ui.save}
                 </button>
             </div>
         </form >
