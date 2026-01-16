@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Check, Smartphone, BookOpen, Clock, Heart, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
+import { signIn } from "next-auth/react";
 import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 export function LandingPageContent() {
@@ -85,12 +86,12 @@ export function LandingPageContent() {
                             </div>
                         </div>
 
-                        <Link
-                            href="/dashboard"
+                        <button
+                            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
                             className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
                         >
                             {t.nav.getStarted}
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -119,12 +120,12 @@ export function LandingPageContent() {
                                     {t.hero.description}
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                    <Link
-                                        href="/dashboard"
+                                    <button
+                                        onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
                                         className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white shadow-xl transition-all hover:bg-amber-700 hover:scale-105 active:scale-95"
                                     >
                                         {t.hero.ctaPrimary}
-                                    </Link>
+                                    </button>
                                     <Link
                                         href="#how-it-works"
                                         className="inline-flex h-12 items-center justify-center rounded-full bg-white border border-gray-200 px-8 text-base font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-300"
