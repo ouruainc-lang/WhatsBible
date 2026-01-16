@@ -134,19 +134,28 @@ export function LandingPageContent() {
                                     </Link>
                                 </div>
 
-                                <div className="flex items-center gap-4 justify-center lg:justify-start pt-2">
+                                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start pt-4 lg:pt-2">
                                     <div className="flex -space-x-3">
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <div key={i} className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${i === 1 ? 'bg-blue-500' :
-                                                    i === 2 ? 'bg-amber-500' :
-                                                        i === 3 ? 'bg-green-500' : 'bg-rose-500'
-                                                }`}>
-                                                {i === 1 ? 'JD' : i === 2 ? 'Sarah' : i === 3 ? 'MP' : 'DK'}
+                                        {[
+                                            "https://randomuser.me/api/portraits/women/44.jpg",
+                                            "https://randomuser.me/api/portraits/men/32.jpg",
+                                            "https://randomuser.me/api/portraits/women/68.jpg",
+                                            "https://randomuser.me/api/portraits/men/86.jpg"
+                                        ].map((src, i) => (
+                                            <div key={i} className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm">
+                                                <img
+                                                    src={src}
+                                                    alt="User"
+                                                    className="w-full h-full object-cover"
+                                                />
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="text-sm font-medium text-gray-600">
-                                        ⭐⭐⭐⭐⭐ {t.hero.trusted}
+                                    <div className="text-sm font-medium text-gray-600 flex items-center gap-1">
+                                        <div className="flex text-amber-400">
+                                            {[1, 2, 3, 4, 5].map(s => <span key={s}>★</span>)}
+                                        </div>
+                                        <span>{t.hero.trusted}</span>
                                     </div>
                                 </div>
 
