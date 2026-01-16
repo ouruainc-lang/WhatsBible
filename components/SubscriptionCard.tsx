@@ -1,18 +1,20 @@
-"use client";
-
 import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 interface User {
     subscriptionStatus: string;
     subscriptionPlan?: string | null;
     stripeCustomerId?: string | null;
     stripeSubscriptionId?: string | null;
+    systemLanguage?: string;
 }
 
 export function SubscriptionCard({ user }: { user: User }) {
     const [loading, setLoading] = useState(false);
+    const lang = (user.systemLanguage as SystemLanguage) || 'en';
+    const t = dictionaries[lang].ui;
 
     const handleSubscription = async (plan: 'MONTHLY' | 'YEARLY') => {
         setLoading(true);
@@ -86,20 +88,20 @@ export function SubscriptionCard({ user }: { user: User }) {
                 <div className="bg-amber-50 p-2 rounded-lg text-amber-600">
                     <Sparkles className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-bold font-serif">Subscription</h2>
+                <h2 className="text-xl font-bold font-serif">{t.subscriptionTitle}</h2>
             </div>
 
             <div className="space-y-6 flex-1">
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Current Status</p>
+                        <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold">{t.currentStatus}</p>
                     </div>
 
                     <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium ${isActive
                         ? 'bg-green-50 text-green-700 border border-green-100'
                         : 'bg-gray-50 text-gray-600 border border-gray-100'
                         }`}>
-                        <span className="capitalize mr-2">{['trial', 'trialing'].includes(user.subscriptionStatus) ? 'Free Trial' : user.subscriptionStatus}</span>
+                        <span className="capitalize mr-2">{['trial', 'trialing'].includes(user.subscriptionStatus) ? t.freeTrial : user.subscriptionStatus}</span>
                         {isActive && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
                     </div>
                 </div>
@@ -108,7 +110,7 @@ export function SubscriptionCard({ user }: { user: User }) {
                     <div className="bg-green-50/50 border border-green-100 rounded-xl p-6 mt-4">
                         <div className="flex items-center gap-2 mb-6">
                             <Check className="w-5 h-5 text-green-600" />
-                            <h4 className="font-medium text-green-900">Active Plan</h4>
+                            <h4 className="font-medium text-green-900">{t.activePlan}</h4>
                         </div>
                         <button
                             onClick={handlePortal}
@@ -116,7 +118,7 @@ export function SubscriptionCard({ user }: { user: User }) {
                             className="w-full py-2.5 bg-white border border-green-200 text-green-700 text-sm font-medium rounded-xl hover:bg-green-50 transition-colors shadow-sm flex items-center justify-center gap-2"
                         >
                             {loading && <Loader2 className="w-3 h-3 animate-spin" />}
-                            Manage Subscription
+                            {t.manageSubscription}
                         </button>
                     </div>
                 ) : (
@@ -127,12 +129,12 @@ export function SubscriptionCard({ user }: { user: User }) {
                             role="button"
                         >
                             <h4 className="font-serif font-bold text-amber-900 mb-2 text-lg group-hover:text-amber-800 transition-colors">
-                                {isReturning ? "Resume Subscription" : "Start 7-Day Free Trial"}
+                                {isReturning ? t.resumeSubscription : t.startTrial}
                             </h4>
                             <p className="text-sm text-amber-800/70 mb-0">
                                 {isReturning
-                                    ? "Welcome back! Reactivate your daily grace delivery now."
-                                    : "Experience daily grace delivered directly to your phone. No credit card required. Cancel anytime."}
+                                    ? t.welcomeBackDesc
+                                    : t.trialDesc}
                             </p>
                         </div>
 
@@ -143,11 +145,11 @@ export function SubscriptionCard({ user }: { user: User }) {
                                 className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-amber-200 hover:border-amber-400 rounded-xl transition-all group text-left shadow-md hover:shadow-lg ring-1 ring-amber-100"
                             >
                                 <div>
-                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">Monthly</span>
+                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">{t.monthly}</span>
                                     <span className="block text-lg font-bold text-gray-900">$2.99<span className="text-sm font-normal text-gray-400">/mo</span></span>
                                 </div>
                                 <div className="px-3 py-1.5 bg-amber-100 group-hover:bg-amber-200 text-amber-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isReturning ? "Select Plan" : "Start Trial"} {!isReturning && <Sparkles className="w-3 h-3" />}</>}
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isReturning ? t.selectPlan : t.startTrialBtn} {!isReturning && <Sparkles className="w-3 h-3" />}</>}
                                 </div>
                             </button>
 
@@ -157,20 +159,20 @@ export function SubscriptionCard({ user }: { user: User }) {
                                 className="relative flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-amber-200 hover:border-amber-400 rounded-xl transition-all group text-left shadow-md hover:shadow-lg ring-1 ring-amber-100"
                             >
                                 <div className="absolute -top-2.5 right-4 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                    SAVE 30%
+                                    {t.save30}
                                 </div>
                                 <div>
-                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">Yearly (Best Value)</span>
+                                    <span className="block text-xs font-semibold text-amber-600 mb-0.5">{t.yearly}</span>
                                     <span className="block text-lg font-bold text-gray-900">$24.99<span className="text-sm font-normal text-gray-400">/yr</span></span>
                                 </div>
                                 <div className="px-3 py-1.5 bg-amber-100 group-hover:bg-amber-200 text-amber-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm">
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isReturning ? "Select Plan" : "Start Trial"} {!isReturning && <Sparkles className="w-3 h-3" />}</>}
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{isReturning ? t.selectPlan : t.startTrialBtn} {!isReturning && <Sparkles className="w-3 h-3" />}</>}
                                 </div>
                             </button>
                         </div>
 
                         <p className="text-[10px] text-gray-400 text-center px-4 leading-relaxed">
-                            Subscription covers server costs, WhatsApp fees, and AI features.
+                            {t.subDisclaimer}
                         </p>
                     </div>
                 )}

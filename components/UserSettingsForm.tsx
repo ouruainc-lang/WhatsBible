@@ -365,7 +365,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                             rel="noopener noreferrer"
                                             className="text-xs text-gray-500 hover:text-green-600 underline transition-colors w-full inline-block mt-1"
                                         >
-                                            Not receiving verification code? Click here
+                                            {d.ui.noCode}
                                         </a>
                                     </div>
                                 )}
@@ -410,7 +410,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                             rel="noopener noreferrer"
                                             className="text-xs text-gray-500 hover:text-green-600 underline transition-colors"
                                         >
-                                            Not receiving verification code? Click here
+                                            {d.ui.noCode}
                                         </a>
                                     </div>
                                 )}
@@ -429,8 +429,8 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                         <div>
                             <Link onClick={(e) => { e.preventDefault(); document.getElementById('subscription-section')?.scrollIntoView({ behavior: 'smooth' }); }} href="#subscription-section" className="inline-flex text-xs text-amber-600 font-semibold items-center gap-1 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 shadow-sm cursor-pointer hover:bg-amber-100 transition-colors">
                                 {['canceled', 'past_due'].includes(user.subscriptionStatus) || user.stripeSubscriptionId // Check ID to catch returning users
-                                    ? "🔒 Subscription inactive. Click to resume daily delivery."
-                                    : "🔒 Click to Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime."}
+                                    ? d.ui.subscriptionInactive
+                                    : d.ui.clickToSubscribe}
                             </Link>
                         </div>
                     )}

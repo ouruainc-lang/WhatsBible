@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { UserSettingsForm } from "@/components/UserSettingsForm";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { BookOpen } from "lucide-react";
+import { dictionaries, SystemLanguage } from "@/lib/i18n/dictionaries";
 
 export default async function Dashboard() {
     const session = await getServerSession(authOptions);
@@ -21,11 +22,14 @@ export default async function Dashboard() {
         return <div>User not found</div>;
     }
 
+    const lang = (user.systemLanguage as SystemLanguage) || 'en';
+    const t = dictionaries[lang].ui;
+
     return (
         <div className="container mx-auto px-6">
             <div className="mb-10">
-                <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">Welcome Back</h1>
-                <p className="text-gray-500">Manage your daily delivery preferences and subscription.</p>
+                <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">{t.welcomeBack}</h1>
+                <p className="text-gray-500">{t.managePreferences}</p>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3">
@@ -36,7 +40,7 @@ export default async function Dashboard() {
                             <div className="bg-primary/10 p-2 rounded-lg text-primary">
                                 <BookOpen className="w-5 h-5" />
                             </div>
-                            <h2 className="text-xl font-bold font-serif">Delivery Settings</h2>
+                            <h2 className="text-xl font-bold font-serif">{t.deliverySettings}</h2>
                         </div>
                         <UserSettingsForm user={user} botNumber={process.env.TWILIO_PHONE_NUMBER} />
                     </div>
