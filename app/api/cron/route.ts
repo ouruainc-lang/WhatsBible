@@ -177,11 +177,14 @@ export async function GET(req: Request) {
                         data: { userId: user.id, verseRef: "NOTIFICATION", status: 'success' }
                     });
                     sentCount++;
-                } catch (e) {
-                    console.error(`Failed to send to ${user.id}`, e);
+                } else {
+                    console.error(`[CRON] No Template SID found for Lang: ${lang}`);
                 }
+            } catch (e) {
+                console.error(`Failed to send to ${user.id}`, e);
             }
+        }
     }
 
-        return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
-    }
+    return NextResponse.json({ sent: sentCount, message: 'Cron processed' });
+}
