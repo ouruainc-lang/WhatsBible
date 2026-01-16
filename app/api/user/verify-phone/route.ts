@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { SystemLanguage } from '@/lib/i18n/dictionaries';
 
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -55,7 +56,8 @@ export async function POST(req: Request) {
             // @ts-ignore
             const lang = (user.systemLanguage as SystemLanguage) || 'en';
             const { dictionaries } = await import('@/lib/i18n/dictionaries');
-            const messageRaw = dictionaries[lang].messages.otpMessage;
+            // @ts-ignore
+            const messageRaw = dictionaries[lang as keyof typeof dictionaries].messages.otpMessage;
             const message = messageRaw.replace('{code}', otp);
 
             // Send via WhatsApp
