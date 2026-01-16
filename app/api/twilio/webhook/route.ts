@@ -88,13 +88,8 @@ Once verified, simply reply *START* here to activate! 🙏`;
         }
         else if (text === 'NO-OTP' || text === 'NO OTP') {
             console.log(`[TWILIO] User sent NO-OTP to open session: ${cleanPhone}`);
-            // Just acknowledging this message opens the 24h window
-            await sendWhatsAppMessage(cleanPhone, `✅ Support Session Active.
-             
-You can now receive your verification code.
-
-Please return to the dashboard to request the code again:
-${process.env.NEXTAUTH_URL}/dashboard`);
+            const noOtpMsg = d.messages.noOtpMessage.replace('{dashboardUrl}', `${process.env.NEXTAUTH_URL}/dashboard`);
+            await sendWhatsAppMessage(cleanPhone, noOtpMsg);
         }
         else if (isReadingReq) {
             console.log(`[TWILIO] User asked for READING`);
