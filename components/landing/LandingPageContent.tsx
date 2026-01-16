@@ -54,9 +54,6 @@ export function LandingPageContent() {
                         <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#features">
                             {t.nav.features}
                         </Link>
-                        <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="#pricing">
-                            {t.nav.pricing}
-                        </Link>
                         <Link className="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="/dashboard">
                             {t.nav.login}
                         </Link>
@@ -288,52 +285,7 @@ export function LandingPageContent() {
                     </div>
                 </section>
 
-                {/* Pricing Section */}
-                <section id="pricing" className="py-20 bg-amber-50/50 border-y border-amber-100/50">
-                    <div className="container px-6 mx-auto">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-center mb-16">{t.pricing.title}</h2>
-                        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
 
-                            {/* Monthly Plan */}
-                            <div className="glass-card p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-all">
-                                <h3 className="text-2xl font-bold text-gray-900">{t.pricing.monthly.title}</h3>
-                                <div className="mt-4 flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold tracking-tight text-gray-900">{t.pricing.monthly.price}</span>
-                                    <span className="text-gray-500">{t.pricing.monthly.unit}</span>
-                                </div>
-                                <p className="mt-4 text-gray-500 text-sm">{t.hero.benefits[0]}.</p>
-                                <Link href="/dashboard" className="block w-full py-3 px-4 mt-8 bg-white border-2 border-gray-200 text-gray-900 font-bold rounded-xl text-center hover:border-gray-900 transition-colors">
-                                    {t.pricing.monthly.cta}
-                                </Link>
-                                <ul className="mt-8 space-y-4">
-                                    {t.pricing.features.map((f, i) => (
-                                        <li key={i} className="flex items-center text-gray-600"><Check className="w-5 h-5 text-green-500 mr-3" /> {f}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Yearly Plan */}
-                            <div className="glass-card p-8 rounded-3xl border-2 border-primary/20 relative shadow-2xl overflow-hidden">
-                                <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl">{t.pricing.yearly.badge}</div>
-                                <h3 className="text-2xl font-bold text-gray-900">{t.pricing.yearly.title}</h3>
-                                <div className="mt-4 flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold tracking-tight text-gray-900">{t.pricing.yearly.price}</span>
-                                    <span className="text-gray-500">{t.pricing.yearly.unit}</span>
-                                </div>
-                                <p className="mt-4 text-green-600 font-medium text-sm">{t.pricing.yearly.save}</p>
-                                <Link href="/dashboard" className="block w-full py-3 px-4 mt-8 bg-primary text-white font-bold rounded-xl text-center hover:bg-amber-700 transition-colors shadow-lg hover:shadow-xl hover:scale-[1.02] transform duration-200">
-                                    {t.pricing.yearly.cta}
-                                </Link>
-                                <ul className="mt-8 space-y-4">
-                                    {t.pricing.features.map((f, i) => (
-                                        <li key={i} className="flex items-center text-gray-600"><Check className="w-5 h-5 text-green-500 mr-3" /> {f}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
 
                 <section id="faq" className="py-24 bg-white">
                     <div className="container px-6 mx-auto max-w-3xl">
@@ -381,7 +333,6 @@ export function LandingPageContent() {
                                 <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
                                 <ul className="space-y-3 text-sm text-gray-600">
                                     <li><Link href="#features" className="hover:text-primary transition-colors">{t.nav.features}</Link></li>
-                                    <li><Link href="#pricing" className="hover:text-primary transition-colors">{t.nav.pricing}</Link></li>
                                     <li><Link href="#how-it-works" className="hover:text-primary transition-colors">{t.hero.ctaSecondary}</Link></li>
                                 </ul>
                             </div>
