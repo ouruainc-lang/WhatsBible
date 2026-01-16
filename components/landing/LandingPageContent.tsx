@@ -290,22 +290,22 @@ export function LandingPageContent() {
                                 <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-6">
                                     <BookOpen className="w-6 h-6 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{t.featureCards.curated.title}</h3>
-                                <p className="text-gray-600">{t.featureCards.curated.desc}</p>
+                                <h3 className="text-xl font-bold mb-3">{t.hero.featureCards.curated.title}</h3>
+                                <p className="text-gray-600">{t.hero.featureCards.curated.desc}</p>
                             </div>
                             <div className="glass-card p-8 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
                                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                                     <Clock className="w-6 h-6 text-blue-600" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{t.featureCards.schedule.title}</h3>
-                                <p className="text-gray-600">{t.featureCards.schedule.desc}</p>
+                                <h3 className="text-xl font-bold mb-3">{t.hero.featureCards.schedule.title}</h3>
+                                <p className="text-gray-600">{t.hero.featureCards.schedule.desc}</p>
                             </div>
                             <div className="glass-card p-8 rounded-2xl hover:-translate-y-1 transition-transform duration-300">
                                 <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-6">
                                     <Heart className="w-6 h-6 text-rose-600" />
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{t.featureCards.growth.title}</h3>
-                                <p className="text-gray-600">{t.featureCards.growth.desc}</p>
+                                <h3 className="text-xl font-bold mb-3">{t.hero.featureCards.growth.title}</h3>
+                                <p className="text-gray-600">{t.hero.featureCards.growth.desc}</p>
                             </div>
                         </div>
                     </div>
