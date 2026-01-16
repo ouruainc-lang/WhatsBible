@@ -133,6 +133,23 @@ export function LandingPageContent() {
                                         {t.hero.ctaSecondary}
                                     </Link>
                                 </div>
+
+                                <div className="flex items-center gap-4 justify-center lg:justify-start pt-2">
+                                    <div className="flex -space-x-3">
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <div key={i} className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${i === 1 ? 'bg-blue-500' :
+                                                    i === 2 ? 'bg-amber-500' :
+                                                        i === 3 ? 'bg-green-500' : 'bg-rose-500'
+                                                }`}>
+                                                {i === 1 ? 'JD' : i === 2 ? 'Sarah' : i === 3 ? 'MP' : 'DK'}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="text-sm font-medium text-gray-600">
+                                        ⭐⭐⭐⭐⭐ {t.hero.trusted}
+                                    </div>
+                                </div>
+
                                 <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm font-medium text-gray-500">
                                     <div className="flex items-center gap-2 flex-wrap justify-center lg:justify-start">
                                         {t.hero.benefits.map((benefit, i) => (

@@ -92,6 +92,7 @@ export const dictionaries = {
                 description: "Start your morning with purpose. Receive a hand-picked, spiritually uplifting Bible verse or reading directly to your WhatsApp every day.",
                 ctaPrimary: "Start For Free",
                 ctaSecondary: "How it Works",
+                trusted: "Loved by 100+ believers",
                 benefits: ["Cancel Anytime", "7-Day Free Trial", "No Credit Card Required", "Instant Setup"]
             },
             howItWorks: {
@@ -214,6 +215,7 @@ export const dictionaries = {
                 description: "Comece sua manhã com propósito. Receba uma palavra bíblica edificante diretamente no seu WhatsApp todos os dias.",
                 ctaPrimary: "Começar Grátis",
                 ctaSecondary: "Como Funciona",
+                trusted: "Amado por 100+ fiéis",
                 benefits: ["Cancele a Qualquer Momento", "7 Dias Grátis", "Sem Cartão de Crédito", "Instalação Instantânea"]
             },
             howItWorks: {
@@ -336,6 +338,7 @@ export const dictionaries = {
                 description: "Simulan ang iyong umaga nang may layunin. Tanggapin ang Salita ng Diyos direkta sa iyong WhatsApp araw-araw.",
                 ctaPrimary: "Magsimula nang Libre",
                 ctaSecondary: "Paano Ito Gumagana",
+                trusted: "Minamahal ng 100+ mananampalataya",
                 benefits: ["Kanselahin Anumang Oras", "7-Araw na Libreng Pagsubok", "Walang Credit Card", "Mabilis na Setup"]
             },
             howItWorks: {
