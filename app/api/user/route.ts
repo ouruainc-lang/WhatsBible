@@ -8,7 +8,7 @@ export async function PATCH(req: Request) {
     if (!session?.user) return new NextResponse("Unauthorized", { status: 401 });
 
     const body = await req.json();
-    const { deliveryTime, timezone, bibleVersion, whatsappOptIn, contentPreference, phoneNumber } = body;
+    const { deliveryTime, timezone, bibleVersion, whatsappOptIn, contentPreference, phoneNumber, systemLanguage } = body;
 
     const currentUser = await prisma.user.findUnique({ where: { id: session.user.id } });
 
@@ -18,6 +18,7 @@ export async function PATCH(req: Request) {
         bibleVersion,
         contentPreference,
         whatsappOptIn,
+        systemLanguage,
     };
 
     // Only update phone number if it's explicitly provided and different
