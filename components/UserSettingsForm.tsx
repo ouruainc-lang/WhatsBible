@@ -510,14 +510,14 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                                     user.deliveryStatus === 'paused_inactive' ? 'Paused (24h Timeout)' :
                                                         !formData.whatsappOptIn ? 'Paused by User' : 'Status Unknown'}
                                     </span>
-                                    {user.deliveryStatus === 'pending_activation' && (
+                                    {user.deliveryStatus === 'pending_activation' && ['active', 'trial', 'trialing'].includes(user.subscriptionStatus) && (
                                         <p className="text-xs text-gray-500 mt-1">
                                             <a href="https://wa.me/15079365510?text=start" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-700 font-semibold underline inline-flex items-center gap-1">
                                                 Click here to Activate (Send START) <LinkIcon className="w-3 h-3" />
                                             </a>
                                         </p>
                                     )}
-                                    {user.deliveryStatus === 'paused_inactive' && (
+                                    {user.deliveryStatus === 'paused_inactive' && ['active', 'trial', 'trialing'].includes(user.subscriptionStatus) && (
                                         <p className="text-xs text-gray-500 mt-1">
                                             No interaction in 24h.
                                             <a href="https://wa.me/15079365510?text=start" target="_blank" rel="noopener noreferrer" className="ml-1 text-green-600 hover:text-green-700 font-semibold underline inline-flex items-center gap-1">
@@ -538,7 +538,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                     >
                                         {d.ui.pause}
                                     </button>
-                                ) : (
+                                ) : ['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? (
                                     <a
                                         href="https://wa.me/15079365510?text=start"
                                         target="_blank"
@@ -548,7 +548,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         <Send className="w-3 h-3" />
                                         {d.ui.resume}
                                     </a>
-                                )}
+                                ) : null}
                             </div>
                         </div>
                     )}
