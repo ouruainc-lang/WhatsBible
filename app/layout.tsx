@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function RootLayout({
   children,
@@ -72,6 +73,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             alt=""
           />
         </noscript>
+        <Analytics />
       </body>
     </html>
   );
