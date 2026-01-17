@@ -548,7 +548,17 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                         <Send className="w-3 h-3" />
                                         {d.ui.resume}
                                     </a>
-                                ) : null}
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleSubscription}
+                                        disabled={loading}
+                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border bg-green-50 border-green-200 text-green-700 hover:bg-green-100 transition-colors flex items-center gap-2"
+                                    >
+                                        <Send className="w-3 h-3" />
+                                        {d.ui?.startReceiving || "Start Receiving Messages"}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
