@@ -397,9 +397,8 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                 numberInputProps={{
                                     className: "bg-transparent border-none outline-none w-full ml-2 text-sm text-gray-900 placeholder:text-gray-400"
                                 }}
-                                className={`flex items-center w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all ${!['active', 'trial', 'trialing'].includes(user.subscriptionStatus) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                                    }`}
-                                disabled={verifying || !['active', 'trial', 'trialing'].includes(user.subscriptionStatus)}
+                                className="flex items-center w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
+                                disabled={verifying}
                             />
                         </div>
 
@@ -410,7 +409,7 @@ export function UserSettingsForm({ user, botNumber }: { user: User, botNumber?: 
                                 <button
                                     type="button"
                                     onClick={handleSendCode}
-                                    disabled={loading || !formData.phoneNumber || resendTimer > 0 || !['active', 'trial', 'trialing'].includes(user.subscriptionStatus)}
+                                    disabled={loading || !formData.phoneNumber || resendTimer > 0}
                                     className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:bg-gray-400 flex items-center gap-2 whitespace-nowrap justify-center"
                                 >
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
