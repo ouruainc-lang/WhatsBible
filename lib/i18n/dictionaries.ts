@@ -60,6 +60,7 @@ export const dictionaries = {
             noCode: "Not receiving verification code? Click here",
             clickToSubscribe: "🔒 Click to Subscribe to enable WhatsApp delivery. 7 day Free Trial. No Credit Card. Cancel anytime.",
             subscriptionInactive: "🔒 Subscription inactive. Click to resume daily delivery.",
+            startReceiving: "Start Receiving Messages",
         },
         auth: {
             welcomeBack: "Welcome",
@@ -188,6 +189,7 @@ export const dictionaries = {
             noCode: "Não está recebendo o código? Clique aqui",
             clickToSubscribe: "🔒 Clique para Assinar e ativar o envio no WhatsApp. 7 dias Grátis. Sem Cartão. Cancele quando quiser.",
             subscriptionInactive: "🔒 Assinatura inativa. Clique para retomar o envio diário.",
+            startReceiving: "Começar a Receber Mensagens",
         },
         auth: {
             welcomeBack: "Bem-vindo",
@@ -316,6 +318,7 @@ export const dictionaries = {
             noCode: "Hindi nakakatanggap ng verification code? Mag-click dito",
             clickToSubscribe: "🔒 Mag-click para Mag-subscribe upang paganahin ang pagpapadala sa WhatsApp. 7 araw na Libreng Pagsubok. Walang Credit Card. Kanselahin anumang oras.",
             subscriptionInactive: "🔒 Hindi aktibo ang subscription. Mag-click upang ipagpatuloy ang pang-araw-araw na pagpapadala.",
+            startReceiving: "Simulan ang Pagtanggap ng Mensahe",
         },
         auth: {
             welcomeBack: "Maligayang pagdating",
